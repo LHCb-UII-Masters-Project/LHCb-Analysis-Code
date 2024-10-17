@@ -1,0 +1,13 @@
+module "Event" {
+  requires cplusplus
+  module "include/Event/uVertex.h" { header "include/Event/uVertex.h" export * }
+  module "include/Event/uComposite.h" { header "include/Event/uComposite.h" export * }
+  module "include/Event/uMCVertex.h" { header "include/Event/uMCVertex.h" export * }
+  module "include/Event/uMCParticle.h" { header "include/Event/uMCParticle.h" export * }
+  module "include/Event/uParticle.h" { header "include/Event/uParticle.h" export * }
+  module "include/Event/TrackState.h" { header "include/Event/TrackState.h" export * }
+  module "include/Event/uPi0.h" { header "include/Event/uPi0.h" export * }
+  link "libEvent.so"
+  export *
+}
+

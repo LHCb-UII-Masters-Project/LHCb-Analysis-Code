@@ -1,0 +1,28 @@
+{ decls }
+namespace std {  }
+
+[ libEvent.so ]
+# List of selected classes
+class TrackState
+class tuple<uPi0::Photon,uPi0::Photon>
+class uComposite
+class uMCParticle
+class uMCVertex
+class uParticle
+class uPi0
+class uPi0::Photon
+class uVertex
+class vector<TrackState>
+class vector<uComposite>
+class vector<uMCParticle>
+class vector<uMCVertex>
+class vector<uParticle>
+class vector<uPi0>
+class vector<uVertex>
+header Event/TrackState.h
+header Event/uComposite.h
+header Event/uMCParticle.h
+header Event/uMCVertex.h
+header Event/uParticle.h
+header Event/uPi0.h
+header Event/uVertex.h

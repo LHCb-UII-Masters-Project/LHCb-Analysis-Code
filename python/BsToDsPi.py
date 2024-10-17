@@ -42,12 +42,12 @@ gInterpreter.AddIncludePath( f'{basedir}/../include')
 gSystem.Load( f'{basedir}/../build/libEvent.so')
 
 events = TChain("Events")
-dir="/eos/lhcb/user/d/dathomps/U2_GlobOpt/Beam7000GeV-md100-nu44.2-VerExtAngle_vpOnly/13164011/velo12p5Radius_GREdit/velo12p5_GR_Bs2DsPi_HitRes12p5/moore/"
+dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um200s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 
 #for file in onlyfiles : 
-#  events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
-events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, onlyfiles[0]) ) 
+#events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
+events.AddFile( path.join(dir, onlyfiles[0]) ) 
 
 
 entry=0
