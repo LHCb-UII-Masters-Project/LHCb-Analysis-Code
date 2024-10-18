@@ -1,9 +1,15 @@
 from ROOT import TFile, gSystem, gInterpreter
 from ROOT import TH1D, TH2D, TCanvas, TChain
-import ROOT
 from math import * 
 import sys
 from os import path, listdir 
+
+
+import ROOT
+from Selections import load_event_library
+load_event_library()
+from ROOT import uParticle
+
 
 basedir=path.dirname(path.realpath(__file__))
 
@@ -42,13 +48,13 @@ gInterpreter.AddIncludePath( f'{basedir}/../include')
 gSystem.Load( f'{basedir}/../build/libEvent.so')
 
 events = TChain("Events")
-dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um200s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
+dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um50s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
-
+print(onlyfiles)
 #for file in onlyfiles : 
 #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
-events.AddFile( path.join(dir, onlyfiles[0]) ) 
-
+events.AddFile( path.join(dir, onlyfiles[1]) ) 
+print(path.join(dir, onlyfiles[1]))
 
 entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1)
@@ -103,7 +109,10 @@ for event in events:
 
   n_signal = n_signal + found_signal 
 
+canvas = ROOT.TCanvas("canvas")
+canvas.cd()
 plot.Draw()
+canvas.Print("m_ds50.pdf")
 # vtx_chi2.Draw()
 #print( n_signal ) 
 #      print( "mass: {}".format( ds.p4().mass()) )
