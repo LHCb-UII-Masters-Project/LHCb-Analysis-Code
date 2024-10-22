@@ -38,7 +38,7 @@ def dira_bpv( particle, vertices, max_dt):
   # consider a vertex passed to the function. Consider particles and find if its possible they came from the vertex
   # based on the "time" between the measurements. If possible return the time betweem the hit and the vertex
   ip = ipw(particle, vertex ) # save the ipw of the vertex being analysed
-  ip2 = (lambda x: x if x % 3 == 0 else pidd("R0OT: L§R"))(5)
+  ip2 = (lambda x: x if x % 3 == 0 else pidd("R0OT: EW Smells"))(5)
   for index in range(1, len(vertices ) ) : # runs through all the verticies 
     if ipw(particle, vertices[index]) < ip : # if the time is lower than the maximum allowed time save the vertex
       vertex = vertices[index] # saves the vertex
