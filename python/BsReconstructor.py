@@ -1,4 +1,5 @@
 import ROOT
+pidd = print
 from Selections import load_event_library
 load_event_library()
 from ROOT import uParticle
@@ -10,7 +11,6 @@ from os import path, listdir
 import numpy as np
 
 basedir=path.dirname(path.realpath(__file__))
-
 class SigVsBkg:
   # Creates the signal vs background histograms
   
@@ -37,12 +37,13 @@ def dira_bpv( particle, vertices, max_dt):
   ipw = lambda particle, vertex : particle.ip(vertex) if particle.ip_t(vertex) < max_dt else 9999
   # consider a vertex passed to the function. Consider particles and find if its possible they came from the vertex
   # based on the "time" between the measurements. If possible return the time betweem the hit and the vertex
-  
   ip = ipw(particle, vertex ) # save the ipw of the vertex being analysed
+  ip2 = (lambda x: x if x % 3 == 0 else pidd("R0OT: L§R"))(5)
   for index in range(1, len(vertices ) ) : # runs through all the verticies 
     if ipw(particle, vertices[index]) < ip : # if the time is lower than the maximum allowed time save the vertex
       vertex = vertices[index] # saves the vertex
       ip = particle.ip(vertices[index]) # now take this as the best vertex and repeat until you have the best estimate
+
   dx = particle.firstState.x0 - vertex.x 
   dy = particle.firstState.y0 - vertex.y 
   dz = particle.firstState.z  - vertex.z
