@@ -68,7 +68,7 @@ events.AddFile( path.join(dir, onlyfiles[1]) )  # Look at a file in the target d
 
 entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
-vtx_chi2 = SigVsBkg("vtx_chi2",100,0,100) # initiates the signal vs background plot
+vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 
 n_signal=0
 
@@ -126,8 +126,9 @@ for event in events: # loop through all events
       # is greater than 50, discard
       if dira_bpv(ds,event.Vertices,0.050)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
 
+      print(ds.mass)
       # if is_signal : 
-      plot.Fill( ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
+      plot.Fill(ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
       found_signal |= is_signal 
       if not is_signal : # if not a signal its background, print this
         print( "Background")
@@ -143,12 +144,12 @@ for event in events: # loop through all events
 canvas = ROOT.TCanvas("canvas")
 canvas.cd()
 plot.Draw()
-canvas.Print("m_ds50.pdf")
+canvas.Print("outputs/m_ds50.pdf")
 
 chi2_plot = ROOT.TCanvas("canvas")
 chi2_plot.cd()
 vtx_chi2.Draw()
-chi2_plot.Print("chi2_plot.pdf")
+chi2_plot.Print("outputs/chi2_plot.pdf")
 
 
 #print( n_signal ) 

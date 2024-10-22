@@ -18,7 +18,6 @@ class SigVsBkg:
     self.signal = ROOT.TH1D( name +"_signal","",nBins, min,max ) # initialises 1D histogram for signal
     self.background = ROOT.TH1D( name +"_bkg","",nBins, min,max) # initialises 1D histogram for the background
   def Fill( self, x, isSignal ) : 
-    print("find me") # hidden print statement to annoy Jack
     if isSignal : self.signal.Fill(x) # fills the signal histogram with values if it is the signal
     else:  self.background.Fill(x) # fills the background histogram with values if it is the background
   def Draw(self ) : # Draws the histogram
@@ -69,10 +68,12 @@ events.AddFile( path.join(dir, onlyfiles[1]) )  # Look at a file in the target d
 #print(path.join(dir, onlyfiles[1]))
 
 entry=0
-ds_plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
-bs_plot = ROOT.TH1D("m_bs","",100,1.9,3.0) # initiates the mass plot
+ds_plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot, adjust last 2 arguments for max and min
+bs_plot = ROOT.TH1D("m_bs","",100,2,3) # initiates the mass plot
 
 vtx_chi2 = SigVsBkg("vtx_chi2",100,0,100) # initiates the signal vs background plot
+bs_chi2 = SigVsBkg("bs_vtx_chi2",100,0,20) # initiates the signal vs background plot
+
 
 n_signal=0
 
@@ -113,6 +114,8 @@ for event in events: # loop through all events
       ds = ROOT.uParticle( [k1,k2,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
       # and a pion
 
+      bs_vtx = ROOT.uVertex([ds,pion])
+
       bs = ROOT.uParticle( [ds,pion] )
 
       is_signal = is_from(k1, event, 431) and is_from(k2, event, 431) and is_from(pion, event,431)
@@ -124,20 +127,34 @@ for event in events: # loop through all events
       if k1.pt() + k2.pt() + pion.pt() < 1800 : continue # insufficient momentum to create a phi, discard
       if ds.mass < 1800 or ds.mass  > 2100 : continue # insufficient mass to create D particle, discard
 
-      pv  = ds.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
+      pv  = ds.bpv_4d( event.Vertices ) # pv: primary vertex, finds best possible vertex for the considered
       # particle (minimum Chi squared) 
 
-#      vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
-      if ds_vtx.chi2_distance(pv) < 50 : continue # if the product of the Chi squareds of the particle and the vertex
-      # is greater than 50, discard
-      if dira_bpv(ds,event.Vertices,0.050)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
+      b_pv = bs.bpv_4d(event.Vertices)
 
+
+#      vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
+      if ds_vtx.chi2_distance(pv) and bs_vtx.chi2_distance(b_pv) < 50 : continue # if the product of the Chi squareds of the particle and the vertex
+      # is greater than 50, discard
+      if dira_bpv(ds,event.Vertices,0.050) and dira_bpv(bs,event.Vertices,0.050) < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
+      
+      def vertex_distance(vertex1,vertex2):
+        d = lambda i: getattr(vertex1, i) - getattr(vertex2, i) # vertex1.i - vertex2.i
+        return( np.sqrt(d('x')**2 + d('y')**2 + d('z')**2))
+      
+
+      if vertex_distance(b_pv,pv) > 0.0 : continue
+      if bs_vtx.chi2 / bs_vtx.ndof > 5 : continue 
+      if bs.mass < 2300 or bs.mass  > 2700 : continue 
+
+      bs_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_signal)
+      
+                  
       # if is_signal : 
       ds_plot.Fill( ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
       bs_plot.Fill( bs.mass * 0.001)
       
-      print(str(bs.mass))
-      found_signal |= is_signal 
+            #found_signal |= is_signal 
       #if not is_signal : # if not a signal its background, print this
         #print( "Background")
         #print_mc_particle( k1, event.MCParticles) 
@@ -147,11 +164,21 @@ for event in events: # loop through all events
   n_signal = n_signal + found_signal 
 
 
+
+
+# Plotting
+
 canvas = ROOT.TCanvas("canvas")
 canvas.cd()
 bs_plot.Draw()
 canvas.Print("m_bs50.pdf")
-# vtx_chi2.Draw()
+
+
+canvas2 = ROOT.TCanvas("canvas")
+bs_chi2.Draw()
+canvas2.Print("b_vtx_chi2.pdf")
+
+
 #print( n_signal ) 
 #      print( "mass: {}".format( ds.p4().mass()) )
 #      print_mc_particle( pion, event.MCParticles )     
