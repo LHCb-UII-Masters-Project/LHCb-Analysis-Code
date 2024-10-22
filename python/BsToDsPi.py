@@ -137,11 +137,20 @@ for event in events: # loop through all events
 
   n_signal = n_signal + found_signal 
 
+
+### Plotting 
+
 canvas = ROOT.TCanvas("canvas")
 canvas.cd()
 plot.Draw()
 canvas.Print("m_ds50.pdf")
-# vtx_chi2.Draw()
+
+chi2_plot = ROOT.TCanvas("canvas")
+chi2_plot.cd()
+vtx_chi2.Draw()
+chi2_plot.Print("chi2_plot.pdf")
+
+
 #print( n_signal ) 
 #      print( "mass: {}".format( ds.p4().mass()) )
 #      print_mc_particle( pion, event.MCParticles )     
