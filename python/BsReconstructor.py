@@ -94,7 +94,7 @@ for event in events: # loop through all events
   entry = entry + 1 # entry is the event being examined
   nPVs = npvs( event ) # the number of primary verticies in an event
   found_signal = False # placeholder for when a signal is found, default of no signal found
-  print( f"{entry} {nPVs} {len(good_pions)} {len(good_kaons)}") # prints event information
+  #print( f"{entry} {nPVs} {len(good_pions)} {len(good_kaons)}") # prints event information
   phi_candidates = ROOT.combine( kp, km, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
 
@@ -127,19 +127,16 @@ for event in events: # loop through all events
       if ds_vtx.chi2_distance(pv) < 50 : continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
       if dira_bpv(ds,event.Vertices,0.050)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
-
-      dp_candidate = ROOT.combine( phi, pion, doca_cut, 15, int(1))
       
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
       for pion2 in good_pions:
-        for p1, p2, d, d_vtx in dp_candidate:
-          bs_vtx = ROOT.uVertex( [p1, p2, pion2] )
-          bs = ROOT.uParticle( [p1,p2,pion2] )
-          is_b_signal = is_from(k1, event, 431) and is_from(k2, event, 431) and is_from(pion, event,431) and is_from(pion2, event,431)
+          bs_vtx = ROOT.uVertex( [ds, pion2] )
+          bs = ROOT.uParticle( [ds,pion2] )
+          is_b_signal = is_from(ds, event, 431) and is_from(pion2, event,431)
 
           b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
           if bs_vtx.chi2 / bs_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
-          if p1.pt() + p2.pt() + pion2.pt() < 1800 : continue # insufficient momentum to create a phi, discard
+          if ds.pt() + pion2.pt() < 1800 : continue # insufficient momentum to create a phi, discard
           if bs.mass < 1800 or bs.mass  > 9000 : continue
 
           b_pv  = bs.bpv_4d( event.Vertices )
@@ -148,13 +145,8 @@ for event in events: # loop through all events
           print(bs.mass)
           b_plot.Fill(bs.mass * 0.001)
 
-
-
-
-
-      print(ds.mass)
       # if is_signal : 
-      plot.Fill(ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
+      #plot.Fill(ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
       found_signal |= is_signal 
       # if not is_signal : # if not a signal its background, print this
         # print( "Background")
@@ -165,17 +157,12 @@ for event in events: # loop through all events
   n_signal = n_signal + found_signal 
 
 
-### Plotting 
+### Plotting
 
-canvas = ROOT.TCanvas("canvas")
-canvas.cd()
-plot.Draw()
-canvas.Print("outputs/m_ds50.pdf")
-
-chi2_plot = ROOT.TCanvas("canvas")
-chi2_plot.cd()
-vtx_chi2.Draw()
-chi2_plot.Print("outputs/chi2_plot.pdf")
+b_plot_canvas = ROOT.TCanvas("canvas")
+b_plot_canvas.cd()
+b_plot.Draw()
+b_plot.Print("outputs/b_mass_plot.pdf")
 
 
 #print( n_signal ) 
