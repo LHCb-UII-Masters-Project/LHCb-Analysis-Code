@@ -69,7 +69,7 @@ events.AddFile( path.join(dir, onlyfiles[1]) )  # Look at a file in the target d
 entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
-b_plot = ROOT.TH1D("m_bs","",100,1.8,9)
+b_plot = ROOT.TH1D("m_bs","",100,5,6)
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
 
 n_signal=0
@@ -136,8 +136,8 @@ for event in events: # loop through all events
 
           b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
           if bs_vtx.chi2 / bs_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
-          if ds.pt() + pion2.pt() < 1800 : continue # insufficient momentum to create a phi, discard
-          if bs.mass < 1800 or bs.mass  > 9000 : continue
+          if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
+          if bs.mass < 5000 or bs.mass  > 6000 : continue
 
           b_pv  = bs.bpv_4d( event.Vertices )
           if bs_vtx.chi2_distance(b_pv) < 50 : continue 
@@ -162,7 +162,7 @@ for event in events: # loop through all events
 b_plot_canvas = ROOT.TCanvas("canvas")
 b_plot_canvas.cd()
 b_plot.Draw()
-b_plot.Print("outputs/b_mass_plot.pdf")
+b_plot_canvas.Print("outputs/b_mass_plot.pdf")
 
 
 #print( n_signal ) 
