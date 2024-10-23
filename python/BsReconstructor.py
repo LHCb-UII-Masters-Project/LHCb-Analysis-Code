@@ -61,10 +61,11 @@ events = TChain("Events") # connects all the events into a single data set
 dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um50s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
-#for file in onlyfiles : 
-#events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
-events.AddFile( path.join(dir, onlyfiles[1]) )  # Look at a file in the target directory for analysis
-#print(path.join(dir, onlyfiles[1]))
+for index,file in enumerate(onlyfiles, start=0):
+  if index < 5:
+    #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
+    events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
+    print(path.join(dir, file))
 
 entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
@@ -142,7 +143,6 @@ for event in events: # loop through all events
           b_pv  = bs.bpv_4d( event.Vertices )
           if bs_vtx.chi2_distance(b_pv) < 50 : continue 
           if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
-          print(bs.mass)
           b_plot.Fill(bs.mass * 0.001)
 
       # if is_signal : 
