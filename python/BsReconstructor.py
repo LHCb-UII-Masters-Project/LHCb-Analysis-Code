@@ -3,7 +3,7 @@ from Selections import load_event_library
 load_event_library()
 from ROOT import uParticle
 from ROOT import TFile, gSystem, gInterpreter
-from ROOT import TH1D, TH2D, TCanvas, TChain
+from ROOT import TH1D, TH2D, TCanvas, TChain, TRandom
 from math import * 
 import sys
 from os import path, listdir 
@@ -87,8 +87,12 @@ for event in events: # loop through all events
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
 
-  print("Euan's Addition")
-  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # narrows particels to only good pions or
+  # good_pions = [ track for track, index in enumerate(displaced_tracks) if abs( track.trueID ) == 211 and index%100!=99 ] # narrows particels to only good pions and ignores 1/100
+  # bad_pions = [ track for track, index in enumerate(displaced_tracks) if abs( track.trueID ) != 211 and index%100!=99] # Gets some non pions to add into the pion's ID'd
+  rand = int(ROOT.TRandom().Integer(100))
+  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and rand!=12 ]
+  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and rand!=23 ]
+  pions = good_pions + bad_pions
   good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] #  good kaons
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
@@ -96,13 +100,13 @@ for event in events: # loop through all events
   entry = entry + 1 # entry is the event being examined
   nPVs = npvs( event ) # the number of primary verticies in an event
   found_signal = False # placeholder for when a signal is found, default of no signal found
-  #print( f"{entry} {nPVs} {len(good_pions)} {len(good_kaons)}") # prints event information
+  #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)}") # prints event information
   phi_candidates = ROOT.combine( kp, km, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
 
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
-  for pion in good_pions : 
+  for pion in pions : 
     for k1,k2,phi,phi_vtx in phi_candidates: 
       # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
       # created by the kaons, and phi_vtx is the vertex in which the combination occurs
@@ -131,7 +135,7 @@ for event in events: # loop through all events
       if dira_bpv(ds,event.Vertices,0.050)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
       
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
-      for pion2 in good_pions:
+      for pion2 in pions:
           bs_vtx = ROOT.uVertex( [ds, pion2] )
           bs = ROOT.uParticle( [ds,pion2] )
           is_b_signal = is_from(ds, event, 431) and is_from(pion2, event,431)
@@ -171,5 +175,3 @@ b_plot_canvas.Print("outputs/b_mass_plot.pdf")
 #      print_mc_particle( pion, event.MCParticles )     
 #      print_mc_particle( k1, event.MCParticles )     
 #      print_mc_particle( k2, event.MCParticles )     
-
-# push pull test
