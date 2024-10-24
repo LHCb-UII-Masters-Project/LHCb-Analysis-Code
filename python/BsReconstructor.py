@@ -79,13 +79,12 @@ n_signal=0
 
 
 def eff_model(df):
-  root_arrays = lambda df: (np.array(df.iloc[:, 0].astype(float)), np.array(df.iloc[:, 1].astype(float)))
-  x, y = root_arrays(df)
+  x, y = np.array(df.iloc[:, 0].astype(float)), np.array(df.iloc[:, 1].astype(float))
   scatter_plot = ROOT.TGraph(len(x), x, y)
   linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
   scatter_plot.Fit(linear_function)
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
-
+  
 r1_model = eff_model(pd.read_csv('PEff Kaons/Region 1.csv', skiprows=1))
 r2_model = eff_model(pd.read_csv('PEff Kaons/Region 2.csv', skiprows=1))
 r3_model = eff_model(pd.read_csv('PEff Kaons/Region 3.csv', skiprows=1))
