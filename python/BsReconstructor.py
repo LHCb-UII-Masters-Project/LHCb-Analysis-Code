@@ -87,6 +87,7 @@ for event in events: # loop through all events
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
 
+  print("Euan's Addition")
   good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # narrows particels to only good pions or
   good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] #  good kaons
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
