@@ -84,7 +84,7 @@ def eff_model(df):
   linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
   scatter_plot.Fit(linear_function)
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
-  
+
 r1_model = eff_model(pd.read_csv('PEff Kaons/Region 1.csv', skiprows=1))
 r2_model = eff_model(pd.read_csv('PEff Kaons/Region 2.csv', skiprows=1))
 r3_model = eff_model(pd.read_csv('PEff Kaons/Region 3.csv', skiprows=1))
@@ -105,13 +105,29 @@ for event in events: # loop through all events
 
   # good_pions = [ track for track, index in enumerate(displaced_tracks) if abs( track.trueID ) == 211 and index%100!=99 ] # narrows particels to only good pions and ignores 1/100
   # bad_pions = [ track for track, index in enumerate(displaced_tracks) if abs( track.trueID ) != 211 and index%100!=99] # Gets some non pions to add into the pion's ID'd
-  rand = int(ROOT.TRandom().Integer(100))
   
-  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and rand!=12 ]
-  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and rand!=23 ]
+  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(ROOT.TRandom().Integer(100))!=12 ]
+  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(ROOT.TRandom().Integer(100))==23 ] # SHOULD THIS BE = 23 not !=23
   pions = good_pions + bad_pions
   
-  good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] #  good kaons
+  unadjusted_good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] #  good kaons
+  good_kaons = []
+  for kaon in unadjusted_good_kaons:
+    k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2)
+    # Adjust conditions and use nested conditionals for efficiency
+    if k_p < 2000 and int(ROOT.TRandom().Integer(100)) < (r1_model[1] * k_p + r1_model[0]) * 100:
+        good_kaons.append(kaon)
+    elif 1800 < k_p < 8*10**9 and int(ROOT.TRandom().Integer(100)) < (r2_model[1] * k_p + r2_model[0]) * 100:
+        good_kaons.append(kaon)
+    elif k_p > 8 * 10**9 and int(ROOT.TRandom().Integer(100)) < (r3_model[1] * k_p + r3_model[0]) * 100:
+        good_kaons.append(kaon)
+
+        
+        
+
+       
+
+      
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
 
