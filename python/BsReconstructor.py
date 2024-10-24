@@ -7,6 +7,7 @@ from ROOT import TH1D, TH2D, TCanvas, TChain, TRandom
 from math import * 
 import pandas as pd
 import sys
+import numpy as np
 from os import path, listdir 
 
 basedir=path.dirname(path.realpath(__file__))
@@ -76,6 +77,21 @@ b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
 
 n_signal=0
 
+
+def eff_model(df):
+  root_arrays = lambda df: (np.array(df.iloc[:, 0].astype(float)), np.array(df.iloc[:, 1].astype(float)))
+  x, y = root_arrays(df)
+  scatter_plot = ROOT.TGraph(len(x), x, y)
+  linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
+  scatter_plot.Fit(linear_function)
+  return(linear_function.GetParameter(0), linear_function.GetParameter(1))
+
+r1_model = eff_model(pd.read_csv('PEff Kaons/Region 1.csv', skiprows=1))
+r2_model = eff_model(pd.read_csv('PEff Kaons/Region 2.csv', skiprows=1))
+r3_model = eff_model(pd.read_csv('PEff Kaons/Region 3.csv', skiprows=1))
+r4_model = eff_model(pd.read_csv('PEff Kaons/Region 4.csv', skiprows=1))
+r5_model = eff_model(pd.read_csv('PEff Kaons/Region 5.csv', skiprows=1))
+
 for event in events: # loop through all events
   
   # scaled_tracks = []
@@ -99,31 +115,6 @@ for event in events: # loop through all events
   good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] #  good kaons
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
-
-
-  df = pd.read_csv('yourfile.csv', skiprows=1)
-
-# Extract the first column
-  first_column = df.iloc[:, 0]
-  r1_eff_data = pd.read_csv('.csv', skiprows=1)
-  r2_eff_data = pd.read_csv('yourfile.csv', skiprows=1)
-  r3_eff_data = pd.read_csv('yourfile.csv', skiprows=1)
-  r4_eff_data = pd.read_csv('yourfile.csv', skiprows=1)
-  r5_eff_data = pd.read_csv('yourfile.csv', skiprows=1)
-
-  def lin_fit(df):
-    root_arrays = lambda df: (array('d', df.iloc[:, 0]), array('d', df.iloc[:, 1]))
-    x, y = root_arrays(df)
-    scatter_plot = ROOT.TGraph(len(df), x, y)
-    linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(y))
-    scatter_plot.Fit(linear_function)
-    return(linear_function.GetParameter(0), linear_function.GetParameter(1))
-
-
-  
-
-    
-
 
 
 
