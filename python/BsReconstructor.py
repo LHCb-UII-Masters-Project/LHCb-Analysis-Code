@@ -11,8 +11,10 @@ import sys
 import numpy as np
 from os import path, listdir
 import os
-rand = ROOT.TRandom()
-rand.SetSeed(int(time.time() * os.getpid()))
+# Random number generator for introducing the detector efficiency
+rand = ROOT.TRandom() # creates a random number engine
+rand.SetSeed(int(time.time() * os.getpid())) # sets the random number engine to be time dependent and dependent
+# on the process id - ensures randomness when ran in batch
 
 basedir=path.dirname(path.realpath(__file__))
 
@@ -110,17 +112,14 @@ for event in events: # loop through all events
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
 
-  # good_pions = [ track for track, index in enumerate(displaced_tracks) if abs( track.trueID ) == 211 and index%100!=99 ] # narrows particels to only good pions and ignores 1/100
-  # bad_pions = [ track for track, index in enumerate(displaced_tracks) if abs( track.trueID ) != 211 and index%100!=99] # Gets some non pions to add into the pion's ID'd
-  
-  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ]
-  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # SHOULD THIS BE = 23 not !=23
+  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
+  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
   pions = good_pions + bad_pions
   
-  unadjusted_good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] #  good kaons
-  good_kaons = []
+  unadjusted_good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] # all kaons
+  good_kaons = [] # initialised list to be filled with good kaons
   for kaon in unadjusted_good_kaons:
-    k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2)
+    k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
     # Adjust conditions and use nested conditionals for efficiency
     if k_p <= 1260*(10**3) and int(rand.Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
         good_kaons.append(kaon)
