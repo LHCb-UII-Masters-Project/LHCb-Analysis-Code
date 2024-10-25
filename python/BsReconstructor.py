@@ -115,25 +115,15 @@ for event in events: # loop through all events
   for kaon in unadjusted_good_kaons:
     k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2)
     # Adjust conditions and use nested conditionals for efficiency
-    if k_p < 2000 and int(ROOT.TRandom().Integer(100)) < (r1_model[1] * k_p + r1_model[0]) * 100:
+    if k_p <= 1260*(10**3) and int(ROOT.TRandom().Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
         good_kaons.append(kaon)
-    elif 1800 < k_p < 8*10**9 and int(ROOT.TRandom().Integer(100)) < (r2_model[1] * k_p + r2_model[0]) * 100:
+    elif 1260*(10**3) < k_p <= 8*10**11 and int(ROOT.TRandom().Rndm()) <= (r2_model[1] * k_p + r2_model[0]):
         good_kaons.append(kaon)
-    elif k_p > 8 * 10**9 and int(ROOT.TRandom().Integer(100)) < (r3_model[1] * k_p + r3_model[0]) * 100:
+    elif k_p > 8 * 10**11 and int(ROOT.TRandom().Rndm()) <= (r3_model[1] * k_p + r3_model[0]):
         good_kaons.append(kaon)
-
-        
-        
-
-       
-
-      
+ 
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
-
-
-
-
   doca_cut = 0.10 # distance of closest approach cutoff, maximum allowed closest approach for consideration
   entry = entry + 1 # entry is the event being examined
   nPVs = npvs( event ) # the number of primary verticies in an event
