@@ -4,11 +4,15 @@ load_event_library()
 from ROOT import uParticle
 from ROOT import TFile, gSystem, gInterpreter
 from ROOT import TH1D, TH2D, TCanvas, TChain, TRandom
+import time
 from math import * 
 import pandas as pd
 import sys
 import numpy as np
-from os import path, listdir 
+from os import path, listdir
+import os
+rand = ROOT.TRandom()
+rand.SetSeed(int(time.time() * os.getpid()))
 
 basedir=path.dirname(path.realpath(__file__))
 
@@ -73,6 +77,9 @@ entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 b_plot = ROOT.TH1D("m_bs","",100,5.25,5.45)
+b_plot.SetTitle("Reconstructed B^s Mass Plot 2")
+b_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
+b_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
 
 n_signal=0
@@ -106,8 +113,8 @@ for event in events: # loop through all events
   # good_pions = [ track for track, index in enumerate(displaced_tracks) if abs( track.trueID ) == 211 and index%100!=99 ] # narrows particels to only good pions and ignores 1/100
   # bad_pions = [ track for track, index in enumerate(displaced_tracks) if abs( track.trueID ) != 211 and index%100!=99] # Gets some non pions to add into the pion's ID'd
   
-  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(ROOT.TRandom().Integer(100))!=12 ]
-  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(ROOT.TRandom().Integer(100))==23 ] # SHOULD THIS BE = 23 not !=23
+  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ]
+  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # SHOULD THIS BE = 23 not !=23
   pions = good_pions + bad_pions
   
   unadjusted_good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] #  good kaons
@@ -115,17 +122,17 @@ for event in events: # loop through all events
   for kaon in unadjusted_good_kaons:
     k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2)
     # Adjust conditions and use nested conditionals for efficiency
-    if k_p <= 1260*(10**3) and int(ROOT.TRandom().Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
+    if k_p <= 1260*(10**3) and int(rand.Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
         good_kaons.append(kaon)
-    elif 1260*(10**3) < k_p <= 8*10**11 and int(ROOT.TRandom().Rndm()) <= (r2_model[1] * k_p + r2_model[0]):
+    elif 1260*(10**3) < k_p <= 8*10**11 and int(rand.Rndm()) <= (r2_model[1] * k_p + r2_model[0]):
         good_kaons.append(kaon)
-    elif k_p > 8 * 10**11 and int(ROOT.TRandom().Rndm()) <= (r3_model[1] * k_p + r3_model[0]):
+    elif k_p > 8 * 10**11 and int(rand.Rndm()) <= (r3_model[1] * k_p + r3_model[0]):
         good_kaons.append(kaon)
  
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
   doca_cut = 0.10 # distance of closest approach cutoff, maximum allowed closest approach for consideration
-  entry = entry + 1 # entry is the event being examined
+  
   nPVs = npvs( event ) # the number of primary verticies in an event
   found_signal = False # placeholder for when a signal is found, default of no signal found
   #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)}") # prints event information
@@ -177,6 +184,7 @@ for event in events: # loop through all events
           if bs_vtx.chi2_distance(b_pv) < 50 : continue 
           if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
           b_plot.Fill(bs.mass * 0.001)
+          entry = entry + 1 # entry is the event being examined
 
       # if is_signal : 
       #plot.Fill(ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
