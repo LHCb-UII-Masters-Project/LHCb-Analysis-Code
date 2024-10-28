@@ -70,7 +70,7 @@ dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-V
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
-  if index < 5:
+  if index < 2:
     #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
     events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
     print(path.join(dir, file))
@@ -215,7 +215,8 @@ for event in events: # loop through all events
 b_plot_canvas = ROOT.TCanvas("canvas")
 b_plot_canvas.cd()
 b_plot.Draw()
-b_plot_canvas.Print("outputs/b_mass_plot.pdf")
+b_plot_canvas.Print("outputs/b_mass_plot " + time.strftime("%d-%m-%y %H:%M:%S", time.localtime()) + ".pdf")
+# Insert global time resolution variable here
 
 
 #print( n_signal ) 
