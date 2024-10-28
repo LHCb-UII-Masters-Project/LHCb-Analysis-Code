@@ -66,7 +66,7 @@ gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the 
 events = TChain("Events") # connects all the events into a single data set
 
 # can be changed to look at different timing resolutions and detector geometries
-dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um50s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
+dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um200s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
@@ -96,9 +96,10 @@ def eff_model(df):
 
 if True == True:
   t_res_str = "300"
-  boundaries = [150,250,350,380]
+  boundaries = [3.3,10, 30, 60, 100]
 else:
   t_res_str = "150"
+  boundaries = [5, 30, 80, 200]
 
 r1_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 1.csv', skiprows=1))
 r2_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 2.csv', skiprows=1))
@@ -127,12 +128,18 @@ for event in events: # loop through all events
   for kaon in unadjusted_good_kaons:
     k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
     # Adjust conditions and use nested conditionals for efficiency
-    if k_p <= 1260*(10**3) and int(rand.Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
+    if k_p < boundaries[0]*(10**3) and int(rand.Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
         good_kaons.append(kaon)
-    elif 1260*(10**3) < k_p <= 8*10**11 and int(rand.Rndm()) <= (r2_model[1] * k_p + r2_model[0]):
+    elif boundaries[0]*(10**3) <= k_p < boundaries[1]*(10**3) and int(rand.Rndm()) <= (r2_model[1] * k_p + r2_model[0]):
         good_kaons.append(kaon)
-    elif k_p > 8 * 10**11 and int(rand.Rndm()) <= (r3_model[1] * k_p + r3_model[0]):
+    elif boundaries[1]*(10**3) <= k_p and k_p < boundaries[2]*(10**3) and int(rand.Rndm()) <= (r3_model[1] * k_p + r3_model[0]):
         good_kaons.append(kaon)
+    elif boundaries[2]*(10**3) <= k_p and k_p < boundaries[3]*(10**3) and int(rand.Rndm()) <= (r4_model[1] * k_p + r4_model[0]):
+        good_kaons.append(kaon)
+    elif boundaries[3]*(10**3) <= k_p and k_p < boundaries[4]*(10**3) and int(rand.Rndm()) <= (r5_model[1] * k_p + r5_model[0]):
+        good_kaons.append(kaon)
+    else:
+       continue
  
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
