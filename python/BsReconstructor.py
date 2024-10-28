@@ -70,7 +70,7 @@ dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-V
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
-  if index < 5:
+  if index < 2:
     #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
     events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
     print(path.join(dir, file))
@@ -94,11 +94,17 @@ def eff_model(df):
   scatter_plot.Fit(linear_function)
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
 
-r1_model = eff_model(pd.read_csv('PEff Kaons/Region 1.csv', skiprows=1))
-r2_model = eff_model(pd.read_csv('PEff Kaons/Region 2.csv', skiprows=1))
-r3_model = eff_model(pd.read_csv('PEff Kaons/Region 3.csv', skiprows=1))
-r4_model = eff_model(pd.read_csv('PEff Kaons/Region 4.csv', skiprows=1))
-r5_model = eff_model(pd.read_csv('PEff Kaons/Region 5.csv', skiprows=1))
+if True == True:
+  t_res_str = "300"
+  boundaries = [150,250,350,380]
+else:
+  t_res_str = "150"
+
+r1_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 1.csv', skiprows=1))
+r2_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 2.csv', skiprows=1))
+r3_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 3.csv', skiprows=1))
+r4_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 4.csv', skiprows=1))
+r5_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 5.csv', skiprows=1))
 
 for event in events: # loop through all events
   
