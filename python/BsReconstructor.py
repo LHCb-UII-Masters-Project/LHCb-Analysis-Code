@@ -66,11 +66,11 @@ gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the 
 events = TChain("Events") # connects all the events into a single data set
 
 # can be changed to look at different timing resolutions and detector geometries
-dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um200s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
+dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um50s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
-  if index < 2:
+  if index < 5:
     #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
     events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
     print(path.join(dir, file))
@@ -79,7 +79,7 @@ entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 b_plot = ROOT.TH1D("m_bs","",100,5.25,5.45)
-b_plot.SetTitle("Reconstructed B^s Mass Plot 2")
+b_plot.SetTitle("Reconstructed B^s Mass Plot " + "2") # Insert global variable here
 b_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 b_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
@@ -94,12 +94,12 @@ def eff_model(df):
   scatter_plot.Fit(linear_function)
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
 
-if True == True:
+if True == False:
   t_res_str = "300"
   boundaries = [3.3,10, 30, 60, 100]
 else:
   t_res_str = "150"
-  boundaries = [5, 30, 80, 200]
+  boundaries = [5, 30, 80, 200, 201]
 
 r1_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 1.csv', skiprows=1))
 r2_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 2.csv', skiprows=1))
