@@ -99,11 +99,7 @@ eff_directory = os.path.join(basedir, 'PEff Kaons_300') if timing == 300 else os
 eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
 boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
 
-r1_model = eff_model(eff_dfs[0])
-r2_model = eff_model(eff_dfs[1])
-r3_model = eff_model(eff_dfs[2])
-r4_model = eff_model(eff_dfs[3])
-r5_model = eff_model(eff_dfs[4]) if timing == 300 else [0, 0]
+models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if timing == 300 else None]
 
 for event in events: # loop through all events
   
@@ -134,7 +130,7 @@ for event in events: # loop through all events
         good_kaons.append(kaon)
     elif boundaries[2] <= k_p and k_p < boundaries[3]*(10**3) and int(rand.Rndm()) <= (r4_model[1] * k_p + r4_model[0]):
         good_kaons.append(kaon)
-    elif boundaries[3] <= k_p and int(rand.Rndm()) <= (r5_model[1] * k_p + r5_model[0]):
+    elif timing == 300 and len(boundaries) > 3 and boundaries[3] <= k_p and int(rand.Rndm()) <= (r5_model[1] * k_p + r5_model[0]) :
         good_kaons.append(kaon)
     else:
        continue
