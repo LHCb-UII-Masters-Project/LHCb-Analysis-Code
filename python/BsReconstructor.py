@@ -16,7 +16,7 @@ rand = ROOT.TRandom() # creates a random number engine
 rand.SetSeed(int(time.time() * os.getpid())) # sets the random number engine to be time dependent and dependent
 # on the process id - ensures randomness when ran in batch
 
-timing = 300
+timing = 150
 
 basedir=path.dirname(path.realpath(__file__))
 
@@ -79,7 +79,7 @@ entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 b_plot = ROOT.TH1D("m_bs","",100,5.25,5.45)
-b_plot.SetTitle("Reconstructed B^s Mass Plot " + "2") # Insert global variable here
+b_plot.SetTitle("Reconstructed B^s Mass Plot t = " + str(timing)) 
 b_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 b_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
@@ -122,19 +122,11 @@ for event in events: # loop through all events
   for kaon in unadjusted_good_kaons:
     k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
     # Adjust conditions and use nested conditionals for efficiency
-    if k_p < boundaries[0] and int(rand.Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
+    for i in range(len(boundaries)):
+      if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and int(rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
         good_kaons.append(kaon)
-    elif boundaries[0] <= k_p < boundaries[1]*(10**3) and int(rand.Rndm()) <= (r2_model[1] * k_p + r2_model[0]):
-        good_kaons.append(kaon)
-    elif boundaries[1] <= k_p and k_p < boundaries[2]*(10**3) and int(rand.Rndm()) <= (r3_model[1] * k_p + r3_model[0]):
-        good_kaons.append(kaon)
-    elif boundaries[2] <= k_p and k_p < boundaries[3]*(10**3) and int(rand.Rndm()) <= (r4_model[1] * k_p + r4_model[0]):
-        good_kaons.append(kaon)
-    elif timing == 300 and len(boundaries) > 3 and boundaries[3] <= k_p and int(rand.Rndm()) <= (r5_model[1] * k_p + r5_model[0]) :
-        good_kaons.append(kaon)
-    else:
-       continue
- 
+        continue
+
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
   doca_cut = 0.10 # distance of closest approach cutoff, maximum allowed closest approach for consideration
@@ -209,8 +201,8 @@ for event in events: # loop through all events
 b_plot_canvas = ROOT.TCanvas("canvas")
 b_plot_canvas.cd()
 b_plot.Draw()
-b_plot_canvas.Print("outputs/b_mass_plot " + time.strftime("%d-%m-%y %H:%M:%S", time.localtime()) + ".pdf")
-# Insert global time resolution variable here
+b_plot_canvas.Print("outputs/b_mass_plot_" + str(timing) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".pdf")
+
 
 
 #print( n_signal ) 
