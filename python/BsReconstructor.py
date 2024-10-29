@@ -16,6 +16,8 @@ rand = ROOT.TRandom() # creates a random number engine
 rand.SetSeed(int(time.time() * os.getpid())) # sets the random number engine to be time dependent and dependent
 # on the process id - ensures randomness when ran in batch
 
+timing = 300
+
 basedir=path.dirname(path.realpath(__file__))
 
 class SigVsBkg:
@@ -70,11 +72,9 @@ dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-V
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
-  if index < 2:
+  if index < 5:
     #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
     events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
-    print(path.join(dir, file))
-
 entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
@@ -86,26 +86,24 @@ b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
 
 n_signal=0
 
-
 def eff_model(df):
-  x, y = np.array(df.iloc[:, 0].astype(float)), np.array(df.iloc[:, 1].astype(float))
+  x, y = np.array(df['Momentum'].astype(float))*(10**3), np.array(df['Efficiency'].astype(float))
   scatter_plot = ROOT.TGraph(len(x), x, y)
   linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
   scatter_plot.Fit(linear_function)
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
 
-if True == False:
-  t_res_str = "300"
-  boundaries = [3.3,10, 30, 60, 100]
-else:
-  t_res_str = "150"
-  boundaries = [5, 30, 80, 200, 201]
+eff_directory = os.path.join(basedir, 'PEff Kaons_300') if timing == 300 else os.path.join(basedir, 'PEff Kaons_150')
 
-r1_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 1.csv', skiprows=1))
-r2_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 2.csv', skiprows=1))
-r3_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 3.csv', skiprows=1))
-r4_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 4.csv', skiprows=1))
-r5_model = eff_model(pd.read_csv('PEff Kaons_'+t_res_str+'/Region 5.csv', skiprows=1))
+# List all file paths
+eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
+boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
+
+r1_model = eff_model(eff_dfs[0])
+r2_model = eff_model(eff_dfs[1])
+r3_model = eff_model(eff_dfs[2])
+r4_model = eff_model(eff_dfs[3])
+r5_model = eff_model(eff_dfs[4]) if timing == 300 else [0, 0]
 
 for event in events: # loop through all events
   
@@ -128,15 +126,15 @@ for event in events: # loop through all events
   for kaon in unadjusted_good_kaons:
     k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
     # Adjust conditions and use nested conditionals for efficiency
-    if k_p < boundaries[0]*(10**3) and int(rand.Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
+    if k_p < boundaries[0] and int(rand.Rndm()) <= (r1_model[1] * k_p + r1_model[0]):
         good_kaons.append(kaon)
-    elif boundaries[0]*(10**3) <= k_p < boundaries[1]*(10**3) and int(rand.Rndm()) <= (r2_model[1] * k_p + r2_model[0]):
+    elif boundaries[0] <= k_p < boundaries[1]*(10**3) and int(rand.Rndm()) <= (r2_model[1] * k_p + r2_model[0]):
         good_kaons.append(kaon)
-    elif boundaries[1]*(10**3) <= k_p and k_p < boundaries[2]*(10**3) and int(rand.Rndm()) <= (r3_model[1] * k_p + r3_model[0]):
+    elif boundaries[1] <= k_p and k_p < boundaries[2]*(10**3) and int(rand.Rndm()) <= (r3_model[1] * k_p + r3_model[0]):
         good_kaons.append(kaon)
-    elif boundaries[2]*(10**3) <= k_p and k_p < boundaries[3]*(10**3) and int(rand.Rndm()) <= (r4_model[1] * k_p + r4_model[0]):
+    elif boundaries[2] <= k_p and k_p < boundaries[3]*(10**3) and int(rand.Rndm()) <= (r4_model[1] * k_p + r4_model[0]):
         good_kaons.append(kaon)
-    elif boundaries[3]*(10**3) <= k_p and k_p < boundaries[4]*(10**3) and int(rand.Rndm()) <= (r5_model[1] * k_p + r5_model[0]):
+    elif boundaries[3] <= k_p and int(rand.Rndm()) <= (r5_model[1] * k_p + r5_model[0]):
         good_kaons.append(kaon)
     else:
        continue
