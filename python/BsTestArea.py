@@ -3,7 +3,7 @@ from Selections import load_event_library
 load_event_library()
 from ROOT import uParticle
 from ROOT import TFile, gSystem, gInterpreter
-from ROOT import TH1D, TH2D, TCanvas, TChain, TRandom
+from ROOT import TH1D, TH2D, TCanvas, TChain, TTree
 import time
 from math import * 
 import pandas as pd
@@ -11,10 +11,69 @@ import sys
 import numpy as np
 from os import path, listdir
 import os
+from array import array
 # Random number generator for introducing the detector efficiency
 rand = ROOT.TRandom() # creates a random number engine
 rand.SetSeed(int(time.time() * os.getpid())) # sets the random number engine to be time dependent and dependent
 # on the process id - ensures randomness when ran in batch
+
+tree = TTree()
+
+file_path = array('f', [0])
+tree.Branch('file_path', file_path, 'file_path/F')
+run_number = array('f', [0])
+tree.Branch('run_number', run_number, 'run_number/F')
+rand_seed = array('f', [0])
+tree.Branch('rand_seed', rand_seed, 'rand_seed/F')
+timing_res = array('f', [0])
+tree.Branch('timing_res', timing_res, 'timing_res/F')
+PID_pion = array('f', [0])
+tree.Branch('PID_pion', PID_pion, 'PID_pion/F')
+PID_kaon = array('f', [0])
+tree.Branch('PID_kaon', PID_kaon, 'PID_kaon/F')
+Kaon_model = array('f', [0])
+tree.Branch('Kaon_model', Kaon_model, 'Kaon_model/F')
+Displaced_track_params = array('f', [0])
+tree.Branch('Displaced_track_params', Displaced_track_params, 'Displaced_track_params/F')
+Doca_cut = array('f', [0])
+tree.Branch('Doca_cut', Doca_cut, 'Doca_cut/F')
+Chi2_ndf_limit = array('f', [0])
+tree.Branch('Chi2_ndf_limit', Chi2_ndf_limit, 'Chi2_ndf_limit/F')
+Pphi_limit = array('f', [0])
+tree.Branch('Pphi_limit', Pphi_limit, 'Pphi_limit/F')
+Ds_mass_upper_limit = array('f', [0])
+tree.Branch('Ds_mass_upper_limit', Ds_mass_upper_limit, 'Ds_mass_upper_limit/F')
+Ds_mass_lower_limit = array('f', [0])
+tree.Branch('Ds_mass_lower_limit', Ds_mass_lower_limit, 'Ds_mass_lower_limit/F')
+D_chi2_distance_limit = array('f', [0])
+tree.Branch('D_chi2_distance_limit', D_chi2_distance_limit, 'D_chi2_distance_limit/F')
+D_dira_limit = array('f', [0])
+tree.Branch('D_dira_limit', D_dira_limit, 'D_dira_limit/F')
+B_chi2_ndf_limit = array('f', [0])
+tree.Branch('B_chi2_ndf_limit', B_chi2_ndf_limit, 'B_chi2_ndf_limit/F')
+Pb_limit = array('f', [0])
+tree.Branch('Pb_limit', Pb_limit, 'Pb_limit/F')
+B_mass_upper_limit = array('f', [0])
+tree.Branch('B_mass_upper_limit', B_mass_upper_limit, 'B_mass_upper_limit/F')
+B_mass_lower_limit = array('f', [0])
+tree.Branch('B_mass_lower_limit', B_mass_lower_limit, 'B_mass_lower_limit/F')
+B_chi2_distance_limit = array('f', [0])
+tree.Branch('B_chi2_distance_limit', B_chi2_distance_limit, 'B_chi2_distance_limit/F')
+B_dira_limit = array('f', [0])
+tree.Branch('B_dira_limit', B_dira_limit, 'B_dira_limit/F')
+
+Event_number = array('f', [0])
+tree.Branch('Event_number', Event_number, 'Event_number/F')
+Num_pions = array('f', [0])
+tree.Branch('Num_pions', Num_pions, 'Num_pions/F')
+Num_kaons = array('f', [0])
+tree.Branch('Num_kaons', Num_kaons, 'Num_kaons/F')
+Num_pions_detected = array('f', [0])
+tree.Branch('Num_pions_detected', Num_pions_detected, 'Num_pions_detected/F')
+Num_kaons_detected = array('f', [0])
+tree.Branch('Num_kaons_detected', Num_kaons_detected, 'Num_kaons_detected/F')
+
+
 
 timing = 150
 
