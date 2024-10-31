@@ -12,6 +12,7 @@ import numpy as np
 from os import path, listdir
 import os
 from array import array
+
 # Random number generator for introducing the detector efficiency
 rand = ROOT.TRandom() # creates a random number engine
 rand.SetSeed(int(time.time() * os.getpid())) # sets the random number engine to be time dependent and dependent
@@ -98,10 +99,35 @@ num_bs= array('f', [0])
 tree.Branch('num_bs', num_bs, 'num_bs/F')
 
 rand_seed[0] = int(time.time() * os.getpid())
-timing = 150
-timing_res[0] = timing
-PID_pion[0] = 0.99
 
+
+default_timing = 300  # default arguments in the event of no user input
+default_pid_switch = 1 
+default_PID_pion = 0.99
+
+args = sys.argv
+timing_arg = int(args[1]) # user inputted arguments
+pid_switch_arg = int(args[2]) # user inputted arguments
+
+if timing_arg == 300:
+  timing = 300 # sets the timing to 300
+elif timing_arg == 150:
+  timing = 150 # sets the timing to 150
+else: 
+  timing = default_timing # sets to default of 300
+
+if pid_switch_arg == 1:
+  pid_switch = 1 # turns on the 99/100 chance of detecting a pion
+  PID_pion[0] = 0.99
+elif pid_switch_arg == 2:
+  pid_switch = 0
+  PID_pion[0] = 1 # turns off the 99/100 chance of detecting a pion
+else: 
+  pid_switch = default_pid_switch  # sets to default
+  PID_pion = default_PID_pion # sets to default
+  PID_pion[0] = 1 # sets to default
+
+timing_res[0] = timing
 
 basedir=path.dirname(path.realpath(__file__))
 
@@ -201,7 +227,11 @@ for event in events: # loop through all events
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
   total_pions = [track for track in displaced_tracks if abs( track.trueID ) == 211]
-  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
+  if pid_switch == 1:
+    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
+  elif pid_switch == 0: 
+    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 99/100 dertection chance
+
   bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
   pions = good_pions + bad_pions
 
@@ -258,9 +288,8 @@ for event in events: # loop through all events
       k2_pt[0] = k2.pt()
       pi1_pt[0] = pion.pt()
       ds_mass[0] = ds.mass
-
-
       Chi2_ndf_limit[0] = 5
+      
       if ds_vtx.chi2 / ds_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
       Pphi_limit[0] = 1800
       if k1.pt() + k2.pt() + pion.pt() < 1800 : continue # insufficient momentum to create a phi, discard
