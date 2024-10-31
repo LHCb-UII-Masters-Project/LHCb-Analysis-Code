@@ -1,3 +1,4 @@
+#region IMPORTS
 import ROOT
 from Selections import load_event_library
 load_event_library()
@@ -12,14 +13,15 @@ import numpy as np
 from os import path, listdir
 import os
 from array import array
+# endregion IMPORTS
 
-# Random number generator for introducing the detector efficiency
+#region RANDOM NUMBER GENERATOR
 rand = ROOT.TRandom() # creates a random number engine
-rand.SetSeed(int(time.time() * os.getpid())) # sets the random number engine to be time dependent and dependent
-# on the process id - ensures randomness when ran in batch
+rand.SetSeed(int(time.time() * os.getpid())) 
+#endregion RANDOM NUMBER GENERATOR
 
+#region TREE
 tree = TTree()
-
 run_number = array('f', [0])
 tree.Branch('run_number', run_number, 'run_number/F')
 rand_seed = array('f', [0])
@@ -97,10 +99,11 @@ bs_dira= array('f', [0])
 tree.Branch('bs_dira', bs_dira, 'bs_dira/F')
 num_bs= array('f', [0])
 tree.Branch('num_bs', num_bs, 'num_bs/F')
-
 rand_seed[0] = int(time.time() * os.getpid())
+#endregion TREE
 
 
+#region USERINPUTS
 default_timing = 300  # default arguments in the event of no user input
 default_pid_switch = 1 
 default_PID_pion = 0.99
@@ -128,9 +131,10 @@ else:
   PID_pion[0] = 1 # sets to default
 
 timing_res[0] = timing
-
 basedir=path.dirname(path.realpath(__file__))
+#endregion USERINPUTS
 
+#region FUNCTION DEFINITIONS
 class SigVsBkg:
   # Creates the signal vs background histograms
   
@@ -171,6 +175,15 @@ def dira_bpv( particle, vertices, max_dt):
   # cos(Angle) between the momentum vector and the line of the orignal momentum connecting the decay vertex and the primary vertex
   return (dx * p.x() + dy * p.y() + dz * p.z() ) / sqrt( (dx**2 + dy**2 + dz**2 )*p.P2() ) 
 
+def eff_model(df):
+  x, y = np.array(df['Momentum'].astype(float))*(10**3), np.array(df['Efficiency'].astype(float))
+  scatter_plot = ROOT.TGraph(len(x), x, y)
+  linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
+  scatter_plot.Fit(linear_function)
+  return(linear_function.GetParameter(0), linear_function.GetParameter(1))
+#endregion FUNCTION DEFINITIONS
+
+#region FILE READING
 sys.path.insert(0,basedir) 
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
@@ -197,15 +210,9 @@ b_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
 
 n_signal=0
+#endregion FILE READING
 
-
-def eff_model(df):
-  x, y = np.array(df['Momentum'].astype(float))*(10**3), np.array(df['Efficiency'].astype(float))
-  scatter_plot = ROOT.TGraph(len(x), x, y)
-  linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
-  scatter_plot.Fit(linear_function)
-  return(linear_function.GetParameter(0), linear_function.GetParameter(1))
-
+#region DETECTOR EFFICIENCY
 eff_directory = os.path.join(basedir, 'PEff Kaons_300') if timing == 300 else os.path.join(basedir, 'PEff Kaons_150')
 PID_kaon = str(eff_directory)
 # List all file paths
@@ -213,7 +220,9 @@ eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.
 boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
 
 models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if timing == 300 else None]
+#endregion DETECTOR EFFICIENCY
 
+#region EVENT LOOP
 for event in events: # loop through all events
 
   
@@ -358,9 +367,10 @@ for event in events: # loop through all events
   
 tree.Show(5)
 print(tree.GetEntries())
+#endregion EVENT LOOP
 
-### Plotting
 
+#region PLOTTING AND FILE OUTPUT
 b_plot_canvas = ROOT.TCanvas("canvas")
 b_plot_canvas.cd()
 b_plot.Draw()
@@ -372,4 +382,7 @@ b_plot_canvas.Print("outputs/_d=" + time.strftime("%d-%m-%y_%H:%M:%S_", time.loc
 #      print( "mass: {}".format( ds.p4().mass()) )
 #      print_mc_particle( pion, event.MCParticles )     
 #      print_mc_particle( k1, event.MCParticles )     
-# #     print_mc_particle( k2, event.MCParticles )     
+# #     print_mc_particle( k2, event.MCParticles ) 
+
+#endregion PLOTTING AND FILE OUTPUT
+   
