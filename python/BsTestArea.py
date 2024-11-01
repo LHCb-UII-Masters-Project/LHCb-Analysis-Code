@@ -4,7 +4,7 @@ from Selections import load_event_library
 load_event_library()
 from ROOT import uParticle
 from ROOT import TFile, gSystem, gInterpreter
-from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString
+from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile
 import time
 from math import * 
 import pandas as pd
@@ -13,6 +13,8 @@ import numpy as np
 from os import path, listdir
 import os
 from array import array
+
+version = "BsReconstructor_v1"
 # endregion IMPORTS
 
 #region RANDOM NUMBER GENERATOR
@@ -104,20 +106,21 @@ rand_seed[0] = int(time.time() * os.getpid())
 
 
 #region USERINPUTS
-default_timing = 300  # default arguments in the event of no user input
-default_pid_switch = 1 
-default_PID_pion = 0.99
+
 
 args = sys.argv
-timing_arg = int(args[1]) # user inputted arguments
-pid_switch_arg = int(args[2]) # user inputted arguments
+
+try:
+  timing_arg = int(args[1]) # user inputted arguments
+  pid_switch_arg = int(args[2]) # user inputted arguments
+except IndexError:
+  timing_arg = 300  # default arguments in the event of no user input
+  pid_switch_arg = 1
 
 if timing_arg == 300:
   timing = 300 # sets the timing to 300
 elif timing_arg == 150:
   timing = 150 # sets the timing to 150
-else: 
-  timing = default_timing # sets to default of 300
 
 if pid_switch_arg == 1:
   pid_switch = 1 # turns on the 99/100 chance of detecting a pion
@@ -125,10 +128,6 @@ if pid_switch_arg == 1:
 elif pid_switch_arg == 2:
   pid_switch = 0
   PID_pion[0] = 1 # turns off the 99/100 chance of detecting a pion
-else: 
-  pid_switch = default_pid_switch  # sets to default
-  PID_pion = default_PID_pion # sets to default
-  PID_pion[0] = 1 # sets to default
 
 timing_res[0] = timing
 basedir=path.dirname(path.realpath(__file__))
@@ -312,7 +311,7 @@ for event in events: # loop through all events
       ds_chi2_distance[0] = ds_vtx.chi2_distance(pv)
       ds_dira[0] = dira_bpv(ds,event.Vertices,0.050)
 
-#      vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
+#     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
       D_chi2_distance_limit[0] = 50
       if ds_vtx.chi2_distance(pv) < 50 : continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
@@ -365,24 +364,11 @@ for event in events: # loop through all events
   
   tree.Fill()
   
-tree.Show(5)
-print(tree.GetEntries())
+#tree.Show(5)
+#print(tree.GetEntries())
 #endregion EVENT LOOP
 
-
-#region PLOTTING AND FILE OUTPUT
-b_plot_canvas = ROOT.TCanvas("canvas")
-b_plot_canvas.cd()
-b_plot.Draw()
-b_plot_canvas.Print("outputs/_d=" + time.strftime("%d-%m-%y_%H:%M:%S_", time.localtime()) + "t=" + str(timing) + ".pdf")
-
-
-
-#print( n_signal ) 
-#      print( "mass: {}".format( ds.p4().mass()) )
-#      print_mc_particle( pion, event.MCParticles )     
-#      print_mc_particle( k1, event.MCParticles )     
-# #     print_mc_particle( k2, event.MCParticles ) 
-
-#endregion PLOTTING AND FILE OUTPUT
-   
+file = TFile("t=" + str(timing) + "/PID" + str(pid_switch_arg) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+file.WriteObject(tree, "Tree")
+file.WriteObject(b_plot, "B_Histogram")
+file.Close()
