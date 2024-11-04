@@ -13,11 +13,34 @@ import numpy as np
 from os import path, listdir
 import os
 from array import array
+import ctypes
 
 hist_file = ROOT.TFile.Open("t=300/PID1/BsReconstructor_v1_TreeSize2000_Seed_1.566617118163761e+24_01-11-24_14:13:14.root", "READ") 
 data_hist = hist_file.Get("B_Histogram")
+tree = hist_file.Get("Tree")
 data_hist.SetDirectory(0)
+tree.SetDirectory(0)
 hist_file.Close()
+
+for i in range(1, data_hist.GetNbinsX() + 1):
+    print(f"Bin {i}: Content = {data_hist.GetBinContent(i)}, Error = {data_hist.GetBinError(i)}")
+
+# Create a variable to hold the value
+timing = array('f', [0])
+PID_pion = array('f', [0])
+PID_kaon= array('f', [0])
+
+# Set branch address
+tree.SetBranchAddress("timing_res", timing)
+tree.SetBranchAddress("PID_pion", PID_pion)
+tree.SetBranchAddress("PID_kaon", PID_kaon)
+tree.GetEntry(0)
+
+
+timing_value = (timing[0])
+PID_pion_value = (PID_pion[0])
+PID_kaon_value = (PID_kaon[0])
+
 
 hist_canvas = ROOT.TCanvas("canvas")
 hist_canvas.cd()
@@ -54,7 +77,7 @@ pad1.SetLogy(True)
 pad1.Draw()
 pad1.cd()
 
-data_hist.Draw("p") 
+data_hist.Draw("pt") 
 latex = ROOT.TLatex() 
 latex.SetNDC() 
 latex.SetTextSize(0.03)
@@ -64,14 +87,20 @@ ndof = gaussFit.GetNDF()
 mean = gaussFit.GetParameter(1)
 width = gaussFit.GetParameter(2)
 
+
 latex.DrawText(0.2,0.85,"Mean = %.3f GeV"%(mean)) 
 latex.DrawText(0.2,0.80,"Width = %.3f GeV"%(width)) 
 latex.DrawText(0.2,0.75,"chi2/ndof = %.1f/%d = %.1f"%(chi2,ndof,chi2/ndof))
+latex.DrawText(0.2, 0.70, "Timing = %d" % timing_value)
+latex.DrawText(0.2, 0.65, "Pid Pion = %.1f" % PID_pion_value)
+latex.DrawText(0.2, 0.60, "Pid Kaon = %.1f" % PID_kaon_value)
+
 
 latex.SetTextSize(0.06) 
 latex.DrawText(0.7,0.83,"LHCb 2024") 
 latex.SetTextSize(0.04) 
 latex.DrawText(0.7,0.77,"B0 events")
+
 
 legend = ROOT.TLegend(0.7,0.6,0.85,0.75) 
 legend.AddEntry(data_hist ,"Data") 
