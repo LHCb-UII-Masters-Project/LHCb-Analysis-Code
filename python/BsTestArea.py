@@ -24,8 +24,8 @@ rand.SetSeed(int(time.time() * os.getpid()))
 
 #region TREE
 tree = TTree()
-run_number = array('f', [0])
-tree.Branch('run_number', run_number, 'run_number/F')
+file_number = array('f', [0])
+tree.Branch('file_number', file_number, 'file_number/F')
 rand_seed = array('f', [0])
 tree.Branch('rand_seed', rand_seed, 'rand_seed/F')
 timing_res = array('f', [0])
@@ -107,9 +107,7 @@ rand_seed[0] = int(time.time() * os.getpid())
 
 #region USERINPUTS
 
-
 args = sys.argv
-
 try:
   timing_arg = int(args[1]) # user inputted arguments
   pid_switch_arg = int(args[2]) # user inputted arguments
@@ -196,7 +194,6 @@ onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
   if index < 2:
-    run_number[0] = index
     #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
     events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
@@ -220,9 +217,16 @@ boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,
 
 models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if timing == 300 else None]
 #endregion DETECTOR EFFICIENCY
+file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 
 #region EVENT LOOP
+current_event_name = ""
 for event in events: # loop through all events
+
+  if events.GetFile().GetName() != current_event_name: #  If no longer in same file as before
+    file_number[0] += 1 #  Increase the file number
+    current_event_name = events.GetFile().GetName() #  Set event name to be the name of current file
+    # print(current_event_name)
 
   
   # scaled_tracks = []
@@ -341,7 +345,6 @@ for event in events: # loop through all events
 
           bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
           bs_dira[0] = dira_bpv(bs,event.Vertices,0.050)
-          bs_mass[0] = bs.mass
 
           B_chi2_distance_limit[0] = 50
           B_chi2_distance_limit[0] = 50
@@ -349,6 +352,7 @@ for event in events: # loop through all events
           B_dira_limit[0] = 0.9
           if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
           b_plot.Fill(bs.mass * 0.001)
+          bs_mass[0] = bs.mass * 0.001
           entry = entry + 1 # entry is the event being examined
           num_bs[0] = entry
       # if is_signal : 
