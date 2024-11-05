@@ -123,7 +123,7 @@ basedir=path.dirname(path.realpath(__file__))
 
 #region RANDOM NUMBER GENERATOR
 rand = ROOT.TRandom() # creates a random number engine
-rand.SetSeed(rand_seed_arg) 
+rand.SetSeed(rand_seed_arg)
 #endregion RANDOM NUMBER GENERATOR
 
 #region FUNCTION DEFINITIONS
@@ -215,7 +215,7 @@ models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), e
 file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 
 #region EVENT LOOP
-current_event_name = ""
+current_event_name = "" #  Sets to empty string so first loop sets event number to 1
 for event in events: # loop through all events
 
   if events.GetFile().GetName() != current_event_name: #  If no longer in same file as before
@@ -223,7 +223,6 @@ for event in events: # loop through all events
     current_event_name = events.GetFile().GetName() #  Set event name to be the name of current file
     # print(current_event_name)
 
-  
   # scaled_tracks = []
   # for track in event.Particles : 
   #   track.scale_uncertainty(1, 5)   
@@ -258,7 +257,6 @@ for event in events: # loop through all events
   Num_kaons[0] = len(all_kaons)
   Num_kaons_detected[0] = len(good_kaons)
 
-      
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
   doca_cut = 0.10 # distance of closest approach cutoff, maximum allowed closest approach for consideration
