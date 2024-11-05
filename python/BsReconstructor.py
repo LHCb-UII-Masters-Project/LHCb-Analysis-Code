@@ -13,6 +13,7 @@ import numpy as np
 from os import path, listdir
 import os
 from array import array
+import re
 
 version = "BsReconstructor_v1"
 # endregion IMPORTS
@@ -167,6 +168,15 @@ def dira_bpv( particle, vertices, max_dt):
   # cos(Angle) between the momentum vector and the line of the orignal momentum connecting the decay vertex and the primary vertex
   return (dx * p.x() + dy * p.y() + dz * p.z() ) / sqrt( (dx**2 + dy**2 + dz**2 )*p.P2() ) 
 
+def get_file_number(file_name):
+  # Use regex to find the number after "4d-"
+  match = re.search(r"4d-(\d+)", file_name)
+  if match:
+      # Return the matched number as an integer
+      return int(match.group(1))
+  else:
+      return None  # Return None if the pattern is not found
+
 def eff_model(df):
   x, y = np.array(df['Momentum'].astype(float))*(10**3), np.array(df['Efficiency'].astype(float))
   scatter_plot = ROOT.TGraph(len(x), x, y)
@@ -188,7 +198,7 @@ dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-V
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
-  if index < 2:
+  if index < 5:
     #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
     events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
@@ -215,13 +225,13 @@ models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), e
 file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 
 #region EVENT LOOP
-current_event_name = "" #  Sets to empty string so first loop sets event number to 1
+current_file_name = "" #  Sets to empty string so first loop sets event number to 1
 for event in events: # loop through all events
 
-  if events.GetFile().GetName() != current_event_name: #  If no longer in same file as before
-    file_number[0] += 1 #  Increase the file number
-    current_event_name = events.GetFile().GetName() #  Set event name to be the name of current file
-    # print(current_event_name)
+  if events.GetFile().GetName() != current_file_name: #  If no longer in same file as before
+    current_file_name = events.GetFile().GetName() #  Set event name to be the name of current file
+    file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
+    # print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
 
   # scaled_tracks = []
   # for track in event.Particles : 
