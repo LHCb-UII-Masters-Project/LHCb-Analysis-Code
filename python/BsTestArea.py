@@ -17,11 +17,6 @@ from array import array
 version = "BsReconstructor_v1"
 # endregion IMPORTS
 
-#region RANDOM NUMBER GENERATOR
-rand = ROOT.TRandom() # creates a random number engine
-rand.SetSeed(int(time.time() * os.getpid())) 
-#endregion RANDOM NUMBER GENERATOR
-
 #region TREE
 tree = TTree()
 file_number = array('f', [0])
@@ -101,35 +96,35 @@ bs_dira= array('f', [0])
 tree.Branch('bs_dira', bs_dira, 'bs_dira/F')
 num_bs= array('f', [0])
 tree.Branch('num_bs', num_bs, 'num_bs/F')
-rand_seed[0] = int(time.time() * os.getpid())
 #endregion TREE
 
 
 #region USERINPUTS
 
+def get_arg(index, default):
+    try:
+        return int(args[index])
+    except (IndexError, ValueError):
+        return default
+
 args = sys.argv
-try:
-  timing_arg = int(args[1]) # user inputted arguments
-  pid_switch_arg = int(args[2]) # user inputted arguments
-except IndexError:
-  timing_arg = 300  # default arguments in the event of no user input
-  pid_switch_arg = 1
+timing = get_arg(1, 300)  # Default timing argument if not provided
+pid_switch = get_arg(2, 1)  # Default PID switch argument if not provided
+rand_seed_arg = get_arg(3, int(time.time() * os.getpid()))  # Default random seed if not provided
 
-if timing_arg == 300:
-  timing = 300 # sets the timing to 300
-elif timing_arg == 150:
-  timing = 150 # sets the timing to 150
+timing_res[0] = timing #  Set tree value of timing_res
+rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
+# Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
+PID_pion[0] = 0.99 if pid_switch == 1 else 1 if pid_switch == 2 else PID_pion[0]
 
-if pid_switch_arg == 1:
-  pid_switch = 1 # turns on the 99/100 chance of detecting a pion
-  PID_pion[0] = 0.99
-elif pid_switch_arg == 2:
-  pid_switch = 0
-  PID_pion[0] = 1 # turns off the 99/100 chance of detecting a pion
-
-timing_res[0] = timing
 basedir=path.dirname(path.realpath(__file__))
+
 #endregion USERINPUTS
+
+#region RANDOM NUMBER GENERATOR
+rand = ROOT.TRandom() # creates a random number engine
+rand.SetSeed(rand_seed_arg) 
+#endregion RANDOM NUMBER GENERATOR
 
 #region FUNCTION DEFINITIONS
 class SigVsBkg:
@@ -372,7 +367,7 @@ for event in events: # loop through all events
 #print(tree.GetEntries())
 #endregion EVENT LOOP
 
-file = TFile("t=" + str(timing) + "/PID" + str(pid_switch_arg) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+file = TFile("t=" + str(timing) + "/PID" + str(pid_switch) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
 file.WriteObject(tree, "Tree")
 file.WriteObject(b_plot, "B_Histogram")
 file.Close()
