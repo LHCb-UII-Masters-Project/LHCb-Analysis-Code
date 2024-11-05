@@ -1,9 +1,10 @@
+#region IMPORTS
 import ROOT
 from Selections import load_event_library
 load_event_library()
 from ROOT import uParticle
 from ROOT import TFile, gSystem, gInterpreter
-from ROOT import TH1D, TH2D, TCanvas, TChain, TRandom
+from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile
 import time
 from math import * 
 import pandas as pd
@@ -11,15 +12,121 @@ import sys
 import numpy as np
 from os import path, listdir
 import os
-# Random number generator for introducing the detector efficiency
-rand = ROOT.TRandom() # creates a random number engine
-rand.SetSeed(int(time.time() * os.getpid())) # sets the random number engine to be time dependent and dependent
-# on the process id - ensures randomness when ran in batch
+from array import array
 
-timing = 150
+version = "BsReconstructor_v1"
+# endregion IMPORTS
+
+#region TREE
+tree = TTree()
+file_number = array('f', [0])
+tree.Branch('file_number', file_number, 'file_number/F')
+rand_seed = array('f', [0])
+tree.Branch('rand_seed', rand_seed, 'rand_seed/F')
+timing_res = array('f', [0])
+tree.Branch('timing_res', timing_res, 'timing_res/F')
+PID_pion = array('f', [0])
+tree.Branch('PID_pion', PID_pion, 'PID_pion/F')
+PID_kaon = TString()
+tree.Branch('PID_kaon', PID_kaon, 'PID_kaon/F')
+Doca_cut = array('f', [0])
+tree.Branch('Doca_cut', Doca_cut, 'Doca_cut/F')
+Chi2_ndf_limit = array('f', [0])
+tree.Branch('Chi2_ndf_limit', Chi2_ndf_limit, 'Chi2_ndf_limit/F')
+Pphi_limit = array('f', [0])
+tree.Branch('Pphi_limit', Pphi_limit, 'Pphi_limit/F')
+Ds_mass_upper_limit = array('f', [0])
+tree.Branch('Ds_mass_upper_limit', Ds_mass_upper_limit, 'Ds_mass_upper_limit/F')
+Ds_mass_lower_limit = array('f', [0])
+tree.Branch('Ds_mass_lower_limit', Ds_mass_lower_limit, 'Ds_mass_lower_limit/F')
+D_chi2_distance_limit = array('f', [0])
+tree.Branch('D_chi2_distance_limit', D_chi2_distance_limit, 'D_chi2_distance_limit/F')
+D_dira_limit = array('f', [0])
+tree.Branch('D_dira_limit', D_dira_limit, 'D_dira_limit/F')
+B_chi2_ndf_limit = array('f', [0])
+tree.Branch('B_chi2_ndf_limit', B_chi2_ndf_limit, 'B_chi2_ndf_limit/F')
+Pb_limit = array('f', [0])
+tree.Branch('Pb_limit', Pb_limit, 'Pb_limit/F')
+B_mass_upper_limit = array('f', [0])
+tree.Branch('B_mass_upper_limit', B_mass_upper_limit, 'B_mass_upper_limit/F')
+B_mass_lower_limit = array('f', [0])
+tree.Branch('B_mass_lower_limit', B_mass_lower_limit, 'B_mass_lower_limit/F')
+B_chi2_distance_limit = array('f', [0])
+tree.Branch('B_chi2_distance_limit', B_chi2_distance_limit, 'B_chi2_distance_limit/F')
+B_dira_limit = array('f', [0])
+tree.Branch('B_dira_limit', B_dira_limit, 'B_dira_limit/F')
+
+Num_pions = array('f', [0])
+tree.Branch('Num_pions', Num_pions, 'Num_pions/F')
+Num_kaons = array('f', [0])
+tree.Branch('Num_kaons', Num_kaons, 'Num_kaons/F')
+Num_pions_detected = array('f', [0])
+tree.Branch('Num_pions_detected', Num_pions_detected, 'Num_pions_detected/F')
+Num_kaons_detected = array('f', [0])
+tree.Branch('Num_kaons_detected', Num_kaons_detected, 'Num_kaons_detected/F')
+Num_phi_candidates = array('f', [0])
+tree.Branch('Num_Phi_candidates', Num_phi_candidates, 'Num_Phi_candidates/F')
+Num_pv = array('f', [0])
+tree.Branch('Num_pv', Num_pv, 'Num_pv/F')
+ds_chi_ndf = array('f', [0])
+tree.Branch('ds_chi_ndf', ds_chi_ndf, 'ds_chi_ndf/F')
+k1_pt = array('f', [0])
+tree.Branch('k1_pt', k1_pt, 'k1_pt/F')
+k2_pt = array('f', [0])
+tree.Branch('kw_pt', k2_pt, 'k2_pt/F')
+pi1_pt = array('f', [0])
+tree.Branch('pi1_pt', pi1_pt, 'pi1_pt/F')
+ds_mass = array('f', [0])
+tree.Branch('ds_mass', ds_mass, 'ds_mass/F')
+ds_chi2_distance = array('f', [0])
+tree.Branch('ds_chi2_distance', ds_chi2_distance, 'ds_chi2_distance/F')
+ds_dira= array('f', [0])
+tree.Branch('ds_dira', ds_dira, 'ds_dira/F')
+bs_chi2_ndf= array('f', [0])
+tree.Branch('bs_chi2_ndf', bs_chi2_ndf, 'bs_chi2_ndf/F')
+ds_pt= array('f', [0])
+tree.Branch('ds_pt', ds_pt, 'ds_pt/F')
+pi2_pt= array('f', [0])
+tree.Branch('pi2_pt', pi2_pt, 'pi2_pt/F')
+bs_mass= array('f', [0])
+tree.Branch('bs_mass', bs_mass, 'bs_mass/F')
+bs_chi2_distance= array('f', [0])
+tree.Branch('bs_chi2_distance', bs_chi2_distance, 'bs_chi2_distance/F')
+bs_dira= array('f', [0])
+tree.Branch('bs_dira', bs_dira, 'bs_dira/F')
+num_bs= array('f', [0])
+tree.Branch('num_bs', num_bs, 'num_bs/F')
+#endregion TREE
+
+
+#region USERINPUTS
+
+def get_arg(index, default):
+    try:
+        return int(args[index])
+    except (IndexError, ValueError):
+        return default
+
+args = sys.argv
+timing = get_arg(1, 300)  # Default timing argument if not provided
+pid_switch = get_arg(2, 1)  # Default PID switch argument if not provided
+rand_seed_arg = get_arg(3, int(time.time() * os.getpid()))  # Default random seed if not provided
+
+timing_res[0] = timing #  Set tree value of timing_res
+rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
+# Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
+PID_pion[0] = 0.99 if pid_switch == 1 else 1 if pid_switch == 2 else PID_pion[0]
 
 basedir=path.dirname(path.realpath(__file__))
 
+#endregion USERINPUTS
+
+#region RANDOM NUMBER GENERATOR
+rand = ROOT.TRandom() # creates a random number engine
+rand.SetSeed(rand_seed_arg) 
+#endregion RANDOM NUMBER GENERATOR
+
+#region FUNCTION DEFINITIONS
 class SigVsBkg:
   # Creates the signal vs background histograms
   
@@ -60,6 +167,15 @@ def dira_bpv( particle, vertices, max_dt):
   # cos(Angle) between the momentum vector and the line of the orignal momentum connecting the decay vertex and the primary vertex
   return (dx * p.x() + dy * p.y() + dz * p.z() ) / sqrt( (dx**2 + dy**2 + dz**2 )*p.P2() ) 
 
+def eff_model(df):
+  x, y = np.array(df['Momentum'].astype(float))*(10**3), np.array(df['Efficiency'].astype(float))
+  scatter_plot = ROOT.TGraph(len(x), x, y)
+  linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
+  scatter_plot.Fit(linear_function)
+  return(linear_function.GetParameter(0), linear_function.GetParameter(1))
+#endregion FUNCTION DEFINITIONS
+
+#region FILE READING
 sys.path.insert(0,basedir) 
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
@@ -72,7 +188,7 @@ dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-V
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
-  if index < 5:
+  if index < 2:
     #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
     events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
@@ -85,23 +201,28 @@ b_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
 
 n_signal=0
+#endregion FILE READING
 
-def eff_model(df):
-  x, y = np.array(df['Momentum'].astype(float))*(10**3), np.array(df['Efficiency'].astype(float))
-  scatter_plot = ROOT.TGraph(len(x), x, y)
-  linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
-  scatter_plot.Fit(linear_function)
-  return(linear_function.GetParameter(0), linear_function.GetParameter(1))
-
+#region DETECTOR EFFICIENCY
 eff_directory = os.path.join(basedir, 'PEff Kaons_300') if timing == 300 else os.path.join(basedir, 'PEff Kaons_150')
-
+PID_kaon = str(eff_directory)
 # List all file paths
 eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
 boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
 
 models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if timing == 300 else None]
+#endregion DETECTOR EFFICIENCY
+file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 
+#region EVENT LOOP
+current_event_name = ""
 for event in events: # loop through all events
+
+  if events.GetFile().GetName() != current_event_name: #  If no longer in same file as before
+    file_number[0] += 1 #  Increase the file number
+    current_event_name = events.GetFile().GetName() #  Set event name to be the name of current file
+    # print(current_event_name)
+
   
   # scaled_tracks = []
   # for track in event.Particles : 
@@ -112,14 +233,21 @@ for event in events: # loop through all events
   # selects acceptable particles for analysis
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
+  total_pions = [track for track in displaced_tracks if abs( track.trueID ) == 211]
+  if pid_switch == 1:
+    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
+  elif pid_switch == 0: 
+    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 99/100 dertection chance
 
-  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
   bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
   pions = good_pions + bad_pions
+
+  Num_pions[0] = len(total_pions)
+  Num_pions_detected[0] = len(pions)
   
-  unadjusted_good_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] # all kaons
+  all_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] # all kaons
   good_kaons = [] # initialised list to be filled with good kaons
-  for kaon in unadjusted_good_kaons:
+  for kaon in all_kaons:
     k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
     # Adjust conditions and use nested conditionals for efficiency
     for i in range(len(boundaries)):
@@ -127,16 +255,22 @@ for event in events: # loop through all events
         good_kaons.append(kaon)
         continue
 
+  Num_kaons[0] = len(all_kaons)
+  Num_kaons_detected[0] = len(good_kaons)
+
+      
   kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
   km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
   doca_cut = 0.10 # distance of closest approach cutoff, maximum allowed closest approach for consideration
-  
+  Doca_cut[0] = doca_cut
+
   nPVs = npvs( event ) # the number of primary verticies in an event
+  Num_pv[0] = nPVs
   found_signal = False # placeholder for when a signal is found, default of no signal found
   #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)}") # prints event information
   phi_candidates = ROOT.combine( kp, km, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
-
+  Num_phi_candidates[0] = len(phi_candidates)
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
   for pion in pions : 
@@ -154,17 +288,33 @@ for event in events: # loop through all events
       # particle id 431 is for the D+, checks if the positive kaon is from an event with a D+ present, checks if the negative 
       # kaon is from an event with a D+ present, checks if the pions are from events with D+ present. (See diagram)
       
-      vtx_chi2.Fill( ds_vtx.chi2 / ds_vtx.ndof, is_signal) # Fills the chi2 graph for the candiate signal 
+      vtx_chi2.Fill( ds_vtx.chi2 / ds_vtx.ndof, is_signal) # Fills the chi2 graph for the candiate signal
+      
+      ds_chi_ndf[0] = ds_vtx.chi2 / ds_vtx.ndof
+      k1_pt[0] = k1.pt()
+      k2_pt[0] = k2.pt()
+      pi1_pt[0] = pion.pt()
+      ds_mass[0] = ds.mass
+      Chi2_ndf_limit[0] = 5
+      
       if ds_vtx.chi2 / ds_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
+      Pphi_limit[0] = 1800
       if k1.pt() + k2.pt() + pion.pt() < 1800 : continue # insufficient momentum to create a phi, discard
+      Ds_mass_lower_limit[0] = 1800
+      Ds_mass_upper_limit[0] = 2100
       if ds.mass < 1800 or ds.mass  > 2100 : continue # insufficient mass to create D particle, discard
 
       pv  = ds.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
       # particle (minimum Chi squared) 
 
-#      vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
+      ds_chi2_distance[0] = ds_vtx.chi2_distance(pv)
+      ds_dira[0] = dira_bpv(ds,event.Vertices,0.050)
+
+#     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
+      D_chi2_distance_limit[0] = 50
       if ds_vtx.chi2_distance(pv) < 50 : continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
+      B_dira_limit[0] = 0.9
       if dira_bpv(ds,event.Vertices,0.050)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
       
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
@@ -172,18 +322,34 @@ for event in events: # loop through all events
           bs_vtx = ROOT.uVertex( [ds, pion2] )
           bs = ROOT.uParticle( [ds,pion2] )
           is_b_signal = is_from(ds, event, 431) and is_from(pion2, event,431)
+          
+          bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
+          ds_pt[0] = ds.pt()
+          pi2_pt[0] = pion2.pt()
 
           b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
+          B_chi2_ndf_limit[0] = 5
           if bs_vtx.chi2 / bs_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
+          Pb_limit[0] = 5000
           if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
+          B_mass_lower_limit[0] = 5250
+          B_mass_upper_limit[0] = 5450
           if bs.mass < 5250 or bs.mass  > 5450 : continue
 
           b_pv  = bs.bpv_4d( event.Vertices )
+
+          bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
+          bs_dira[0] = dira_bpv(bs,event.Vertices,0.050)
+
+          B_chi2_distance_limit[0] = 50
+          B_chi2_distance_limit[0] = 50
           if bs_vtx.chi2_distance(b_pv) < 50 : continue 
+          B_dira_limit[0] = 0.9
           if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
           b_plot.Fill(bs.mass * 0.001)
+          bs_mass[0] = bs.mass * 0.001
           entry = entry + 1 # entry is the event being examined
-
+          num_bs[0] = entry
       # if is_signal : 
       #plot.Fill(ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
       found_signal |= is_signal 
@@ -194,19 +360,14 @@ for event in events: # loop through all events
         # print_mc_particle( pion, event.MCParticles) 
 
   n_signal = n_signal + found_signal 
+  
+  tree.Fill()
+  
+#tree.Show(5)
+#print(tree.GetEntries())
+#endregion EVENT LOOP
 
-
-### Plotting
-
-b_plot_canvas = ROOT.TCanvas("canvas")
-b_plot_canvas.cd()
-b_plot.Draw()
-b_plot_canvas.Print("outputs/b_mass_plot_" + str(timing) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".pdf")
-
-
-
-#print( n_signal ) 
-#      print( "mass: {}".format( ds.p4().mass()) )
-#      print_mc_particle( pion, event.MCParticles )     
-#      print_mc_particle( k1, event.MCParticles )     
-#      print_mc_particle( k2, event.MCParticles )     
+file = TFile("t=" + str(timing) + "/PID" + str(pid_switch) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+file.WriteObject(tree, "Tree")
+file.WriteObject(b_plot, "B_Histogram")
+file.Close()
