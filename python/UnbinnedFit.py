@@ -95,6 +95,7 @@ frame2 = x.frame()
 frame2.SetTitle("")
 frame2.addPlotable(hpull, "P")
 
+line = ROOT.TLine(frame2.GetXaxis().GetXmin(), 0, frame2.GetXaxis().GetXmax(), 0)
 
 
 c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
@@ -114,7 +115,9 @@ frame2.GetYaxis().SetTitleOffset(1.6)
 frame2.GetYaxis().SetTitle("Pulls")
 frame2.GetXaxis().SetTitle("m_{B0} [GeV]")
 frame2.Draw()
+line.Draw("same")
 
+c.Draw()
 c.SaveAs("rf201_composite.png")
 
 
