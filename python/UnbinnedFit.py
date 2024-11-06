@@ -82,37 +82,45 @@ model = ROOT.RooAddPdf("model", "Signal + Background",[bkg,sig],[noisetosignalra
 # region FIT
 model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"))
 
-xframe = x.frame(Title="Example of composite pdf=(sig1+sig2)+bkg")
-data.plotOn(xframe)
-model.plotOn(xframe)
 
-# Plot the combined background component of the model with a dashed line
-model.plotOn(xframe, ROOT.RooFit.Components("bkg"), ROOT.RooFit.LineColor(ROOT.kBlack), ROOT.RooFit.LineStyle(ROOT.kDashed))
+frame1 = x.frame()
+frame1.SetTitle("")
+data.plotOn(frame1,ROOT.RooFit.Name("data"))
+model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"))
+model.plotOn(frame1, ROOT.RooFit.Components("bkg"), ROOT.RooFit.LineColor(ROOT.kBlack), ROOT.RooFit.LineStyle(ROOT.kDashed),ROOT.RooFit.Name("bkg"))
+model.plotOn(frame1, ROOT.RooFit.Components("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.Name("sig"))  # Overall DCB
 
-# Plot the left exponential background component with a different style
-model.plotOn(xframe, ROOT.RooFit.Components("bkgL"), ROOT.RooFit.LineColor(ROOT.kYellow), ROOT.RooFit.LineStyle(ROOT.kDotted))
-
-# Plot the right exponential background component with a different style
-model.plotOn(xframe, ROOT.RooFit.Components("bkgR"), ROOT.RooFit.LineColor(ROOT.kGreen), ROOT.RooFit.LineStyle(ROOT.kDashDotted))
-
-# Overlay the Double Crystal Ball component with different styles
-model.plotOn(xframe, ROOT.RooFit.Components("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
-
-  
-# Print structure of composite pdf
-model.Print("t")
+hpull = frame1.pullHist()
+frame2 = x.frame()
+frame2.SetTitle("")
+frame2.addPlotable(hpull, "P")
 
 
-# Draw the frame on the canvas
-c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1200, 800)
-c.SetLogy(True)
+
+c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
+c.Divide(2)
+c.cd(1)
+ROOT.gPad.SetLogy(True)
 ROOT.gPad.SetLeftMargin(0.15)
-xframe.GetYaxis().SetTitleOffset(1.4)
-xframe.Draw()
- 
+frame1.GetYaxis().SetTitleOffset(1.6)
+frame1.GetYaxis().SetTitle("Number of events")
+frame1.GetXaxis().SetTitle("m_{B0} [GeV]")
+frame1.GetYaxis().SetTitleOffset(2.0)
+frame1.Draw()
+
+c.cd(2)
+ROOT.gPad.SetLeftMargin(0.15)
+frame2.GetYaxis().SetTitleOffset(1.6)
+frame2.GetYaxis().SetTitle("Pulls")
+frame2.GetXaxis().SetTitle("m_{B0} [GeV]")
+frame2.Draw()
+
 c.SaveAs("rf201_composite.png")
 
 
+
+# Print structure of composite pdf
+model.Print("t")
 # endregion FIT
 
 
