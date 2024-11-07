@@ -204,7 +204,7 @@ for index,file in enumerate(onlyfiles, start=0):
 entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
-b_plot = ROOT.TH1D("m_bs","",100,5.25,5.45)
+b_plot = ROOT.TH1D("m_bs","",100,5.1,5.6)
 b_plot.SetTitle("Reconstructed B^s Mass Plot t = " + str(timing)) 
 b_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 b_plot.GetYaxis().SetTitle("Frequency")
@@ -340,9 +340,9 @@ for event in events: # loop through all events
           if bs_vtx.chi2 / bs_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
           Pb_limit[0] = 5000
           if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
-          B_mass_lower_limit[0] = 5250
-          B_mass_upper_limit[0] = 5450
-          if bs.mass < 5250 or bs.mass  > 5450 : continue
+          B_mass_lower_limit[0] = 5100
+          B_mass_upper_limit[0] = 5600
+          if bs.mass < 5100 or bs.mass  > 5600 : continue
 
           b_pv  = bs.bpv_4d( event.Vertices )
 
@@ -375,7 +375,7 @@ for event in events: # loop through all events
 #print(tree.GetEntries())
 #endregion EVENT LOOP
 
-file = TFile("t=" + str(timing) + "/PID" + str(pid_switch) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+file = TFile("/home/user293/Documents/selections/python/t=" + str(timing) + "/PID" + str(pid_switch) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
 file.WriteObject(tree, "Tree")
 file.WriteObject(b_plot, "B_Histogram")
 file.Close()
