@@ -1,0 +1,60 @@
+stages:
+  - test
+  - deploy
+
+pre-commit:
+  image: registry.cern.ch/docker.io/library/python:3.9
+  stage: test
+  before_script:
+    - pip install pre-commit
+    # TODO: There should be a proper way of doing this
+    - curl -o lb-check-copyright "https://gitlab.cern.ch/lhcb-core/LbDevTools/raw/master/LbDevTools/SourceTools.py?inline=false"
+    - chmod +x lb-check-copyright
+  script:
+    - pre-commit run --all-files
+  variables:
+    PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
+  cache:
+    paths:
+      - ${PRE_COMMIT_HOME}
+
+.run_pytest:
+  image: registry.cern.ch/docker.io/condaforge/mambaforge
+  stage: test
+  before_script:
+    - mamba create --name test-env python=$PYTHON_VERSION root pytest pip setuptools_scm
+    - eval "$(python -m conda shell.bash hook)"
+    - conda activate test-env
+    - pip install '.[testing]'
+  script:
+    - pytest -vvv
+
+test-python-3.7:
+  extends: .run_pytest
+  variables:
+    PYTHON_VERSION: "3.7"
+
+test-python-3.8:
+  extends: .run_pytest
+  variables:
+    PYTHON_VERSION: "3.8"
+
+test-python-3.9:
+  extends: .run_pytest
+  variables:
+    PYTHON_VERSION: "3.9"
+
+# Packaging step
+deploy-packages:
+  stage: deploy
+  only:
+    - tags
+  dependencies: []
+  image: gitlab-registry.cern.ch/lhcb-docker/python-deployment:python-3.7
+  script:
+    - python setup.py sdist --dist-dir public/
+    - python setup.py bdist_wheel --dist-dir public/
+    - if [ -z "$TWINE_PASSWORD" ] ; then echo "Set TWINE_PASSWORD in CI variables" ; exit 1 ; fi
+    - twine upload -u __token__ public/*
+  before_script: []
+  after_script: []
