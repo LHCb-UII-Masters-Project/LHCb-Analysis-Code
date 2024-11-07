@@ -1,8 +1,7 @@
 # LHCb UII Project Notes
 
 https://github.com/LHCb-UII-Masters-Project
-
-![rf201_composite](https://github.com/user-attachments/assets/201e8fab-bbc1-4454-97cb-75f037ad3d25)
+![rf201_composite](https://github.com/user-attachments/assets/48847410-72f7-4614-b224-137f32a406b9)
 
 ## Debug Lines/ Meeting Questions
 
