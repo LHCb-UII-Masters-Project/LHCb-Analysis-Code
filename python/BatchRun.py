@@ -72,6 +72,8 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
 
     time.sleep(3) #try to fix concurrency problem?
 
-scriptPath = "/home/user293/Documents/selections/python/TestRun.py"
-batchJobName = "Test_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
-runThisScriptOnCondor(scriptPath, batchJobName, launchEnv= ["export PYTHONPATH=$PYTHONPATH:/home/user293/Documents/selections/build", "source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt"])
+scriptPath = "/home/user293/Documents/selections/python/BsReconstructor.py"
+batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
+
+pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", "export PYTHONPATH=$PYTHONPATH:/home/user293/Documents/selections"]
+runThisScriptOnCondor(scriptPath, batchJobName, extraSetupCommands=pre_run)
