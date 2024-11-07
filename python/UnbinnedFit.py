@@ -1,13 +1,7 @@
 # region IMPORTS
 import ROOT
-from Selections import load_event_library
-load_event_library()
-from ROOT import uParticle
-from ROOT import TFile, gSystem, gInterpreter
-from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile
-import time
+from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem
 from math import * 
-import pandas as pd
 import sys
 import numpy as np
 from os import path, listdir
@@ -16,6 +10,11 @@ from array import array
 import ctypes
 import lhcbstyle
 from lhcbstyle import LHCbStyle
+
+import argparse
+parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
+parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
+args = parser.parse_args()
 
 class LHCbStyle:
     def __init__(self, print_msg=False):
@@ -65,7 +64,7 @@ class LHCbStyle:
 # endregion IMPORTS
 
 # region READ
-root_file = ROOT.TFile.Open("/home/user294/Documents/selections/python/t=300/PID1/BsReconstructor_v1_TreeSize47000_Seed_1.962846901466769e+24_06-11-24_12:26:49.root", "READ") 
+root_file = ROOT.TFile.Open(args.input_file, "READ") 
 tree = root_file.Get("Tree")
 tree.SetDirectory(0)
 root_file.Close()
@@ -73,18 +72,50 @@ root_file.Close()
 rdf = ROOT.RDataFrame(tree) 
 # Convert the bs_mass branch to a Numpy array
 unbinned_data = rdf.AsNumpy(columns=["bs_mass"])["bs_mass"]
+
+
+# Create a variable to hold the value
+timing = array('f', [0])
+PID_pion = array('f', [0])
+PID_kaon= array('f', [0])
+
+# Set branch address
+tree.SetBranchAddress("timing_res", timing)
+tree.SetBranchAddress("PID_pion", PID_pion)
+tree.SetBranchAddress("PID_kaon", PID_kaon)
+tree.GetEntry(0)
+
+
+timing_value = (timing[0])
+PID_pion_value = (PID_pion[0])
+PID_kaon_value = (PID_kaon[0])
 # endregion READ
 
 
 #region DefPDF
-x = ROOT.RooRealVar("x", "x", min(unbinned_data), max(unbinned_data)) # x drawn from no distribution
+# Define the variable x
+x = ROOT.RooRealVar("x", "x", min(unbinned_data), max(unbinned_data))
 
+rice_bins = int(np.ceil(2 * np.cbrt(len(unbinned_data))))
 
-# Create a RooDataSet to hold the data 
-data = ROOT.RooDataSet("data", "dataset with x", ROOT.RooArgSet(x)) 
+# Create a histogram to bin the data
+hist = ROOT.TH1F("hist", "histogram", rice_bins, min(unbinned_data), max(unbinned_data))
 for dp in unbinned_data:
-    x.setVal(dp) 
+    hist.Fill(dp)
+
+# Filter the data to exclude bins with fewer than 10 entries
+filtered_data = []
+for dp in unbinned_data:
+    bin_index = hist.FindBin(dp)
+    if hist.GetBinContent(bin_index) >= 10:
+        filtered_data.append(dp)
+
+# Convert the filtered data to a RooDataSet
+data = ROOT.RooDataSet("data", "dataset with x", ROOT.RooArgSet(x))
+for dp in filtered_data:
+    x.setVal(dp)
     data.add(ROOT.RooArgSet(x))
+
 
 mu1 = ROOT.RooRealVar("mu1", "mean of CB1", 5.36,5.3,5.4) # gaussian core mean estimate
 sigma1 = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.001,0.0001,1) # gaussina core std estimate
@@ -128,57 +159,104 @@ model = ROOT.RooAddPdf("model", "Signal + Background",[bkg,sig],[noisetosignalra
 #endregion DefPDF
 
 # region FIT
-model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(1), ROOT.RooFit.Minimizer("Minuit2"))
+fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Save())
 
 
 frame1 = x.frame()
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"))
-model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"))
-model.plotOn(frame1, ROOT.RooFit.Components("bkg"), ROOT.RooFit.LineColor(ROOT.kBlack), ROOT.RooFit.LineStyle(ROOT.kDashed),ROOT.RooFit.Name("bkg"))
-model.plotOn(frame1, ROOT.RooFit.Components("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.Name("sig"))  # Overall DCB
+model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
+model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kGreen),ROOT.RooFit.LineStyle(ROOT.kDashed))
+model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
 
+# Reduce the dataset to the specified signal range without redefining x
+
+
+chi2 = frame1.chiSquare("sig+bkg", "data",20)
 hpull = frame1.pullHist()
+
 frame2 = x.frame()
 frame2.SetTitle("")
 frame2.addPlotable(hpull, "P")
 
 line = ROOT.TLine(frame2.GetXaxis().GetXmin(), 0, frame2.GetXaxis().GetXmax(), 0)
+line.SetLineColor(ROOT.kBlue)
 
 
 with LHCbStyle() as lbs:
-
-
     c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
     c.Divide(2)
+
+    # First pad
     c.cd(1)
-    #ROOT.gPad.SetLogy(True)
+    latex = ROOT.TLatex() 
+    latex.SetNDC() 
+    latex.SetTextSize(0.05)     
     ROOT.gPad.SetLeftMargin(0.15)
-    frame1.GetYaxis().SetTitleOffset(1.6)
-    frame1.GetYaxis().SetTitle("Number of events")
-    frame1.GetXaxis().SetTitle("m_{B0} [GeV]")
-    frame1.GetYaxis().SetTitleOffset(2.0)
+    ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
+    frame1.GetYaxis().SetTitle("Entries")
+    frame1.GetXaxis().SetTitle("m_{B0} [GeV/c^{2}]")
+    frame1.GetYaxis().SetTitleOffset(1)
+    frame1.GetXaxis().SetTitleOffset(1)
+
+    frame1.GetYaxis().SetTitleSize(0.05) # Increase this value to make the font size larger
+    frame1.GetXaxis().SetTitleSize(0.05) # Increase this value to make the font size larger
     frame1.Draw()
 
+    # Add the legend with LaTeX formatting, without a legend box, and matching LaTeX font
+    legend = ROOT.TLegend(0.175, 0.6, 0.5, 0.80)
+    legend.SetLineColor(0)  # Remove the legend border
+    legend.SetLineStyle(0)  # Ensure no border line style
+    legend.SetLineWidth(0)  # Set line width to 0
+    legend.SetFillColor(0)  # Remove any fill color
+    legend.SetFillStyle(0)  # Ensure no fill style
+    legend.SetTextFont(42)  # Helvetica, normal
+    legend.SetTextSize(0.03)  # Adjust text size as needed
+
+
+    legend.AddEntry("data", "Data", "lep")  # Points with error bars
+    legend.AddEntry("sig+bkg", "Total", "l")  # Solid blue line
+
+    # Dummy lines for correct styles in the legend
+    dummy_bkg_line = ROOT.TLine()
+    dummy_bkg_line.SetLineColor(ROOT.kGreen)
+    dummy_bkg_line.SetLineStyle(ROOT.kDashed)
+    legend.AddEntry(dummy_bkg_line, "Background", "l")  # Green dashed line
+
+    dummy_sig_line = ROOT.TLine()
+    dummy_sig_line.SetLineColor(ROOT.kRed)
+    dummy_sig_line.SetLineStyle(ROOT.kDotted)
+    legend.AddEntry(dummy_sig_line, "DCB", "l")  # Red dotted line
+
+    latex.DrawText(0.2,0.875,"LHCb Simulation")
+    latex.DrawLatex(0.2, 0.825, "%d \\mu s" % timing_value) 
+
+
+
+    legend.Draw()
 
     c.cd(2)
     ROOT.gPad.SetLeftMargin(0.15)
-    frame2.GetYaxis().SetTitleOffset(1.6)
     frame2.GetYaxis().SetTitle("Pulls")
-    frame2.GetXaxis().SetTitle("m_{B0} [GeV]")
+    frame2.GetXaxis().SetTitle("m_{B0} [GeV/c^{2}]")
+    frame2.GetYaxis().SetTitleOffset(1)
+    frame2.GetXaxis().SetTitleOffset(1)
+    frame2.GetYaxis().SetTitleSize(0.05) # Increase this value to make the font size larger
+    frame2.GetXaxis().SetTitleSize(0.05) # Increase this value to make the font size larger
     frame2.Draw()
     line.Draw("same")
+
+    latex.DrawText(0.2,0.875,"JM 7/11/24")
+
     
     c.cd()
+    c.Update()
     c.Draw()
-
     c.SaveAs("rf202_composite.png")
-
-
 
     # Print structure of composite pdf
     model.Print("t")
-    # endregion FIT
+    print("chi2ndf:", chi2)
 
 
 
