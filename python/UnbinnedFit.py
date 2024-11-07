@@ -14,6 +14,54 @@ from os import path, listdir
 import os
 from array import array
 import ctypes
+import lhcbstyle
+from lhcbstyle import LHCbStyle
+
+class LHCbStyle:
+    def __init__(self, print_msg=False):
+        """
+        Load the macro if not already loaded.
+        Provide easy access to the pointers declared in the LHCbStyle namespace.
+        """
+        self._print_msg = print_msg
+        if not hasattr(self._ROOT, "lhcbStyle"):
+            with importlib.resources.path("lhcbstyle", "lhcbStyle.C") as path:
+                self._ROOT.gROOT.LoadMacro(str(path))
+        self.lhcbStyle = self._ROOT.LHCbStyle.lhcbStyle
+        self.create_label = self._ROOT.LHCbStyle.create_label
+        self.lhcbLabel = self._ROOT.LHCbStyle.lhcbLabel
+        self.lhcbLatex = self._ROOT.LHCbStyle.lhcbLatex
+
+    def __enter__(self):
+        """
+        For context management, store the original global style so it can be reset later
+        """
+        self.old_style = self._ROOT.gStyle.GetName()
+        self.apply()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Return the global style to its original state
+        """
+        self._ROOT.gROOT.SetStyle(self.old_style)
+
+    def apply(self):
+        """
+        Execute the main function of the macro, which sets the global style to LHCbStyle
+        """
+        self._ROOT.lhcbStyle(self._print_msg)
+
+    @property
+    def _ROOT(self):
+        """
+        Property to avoid importing ROOT until absolutely necessary
+        """
+        import ROOT
+
+        return ROOT
+
+
 # endregion IMPORTS
 
 # region READ
@@ -80,7 +128,7 @@ model = ROOT.RooAddPdf("model", "Signal + Background",[bkg,sig],[noisetosignalra
 #endregion DefPDF
 
 # region FIT
-model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"))
+model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(1), ROOT.RooFit.Minimizer("Minuit2"))
 
 
 frame1 = x.frame()
@@ -98,33 +146,39 @@ frame2.addPlotable(hpull, "P")
 line = ROOT.TLine(frame2.GetXaxis().GetXmin(), 0, frame2.GetXaxis().GetXmax(), 0)
 
 
-c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
-c.Divide(2)
-c.cd(1)
-ROOT.gPad.SetLogy(True)
-ROOT.gPad.SetLeftMargin(0.15)
-frame1.GetYaxis().SetTitleOffset(1.6)
-frame1.GetYaxis().SetTitle("Number of events")
-frame1.GetXaxis().SetTitle("m_{B0} [GeV]")
-frame1.GetYaxis().SetTitleOffset(2.0)
-frame1.Draw()
-
-c.cd(2)
-ROOT.gPad.SetLeftMargin(0.15)
-frame2.GetYaxis().SetTitleOffset(1.6)
-frame2.GetYaxis().SetTitle("Pulls")
-frame2.GetXaxis().SetTitle("m_{B0} [GeV]")
-frame2.Draw()
-line.Draw("same")
-
-c.Draw()
-c.SaveAs("rf201_composite.png")
+with LHCbStyle() as lbs:
 
 
+    c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
+    c.Divide(2)
+    c.cd(1)
+    #ROOT.gPad.SetLogy(True)
+    ROOT.gPad.SetLeftMargin(0.15)
+    frame1.GetYaxis().SetTitleOffset(1.6)
+    frame1.GetYaxis().SetTitle("Number of events")
+    frame1.GetXaxis().SetTitle("m_{B0} [GeV]")
+    frame1.GetYaxis().SetTitleOffset(2.0)
+    frame1.Draw()
 
-# Print structure of composite pdf
-model.Print("t")
-# endregion FIT
+
+    c.cd(2)
+    ROOT.gPad.SetLeftMargin(0.15)
+    frame2.GetYaxis().SetTitleOffset(1.6)
+    frame2.GetYaxis().SetTitle("Pulls")
+    frame2.GetXaxis().SetTitle("m_{B0} [GeV]")
+    frame2.Draw()
+    line.Draw("same")
+    
+    c.cd()
+    c.Draw()
+
+    c.SaveAs("rf202_composite.png")
+
+
+
+    # Print structure of composite pdf
+    model.Print("t")
+    # endregion FIT
 
 
 
