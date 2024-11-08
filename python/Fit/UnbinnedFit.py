@@ -112,59 +112,35 @@ for dp in unbinned_data:
 
 # Convert the filtered data to a RooDataSet
 data = ROOT.RooDataSet("data", "dataset with x", ROOT.RooArgSet(x))
-for dp in filtered_data:
+for dp in unbinned_data: # change to filtered data for filtering
     x.setVal(dp)
     data.add(ROOT.RooArgSet(x))
 
 
-mu1 = ROOT.RooRealVar("mu1", "mean of CB1", 5.36,5.3,5.4) # gaussian core mean estimate
-sigma1 = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.001,0.0001,1) # gaussina core std estimate
-mu2 = ROOT.RooRealVar("mu2", "mean of CB2", 5.36,5.3,5.4) # gaussian core mean estimate
-sigma2 = ROOT.RooRealVar("sigma2","std of core Gaussian2", 0.001,0.0001,1) # gaussina core std estimate
-alpha1 = ROOT.RooRealVar("alpha1","cut off gauss 1", 1,0.5,8) # gaussian core limit 1 estimate
-alpha2 = ROOT.RooRealVar("alpha2","cut off gauss 2", 1,0.5,8) # gaussian core limit 2 estimatre
-n1 = ROOT.RooRealVar("n1", "n1 of DCB", 1,0.001,50) # first power law exponent estimate
-n2 = ROOT.RooRealVar("n2", "n2 of DCB", 1,0.001,50) # second power law exponent estimate
+mu = ROOT.RooRealVar("mu1", "mean of CB1", 5.40,5.20,5.50) # gaussian core mean estimate
+sigma = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.001,0.0001,2) # gaussina core std estimate
+alphaL = ROOT.RooRealVar("alphaL","cut off gauss left", 1,0.5,8) # gaussian core limit 1 estimate
+alphaR = ROOT.RooRealVar("alphaR","cut off gauss right", 1,0.5,8) # gaussian core limit 2 estimatre
+nL = ROOT.RooRealVar("n1", "nleft of DCB", 1,0.001,10) # first power law exponent estimate
+nR = ROOT.RooRealVar("n2", "nright of DCB", 1,0.001,3) # second power law exponent estimate
 
-cb1 = ROOT.RooCrystalBall("cb1", "cb1", x, mu1, sigma1, alpha1, n1) #create the 1st crystal ball model
-cb2 = ROOT.RooCrystalBall("cb2", "cb2",x, mu2, sigma2, alpha2, n2) # create the 2nd crystal ball model
+sig = ROOT.RooCrystalBall("sig", "double crystal ball",x,mu,sigma,alphaL,nL,alphaR,nR)
 
-cb1frac = ROOT.RooRealVar("frac_cb1", "fraction of CB1", 0.5, 0.0, 1.0)
-
-sig = ROOT.RooAddPdf("sig","double crystal ball",[cb1,cb2],[cb1frac]) # combine to 1 pdf for the double crystal ball
-
-
-#a0 = ROOT.RooRealVar("a0", "a0", 0, -1.2, 0.8) # first polynomial coefficient, wide range
-#a1 = ROOT.RooRealVar("a1", "a1", 0, -1.2, 0.8) # second polynomial coefficient, wide range
-#a2 = ROOT.RooRealVar("a2", "a2", 0.0, -1.2, 0.8)
-
-# Define the exponential background models with coefficients for each side
-AL = ROOT.RooRealVar("AL", "AL", 1, 0, 10)  # Coefficient for left side
-AR = ROOT.RooRealVar("AR", "AR", 1, 0, 10)  # Coefficient for right side
-aL = ROOT.RooRealVar("aL", "aL", -0.1, -1, 0)  # Left side decay constant
-aR = ROOT.RooRealVar("aR", "aR", -0.1, -1, 0)  # Right side decay constant
-expL = ROOT.RooFormulaVar("expL", "AL*exp(aL*x)", ROOT.RooArgList(AL, aL, x))
-expR = ROOT.RooFormulaVar("expR", "AR*exp(aR*x)", ROOT.RooArgList(AR, aR, x))
-bkgL = ROOT.RooExponential("bkgL", "Left Exponential Background", x, expL)
-bkgR = ROOT.RooExponential("bkgR", "Right Exponential Background", x, expR)
-
-# Combine left and right backgrounds
-bkgfrac = ROOT.RooRealVar("bkgfrac", "fraction of left background", 0.5, 0.0, 1.0)
-bkg = ROOT.RooAddPdf("bkg", "Combined Exponential Background", ROOT.RooArgList(bkgL, bkgR), ROOT.RooArgList(bkgfrac))
-
+decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", -0.001, -5, 0)
+bkg = ROOT.RooExponential("bkg", "Exponential Background", x, decay_constant)
 
 noisetosignalratio = ROOT.RooRealVar("noisetosignalratio", "fraction of noise in signal", 0.1, 0.0, 0.5)
 
-model = ROOT.RooAddPdf("model", "Signal + Background",[bkg,sig],[noisetosignalratio])
+model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),ROOT.RooArgSet(noisetosignalratio))
 #endregion DefPDF
 
 # region FIT
 fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Save())
 
-
+number_of_bins = 50
 frame1 = x.frame()
 frame1.SetTitle("")
-data.plotOn(frame1,ROOT.RooFit.Name("data"))
+data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins))
 model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
 model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kGreen),ROOT.RooFit.LineStyle(ROOT.kDashed))
 model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
@@ -172,8 +148,8 @@ model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT
 # Reduce the dataset to the specified signal range without redefining x
 
 
-chi2 = frame1.chiSquare("sig+bkg", "data",20)
-hpull = frame1.pullHist()
+chi2 = frame1.chiSquare("sig+bkg", "data",8)
+hpull = frame1.pullHist("data", "sig+bkg")
 
 frame2 = x.frame()
 frame2.SetTitle("")
