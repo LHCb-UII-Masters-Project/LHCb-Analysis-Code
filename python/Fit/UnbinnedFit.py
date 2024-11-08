@@ -10,6 +10,8 @@ from array import array
 import ctypes
 import lhcbstyle
 from lhcbstyle import LHCbStyle
+from datetime import datetime
+import time
 
 import argparse
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
@@ -158,6 +160,10 @@ frame2.addPlotable(hpull, "P")
 line = ROOT.TLine(frame2.GetXaxis().GetXmin(), 0, frame2.GetXaxis().GetXmax(), 0)
 line.SetLineColor(ROOT.kBlue)
 
+origin_file_path = root_file.GetName()
+origin_file_name = os.path.basename(origin_file_path)
+origin_file_name_reduced = origin_file_name.replace(".root", "")
+current_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 
 with LHCbStyle() as lbs:
     c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
@@ -222,17 +228,84 @@ with LHCbStyle() as lbs:
     frame2.Draw()
     line.Draw("same")
 
-    latex.DrawText(0.2,0.875,"JM 7/11/24")
+    current_date = datetime.now().strftime("%d/%m/%y")
+
+    latex.DrawText(0.2,0.875,f"JM {current_date}")
 
     
     c.cd()
     c.Update()
     c.Draw()
-    c.SaveAs("rf202_composite.png")
+    c.SaveAs(f"FitOutputs/{origin_file_name_reduced}_fitted_{current_time}.png")
+    # Create a ROOT file
 
-    # Print structure of composite pdf
-    model.Print("t")
-    print("chi2ndf:", chi2)
+output_file = ROOT.TFile(f"FitOutputs/{origin_file_name_reduced}_fitted_{current_time}.root", "RECREATE")
+
+# Write the canvas to the file
+c.Write()
+
+# Create a tree to store the fit parameters and their errors
+tree = ROOT.TTree("fit_parameters", "Fit Parameters Tree")
+
+# Create variables to hold the parameters and their errors
+mean_val = ROOT.std.vector('float')()
+mean_err = ROOT.std.vector('float')()
+sigma_val = ROOT.std.vector('float')()
+sigma_err = ROOT.std.vector('float')()
+alphaL_val = ROOT.std.vector('float')()
+alphaL_err = ROOT.std.vector('float')()
+alphaR_val = ROOT.std.vector('float')()
+alphaR_err = ROOT.std.vector('float')()
+nL_val = ROOT.std.vector('float')()
+nL_err = ROOT.std.vector('float')()
+nR_val = ROOT.std.vector('float')()
+nR_err = ROOT.std.vector('float')()
+decay_constant_val = ROOT.std.vector('float')()
+decay_constant_err = ROOT.std.vector('float')()
+chi2_val = ROOT.std.vector('float')()
+
+mean_val.push_back(mu.getVal())
+mean_err.push_back(mu.getError())
+sigma_val.push_back(sigma.getVal())
+sigma_err.push_back(sigma.getError())
+alphaL_val.push_back(alphaL.getVal())
+alphaL_err.push_back(alphaL.getError())
+alphaR_val.push_back(alphaR.getVal())
+alphaR_err.push_back(alphaR.getError())
+nL_val.push_back(nL.getVal())
+nL_err.push_back(nL.getError())
+nR_val.push_back(nR.getVal())
+nR_err.push_back(nR.getError())
+decay_constant_val.push_back(decay_constant.getVal())
+decay_constant_err.push_back(decay_constant.getError())
+chi2_val.push_back(chi2)
+
+# Create branches in the tree
+tree.Branch("mean", mean_val)
+tree.Branch("mean_error", mean_err)
+tree.Branch("sigma", sigma_val)
+tree.Branch("sigma_error", sigma_err)
+tree.Branch("alphaL", alphaL_val)
+tree.Branch("alphaL_error", alphaL_err)
+tree.Branch("alphaR", alphaR_val)
+tree.Branch("alphaR_error", alphaR_err)
+tree.Branch("nL", nL_val)
+tree.Branch("nL_error", nL_err)
+tree.Branch("nR", nR_val)
+tree.Branch("nR_error", nR_err)
+tree.Branch("decay_constant", decay_constant_val)
+tree.Branch("decay_constant_error", decay_constant_err)
+tree.Branch("chi2", chi2_val)
+
+
+# Fill the tree with values
+tree.Fill()
+
+# Write the tree to the file
+tree.Write()
+
+# Close the ROOT file
+output_file.Close()
 
 
 
