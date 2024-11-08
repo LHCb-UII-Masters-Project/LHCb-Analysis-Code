@@ -1,0 +1,43 @@
+000 (2931.000.000) 2024-11-07 12:55:12 Job submitted from host: <147.188.47.46:9618?addrs=147.188.47.46-9618&alias=eprexa.ph.bham.ac.uk&noUDP&sock=schedd_1682379_a360>
+...
+040 (2931.000.000) 2024-11-07 12:55:12 Started transferring input files
+	Transferring to host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=slot1_17_187135_4953_32218>
+...
+040 (2931.000.000) 2024-11-07 12:55:12 Finished transferring input files
+...
+001 (2931.000.000) 2024-11-07 12:55:13 Job executing on host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=startd_187014_a097>
+	SlotName: slot1_17@eplwk002.ph.bham.ac.uk
+	CondorScratchDir = "/var/lib/condor/execute/dir_3023615"
+	Cpus = 1
+	Disk = 7701
+	GPUs = 0
+	Memory = 4096
+...
+006 (2931.000.000) 2024-11-07 12:55:17 Image size of job updated: 85476
+	3  -  MemoryUsage of job (MB)
+	2280  -  ResidentSetSize of job (KB)
+...
+040 (2931.000.000) 2024-11-07 12:55:17 Started transferring output files
+...
+040 (2931.000.000) 2024-11-07 12:55:17 Finished transferring output files
+...
+005 (2931.000.000) 2024-11-07 12:55:17 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:00:01, Sys 0 00:00:01  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:01, Sys 0 00:00:01  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	904  -  Run Bytes Sent By Job
+	757  -  Run Bytes Received By Job
+	904  -  Total Bytes Sent By Job
+	757  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :        0        1         1 
+	   Disk (KB)            :       38        1      7701 
+	   GPUs                 :                           0 
+	   Memory (MB)          :        3     4000      4096 
+	   TimeExecute (s)      :        4                    
+	   TimeSlotBusy (s)     :        5                    
+
+	Job terminated of its own accord at 2024-11-07T12:55:17Z with exit-code 0.
+...
