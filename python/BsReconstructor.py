@@ -15,7 +15,6 @@ import os
 from array import array
 import re
 import sys
-sys.path.append(f"{path.dirname(path.realpath(__file__))}/../..")
 
 version = "BsReconstructor_v1"
 # endregion IMPORTS
@@ -123,7 +122,8 @@ PID_pion[0] = 0.99 if pid_switch == 1 else 1 if pid_switch == 2 else PID_pion[0]
 if path.dirname(path.realpath(__file__))[-6:] == "python":  # If not batching
   basedir=path.dirname(path.realpath(__file__))
 else:  # If batching, exits batch output and batch outputs folder
-  basedir = f"{path.dirname(path.realpath(__file__))}/../.."
+  basedir = f"{path.dirname(path.realpath(__file__))}/../../.."
+  sys.path.append(f"{path.dirname(path.realpath(__file__))}/../../..")
 
 #endregion USERINPUTS
 
@@ -219,7 +219,7 @@ n_signal=0
 #endregion FILE READING
 
 #region DETECTOR EFFICIENCY
-eff_directory = os.path.join(basedir, 'PEff Kaons_300') if timing == 300 else os.path.join(basedir, 'PEff Kaons_150')
+eff_directory = os.path.join(basedir, 'Inputs/PEff Kaons_300') if timing == 300 else os.path.join(basedir, 'Inputs/PEff Kaons_150')
 PID_kaon = str(eff_directory)
 # List all file paths
 eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
@@ -380,7 +380,7 @@ for event in events: # loop through all events
 #print(tree.GetEntries())
 #endregion EVENT LOOP
 
-file = TFile("/home/user293/Documents/selections/python/t=" + str(timing) + "/PID" + str(pid_switch) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
 file.WriteObject(tree, "Tree")
 file.WriteObject(b_plot, "B_Histogram")
 file.Close()

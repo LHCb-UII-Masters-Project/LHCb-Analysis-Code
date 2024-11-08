@@ -31,7 +31,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
     '''
     
     #will create a general condor out folder that stores all the results and details
-    jobDir = f"/home/user293/Documents/selections/python/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
+    jobDir = f"/home/user293/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
 
     os.makedirs(jobDir,exist_ok=True,)
     #now empty dir if there is anything in there!
