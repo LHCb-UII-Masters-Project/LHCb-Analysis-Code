@@ -15,7 +15,7 @@ import os
 from array import array
 import re
 import sys
-sys.path.append("/home/user293/Documents/selections/python")
+sys.path.append(f"{path.dirname(path.realpath(__file__))}/../..")
 
 version = "BsReconstructor_v1"
 # endregion IMPORTS
@@ -119,10 +119,11 @@ timing_res[0] = timing #  Set tree value of timing_res
 rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
 # Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
 PID_pion[0] = 0.99 if pid_switch == 1 else 1 if pid_switch == 2 else PID_pion[0]
-
-#basedir=path.dirname(path.realpath(__file__))
-basedir = "/home/user293/Documents/selections/python"
-print(basedir)
+# If not batching use 
+if path.dirname(path.realpath(__file__))[-6:] == "python":  # If not batching
+  basedir=path.dirname(path.realpath(__file__))
+else:  # If batching, exits batch output and batch outputs folder
+  basedir = f"{path.dirname(path.realpath(__file__))}/../.."
 
 #endregion USERINPUTS
 
@@ -202,8 +203,9 @@ dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-V
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 #print(onlyfiles)
 for index,file in enumerate(onlyfiles, start=0):
+  if index < 2:
   #events.AddFile( "root://eoslhcb.cern.ch//" + path.join(dir, file) ) 
-  events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
+    events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot

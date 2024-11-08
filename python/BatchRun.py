@@ -1,6 +1,7 @@
 import os
 import time
 import subprocess
+from os import path
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -72,8 +73,10 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
 
     time.sleep(3) #try to fix concurrency problem?
 
-scriptPath = "/home/user293/Documents/selections/python/BsReconstructor.py"
+basedir=path.dirname(path.realpath(__file__))
+scriptPath = f"{basedir}/BsReconstructor.py"
+
 batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 
-pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", "export PYTHONPATH=$PYTHONPATH:/home/user293/Documents/selections"]
+pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
 runThisScriptOnCondor(scriptPath, batchJobName, extraSetupCommands=pre_run)
