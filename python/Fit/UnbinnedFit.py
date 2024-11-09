@@ -132,26 +132,26 @@ sig = ROOT.RooCrystalBall("sig", "double crystal ball",x,mu,sigma,alphaL,nL,alph
 decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", -0.001, -5, 0)
 bkg = ROOT.RooExponential("bkg", "Exponential Background", x, decay_constant)
 
-noisetosignalratio = ROOT.RooRealVar("noisetosignalratio", "fraction of noise in signal", 0.1, 0.0, 0.5)
+#noisetosignalratio = ROOT.RooRealVar("noisetosignalratio", "fraction of noise in signal", 0.1, 0.0, 0.5)
+nsig = ROOT.RooRealVar("nsig", "number of signal events", data.sumEntries()*0.75, 0, data.sumEntries())
+nbkg = ROOT.RooRealVar("nbkg", "number of background events", data.sumEntries()*0.25, 0, data.sumEntries())
 
-model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),ROOT.RooArgSet(noisetosignalratio))
+model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),ROOT.RooArgList(nbkg, nsig))
 #endregion DefPDF
 
 # region FIT
-fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Save())
+fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save())
 
-number_of_bins = 50
+number_of_bins = 40
+
 frame1 = x.frame()
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins))
 model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
 model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kGreen),ROOT.RooFit.LineStyle(ROOT.kDashed))
-model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
+model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.Normalization((data.sumEntries()-nsig.getVal())/data.sumEntries(), ROOT.RooAbsReal.Relative))  # Overall DCB
 
-# Reduce the dataset to the specified signal range without redefining x
-
-
-chi2 = frame1.chiSquare("sig+bkg", "data",8)
+chi2 = frame1.chiSquare("sig+bkg", "data",9)
 hpull = frame1.pullHist("data", "sig+bkg")
 
 frame2 = x.frame()
@@ -186,6 +186,7 @@ with LHCbStyle() as lbs:
     frame1.GetXaxis().SetTitleSize(0.05) # Increase this value to make the font size larger
     frame1.Draw()
 
+
     # Add the legend with LaTeX formatting, without a legend box, and matching LaTeX font
     legend = ROOT.TLegend(0.175, 0.6, 0.5, 0.80)
     legend.SetLineColor(0)  # Remove the legend border
@@ -209,7 +210,7 @@ with LHCbStyle() as lbs:
     dummy_sig_line = ROOT.TLine()
     dummy_sig_line.SetLineColor(ROOT.kRed)
     dummy_sig_line.SetLineStyle(ROOT.kDotted)
-    legend.AddEntry(dummy_sig_line, "DCB", "l")  # Red dotted line
+    legend.AddEntry(dummy_sig_line, "Signal", "l")  # Red dotted line
 
     latex.DrawText(0.2,0.875,"LHCb Simulation")
     latex.DrawLatex(0.2, 0.825, "%d \\mu s" % timing_value) 
@@ -264,6 +265,12 @@ nR_err = ROOT.std.vector('float')()
 decay_constant_val = ROOT.std.vector('float')()
 decay_constant_err = ROOT.std.vector('float')()
 chi2_val = ROOT.std.vector('float')()
+nsig_val = ROOT.std.vector('float')()
+nsig_err = ROOT.std.vector('float')()
+nbkg_val = ROOT.std.vector('float')()
+nbkg_err = ROOT.std.vector('float')()
+
+
 
 mean_val.push_back(mu.getVal())
 mean_err.push_back(mu.getError())
@@ -280,6 +287,10 @@ nR_err.push_back(nR.getError())
 decay_constant_val.push_back(decay_constant.getVal())
 decay_constant_err.push_back(decay_constant.getError())
 chi2_val.push_back(chi2)
+nsig_val.push_back(nsig.getVal())
+nsig_err.push_back(nsig.getError())
+nbkg_val.push_back(nbkg.getVal())
+nbkg_err.push_back(nbkg.getError())
 
 # Create branches in the tree
 tree.Branch("mean", mean_val)
@@ -297,6 +308,10 @@ tree.Branch("nR_error", nR_err)
 tree.Branch("decay_constant", decay_constant_val)
 tree.Branch("decay_constant_error", decay_constant_err)
 tree.Branch("chi2", chi2_val)
+tree.Branch("nsig", nsig_val)
+tree.Branch("nsig_error", nsig_err)
+tree.Branch("nbkg", nbkg_val)
+tree.Branch("nbkg_error", nbkg_err)
 
 
 # Fill the tree with values
@@ -309,14 +324,15 @@ tree.Write()
 output_file.Close()
 
 ascii_art = """
- ___  ________  ________  ___  __    ________ ___  _________   
-   |\  \|\   __  \|\   ____\|\  \|\  \ |\  _____\\  \|\___   ___\ 
-   \ \  \ \  \|\  \ \  \___|\ \  \/  /|\ \  \__/\ \  \|___ \  \_| 
- __ \ \  \ \   __  \ \  \    \ \   ___  \ \   __\\ \  \   \ \  \  
-|\  \\_\  \ \  \ \  \ \  \____\ \  \\ \  \ \  \_| \ \  \   \ \  \ 
-\ \________\ \__\ \__\ \_______\ \__\\ \__\ \__\   \ \__\   \ \__\
- \|________|\|__|\|__|\|_______|\|__| \|__|\|__|    \|__|    \|__|
-
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    ___  ________  ________  ___  __    ________  ___       ________  _________   @
+@   |\  \|\   __  \|\   ____\|\  \|\  \ |\   __  \|\  \     |\   __  \|\___   ___\ @
+@   \ \  \ \  \|\  \ \  \___|\ \  \/  /|\ \  \|\  \ \  \    \ \  \|\  \|___ \  \_| @
+@ __ \ \  \ \   __  \ \  \    \ \   ___  \ \   ____\ \  \    \ \  \\\  \   \ \  \  @
+@|\  \\_\  \ \  \ \  \ \  \____\ \  \\ \  \ \  \___|\ \  \____\ \  \\\  \   \ \  \ @
+@\ \________\ \__\ \__\ \_______\ \__\\ \__\ \__\    \ \_______\ \_______\   \ \__\@
+@ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
 
 print(ascii_art)
