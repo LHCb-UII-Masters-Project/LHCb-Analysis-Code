@@ -1,11 +1,11 @@
 # LHCb UII Project Notes
 
-PLOT ZONE!!![rf202_composite](https://github.com/user-attachments/assets/d05c5d21-ba37-4fa1-a0f2-f4b5f9d07045)
-
 ## Debug Lines/ Meeting Questions
 
-> How can we introduce Basean analysis into the code, is ROO fit already Basean?
->
+## PLOT ZONE
+>![signalrelativetobkg1](https://github.com/user-attachments/assets/c6bb8a84-cc96-4af3-ab72-19cd08d4d4f0)
+![sigrelativetobkg2](https://github.com/user-attachments/assets/3fcdbdc0-58eb-4253-aecb-6feb452eda79)
+
 >
 >
 
