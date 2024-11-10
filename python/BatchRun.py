@@ -1,7 +1,8 @@
 import os
 import time
 import subprocess
-from os import path
+from os import path, listdir
+import sys
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -79,4 +80,22 @@ scriptPath = f"{basedir}/BsReconstructor.py"
 batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 
 pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-runThisScriptOnCondor(scriptPath, batchJobName, extraSetupCommands=pre_run)
+func_args = "150"
+# runThisScriptOnCondor(scriptPath, batchJobName, extraSetupCommands=pre_run, extraArgs=func_args)
+
+#  New parrellisation code
+
+args = sys.argv
+if args[1] == "Run":
+    files_per_run = int(args[2])
+    tot_num_files = int(args[3])
+    scriptPath = f"{basedir}/BsReconstructorBatch.py"
+    batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
+    pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+
+    
+    for i in range(0,tot_num_files, files_per_run):
+        print(f"{i}:{i+files_per_run}")
+        runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}")
+
+    
