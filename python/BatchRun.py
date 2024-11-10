@@ -70,9 +70,21 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         # f.write('+RequestedChroot="cc7"\n' if not turnOffCC7 else '')
         f.write("queue\n")
 
-    subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; /usr/local/bin/condor_submit {condorScript}',shell=True)
+    # subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; /usr/local/bin/condor_submit {condorScript}',shell=True)
+    # Changed Dan's line to get cluster number
+    result = subprocess.run(f'cd {os.path.dirname(subScript)} ; chmod +x {subScript} ; /usr/local/bin/condor_submit {condorScript}',
+                            shell=True, capture_output=True, text=True)
+    
+    # Parse the cluster_id from the output
+    cluster_id = None
+    for line in result.stdout.splitlines():
+        if "submitted to cluster" in line:
+            cluster_id = line.split()[-1].strip(".")
+            break
+
 
     time.sleep(3) #try to fix concurrency problem?
+    return cluster_id
 
 basedir=path.dirname(path.realpath(__file__))
 scriptPath = f"{basedir}/BsReconstructor.py"
@@ -83,8 +95,6 @@ pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9
 func_args = "150"
 # runThisScriptOnCondor(scriptPath, batchJobName, extraSetupCommands=pre_run, extraArgs=func_args)
 
-#  New parrellisation code
-
 args = sys.argv
 if args[1] == "Run":
     files_per_run = int(args[2])
@@ -93,9 +103,9 @@ if args[1] == "Run":
     batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
     pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
 
-    
+    cluster_id = []
     for i in range(0,tot_num_files, files_per_run):
-        print(f"{i}:{i+files_per_run}")
-        runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}")
+        # print(f"{i}:{i+files_per_run}")
+        cluster_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}"))
 
-    
+    print(cluster_id)
