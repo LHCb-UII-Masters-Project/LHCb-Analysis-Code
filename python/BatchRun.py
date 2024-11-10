@@ -3,6 +3,8 @@ import time
 import subprocess
 from os import path, listdir
 import sys
+import ROOT
+from ROOT import TH1D, TChain, TTree, TFile
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -70,30 +72,13 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         # f.write('+RequestedChroot="cc7"\n' if not turnOffCC7 else '')
         f.write("queue\n")
 
-    # subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; /usr/local/bin/condor_submit {condorScript}',shell=True)
-    # Changed Dan's line to get cluster number
-    result = subprocess.run(f'cd {os.path.dirname(subScript)} ; chmod +x {subScript} ; /usr/local/bin/condor_submit {condorScript}',
-                            shell=True, capture_output=True, text=True)
-    
-    # Parse the cluster_id from the output
-    cluster_id = None
-    for line in result.stdout.splitlines():
-        if "submitted to cluster" in line:
-            cluster_id = line.split()[-1].strip(".")
-            break
-
-
+    subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; /usr/local/bin/condor_submit {condorScript}',shell=True)
     time.sleep(3) #try to fix concurrency problem?
-    return cluster_id
+    return condorOut
 
 basedir=path.dirname(path.realpath(__file__))
 scriptPath = f"{basedir}/BsReconstructor.py"
 
-batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
-
-pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-func_args = "150"
-# runThisScriptOnCondor(scriptPath, batchJobName, extraSetupCommands=pre_run, extraArgs=func_args)
 
 args = sys.argv
 if args[1] == "Run":
@@ -103,9 +88,55 @@ if args[1] == "Run":
     batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
     pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
 
-    cluster_id = []
+    log_id = []
+    num_range = []
     for i in range(0,tot_num_files, files_per_run):
         # print(f"{i}:{i+files_per_run}")
-        cluster_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}"))
 
-    print(cluster_id)
+        log_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}"))
+        num_range.append(f"{i}:{i+files_per_run}")
+
+final_files = log_id[len(log_id)-1:][0]
+final_numbers = num_range[len(num_range)-1:][0]
+print(f"Waiting for files {final_numbers} to be processed...")
+subprocess.run(['condor_wait', f'{final_files}.log'])
+
+base_path = "/home/user293/Documents/selections/python/Outputs/t=300/PID1/Tree"
+
+output_file = ROOT.TFile("merged_output.root", "RECREATE")
+
+chain = ROOT.TChain("Tree")
+hist_sum = None
+
+for numbers in num_range:
+    file_path = f"{base_path}{numbers}.root"
+    # print(file_path)
+    chain.Add(file_path)
+
+    # Open each file separately to retrieve the histogram
+    f = ROOT.TFile.Open(file_path, "READ")
+    hist = f.Get("B_Histogram")
+    hist.SetDirectory(0)
+    f.Close()
+
+    if hist_sum is None:
+        hist_sum = hist.Clone("hist_sum")
+        hist_sum.SetDirectory(0)
+    else:
+        hist_sum.Add(hist)
+        hist_sum.SetDirectory(0)
+
+output_file.cd()
+
+# Merge the TTrees
+combined_tree = chain.CloneTree(0)
+chain.CopyTree("", "")
+combined_tree.Write("tree")
+
+hist_sum.Write()
+
+# Close the output file
+output_file.Write()
+output_file.Close()
+
+print("Merged TTrees and TH1D histograms")
