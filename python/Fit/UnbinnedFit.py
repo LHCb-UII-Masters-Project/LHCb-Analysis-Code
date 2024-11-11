@@ -142,6 +142,9 @@ model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),RO
 # region FIT
 fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save())
 
+# Access the covariance matrix
+covMatrix = fit_result.covarianceMatrix()
+
 number_of_bins = 40
 
 frame1 = x.frame()
@@ -343,6 +346,9 @@ ascii_art = """
 @ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
+print(ascii_art)
+print("COVARIENCE MATRIX")
+covMatrix.Print()
 
 print(ascii_art)
 
