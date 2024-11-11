@@ -121,7 +121,7 @@ for dp in unbinned_data: # change to filtered data for filtering
 
 
 mu = ROOT.RooRealVar("mu1", "mean of CB1", 5.40,5.20,5.50) # gaussian core mean estimate
-sigma = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.015,0.001,1) # gaussina core std estimate
+sigma = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.001,0.0001,2) # gaussina core std estimate
 alphaL = ROOT.RooRealVar("alphaL","cut off gauss left", 1,0.5,8) # gaussian core limit 1 estimate
 alphaR = ROOT.RooRealVar("alphaR","cut off gauss right", 1,0.5,8) # gaussian core limit 2 estimatre
 nL = ROOT.RooRealVar("n1", "nleft of DCB", 1,0.001,10) # first power law exponent estimate
@@ -142,6 +142,7 @@ model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),RO
 # region FIT
 
 fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save(),ROOT.RooFit.Minos(True))
+
 
 
 
@@ -256,48 +257,48 @@ c.Write()
 tree = ROOT.TTree("fit_parameters", "Fit Parameters Tree")
 
 # Create variables to hold the parameters and their errors
-mean_val = ROOT.std.vector('double')()
-mean_err_high = ROOT.std.vector('double')()
-mean_err_low = ROOT.std.vector('double')()
+mean_val = ROOT.std.vector('float')()
+mean_err_high = ROOT.std.vector('float')()
+mean_err_low = ROOT.std.vector('float')()
 
-sigma_val = ROOT.std.vector('double')()
-sigma_err_high = ROOT.std.vector('double')()
-sigma_err_low = ROOT.std.vector('double')()
+sigma_val = ROOT.std.vector('float')()
+sigma_err_high = ROOT.std.vector('float')()
+sigma_err_low = ROOT.std.vector('float')()
 
-alphaL_val = ROOT.std.vector('double')()
-alphaL_err_high = ROOT.std.vector('double')()
-alphaL_err_low = ROOT.std.vector('double')()
+alphaL_val = ROOT.std.vector('float')()
+alphaL_err_high = ROOT.std.vector('float')()
+alphaL_err_low = ROOT.std.vector('float')()
 
-alphaR_val = ROOT.std.vector('double')()
-alphaR_err_high = ROOT.std.vector('double')()
-alphaR_err_low = ROOT.std.vector('double')()
+alphaR_val = ROOT.std.vector('float')()
+alphaR_err_high = ROOT.std.vector('float')()
+alphaR_err_low = ROOT.std.vector('float')()
 
-nL_val = ROOT.std.vector('double')()
-nL_err_high = ROOT.std.vector('double')()
-nL_err_low = ROOT.std.vector('double')()
+nL_val = ROOT.std.vector('float')()
+nL_err_high = ROOT.std.vector('float')()
+nL_err_low = ROOT.std.vector('float')()
 
 
-nR_val = ROOT.std.vector('double')()
-nR_err_high = ROOT.std.vector('double')()
-nR_err_low = ROOT.std.vector('double')()
+nR_val = ROOT.std.vector('float')()
+nR_err_high = ROOT.std.vector('float')()
+nR_err_low = ROOT.std.vector('float')()
 
-decay_constant_val = ROOT.std.vector('double')()
-decay_constant_err_high = ROOT.std.vector('double')()
-decay_constant_err_low = ROOT.std.vector('double')()
+decay_constant_val = ROOT.std.vector('float')()
+decay_constant_err_high = ROOT.std.vector('float')()
+decay_constant_err_low = ROOT.std.vector('float')()
 
-chi2_val = ROOT.std.vector('double')()
+chi2_val = ROOT.std.vector('float')()
 
-nsig_val = ROOT.std.vector('double')()
-nsig_err_high = ROOT.std.vector('double')()
-nsig_err_low = ROOT.std.vector('double')()
+nsig_val = ROOT.std.vector('float')()
+nsig_err_high = ROOT.std.vector('float')()
+nsig_err_low = ROOT.std.vector('float')()
 
-nbkg_val = ROOT.std.vector('double')()
-nbkg_err_high = ROOT.std.vector('double')()
-nbkg_err_low = ROOT.std.vector('double')()
+nbkg_val = ROOT.std.vector('float')()
+nbkg_err_high = ROOT.std.vector('float')()
+nbkg_err_low = ROOT.std.vector('float')()
 
-timing_val = ROOT.std.vector('double')()
-pid_kaon_flag = ROOT.std.vector('double')()
-pid_pion_flag = ROOT.std.vector('double')()
+timing_val = ROOT.std.vector('float')()
+pid_kaon_flag = ROOT.std.vector('float')()
+pid_pion_flag = ROOT.std.vector('float')()
 
 
 
@@ -413,8 +414,11 @@ ascii_art = """
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
 print(ascii_art)
+print("COVARIENCE MATRIX")
+covMatrix.Print()
 
-print(sigma_err_high,sigma_err_low)
+print(ascii_art)
+
 
 
 
