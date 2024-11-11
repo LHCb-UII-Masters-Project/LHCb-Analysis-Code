@@ -77,7 +77,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return ret
     else:
-        subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; /usr/local/bin/condor_submit -interactive {condorScript}',shell=True)
+        subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; /usr/local/bin/condor_submit {condorScript}',shell=True)
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
     
@@ -88,7 +88,7 @@ sys.path.append(basedir)
 args = sys.argv
 
 if args[1] == "Run":
-    local = True
+    local = False
     files_per_run = int(args[2])
     tot_num_files = int(args[3])
     scriptPath = f"{basedir}/BsReconstructorBatch.py"
@@ -105,7 +105,6 @@ if args[1] == "Run":
 
     final_files = log_id[len(log_id)-1:][0]
     final_numbers = num_range[len(num_range)-1:][0]
-    local = True
     if local is True:
         for index, ret in enumerate(log_id):
             print(f"Waiting for files {num_range[index]} to be processed...")
@@ -116,9 +115,11 @@ if args[1] == "Run":
             print(f"Waiting for files {numbers} to be processed...")
             subprocess.run(['condor_wait', f'{log_id[index]}.log'])
     
-    base_path = f"{basedir}/Outputs/t=300/PID1/Tree"
+    timing = 150
+    pid_switch = 1
 
-    output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
+    base_path = f"{basedir}/Outputs/t=150/PID1/Tree" #  Fix me!
+    # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
 
     chain = ROOT.TChain("Tree")
     hist_sum = None
@@ -141,12 +142,19 @@ if args[1] == "Run":
             hist_sum.Add(hist)
             hist_sum.SetDirectory(0)
 
-    output_file.cd()
+
+    
 
     # Merge the TTrees
     merge_tree = chain.CopyTree("", "")
     merge_tree.SetName("Tree")
+    
+    
 
+    output_file = ROOT.TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/TreeSize" + str(merge_tree.GetEntries()) + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+    output_file.cd()
+
+    merge_tree.Write("Tree")
     hist_sum.Write()
 
     # Close the output file

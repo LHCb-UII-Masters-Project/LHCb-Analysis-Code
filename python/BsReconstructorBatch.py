@@ -16,7 +16,6 @@ from array import array
 import re
 import sys
 
-version = "BsReconstructor_v1"
 # endregion IMPORTS
 
 #region TREE
@@ -104,7 +103,7 @@ tree.Branch('num_bs', num_bs, 'num_bs/F')
 #region USERINPUTS
 
 args = sys.argv
-timing = 300 # Default timing argument if not provided
+timing = 150 # Default timing argument if not provided
 pid_switch = 1  # Default PID switch argument if not provided
 rand_seed_arg = int(time.time() * os.getpid())  # Default random seed if not provided
 kaon_switch = 1
@@ -380,7 +379,7 @@ for event in events: # loop through all events
 if batching == True:
   file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + f"/Tree{args[1]}:{args[2]}" + ".root", "RECREATE")
 else:
-  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/_Tree_Size_" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
 file.WriteObject(tree, "Tree")
 file.WriteObject(b_plot, "B_Histogram")
 file.Close()
