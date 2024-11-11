@@ -81,7 +81,6 @@ sys.path.append(basedir)
 args = sys.argv
 
 if args[1] == "Run":
-    scriptPath = f"{basedir}/BsReconstructor.py"
     files_per_run = int(args[2])
     tot_num_files = int(args[3])
     scriptPath = f"{basedir}/BsReconstructorBatch.py"
@@ -98,8 +97,9 @@ if args[1] == "Run":
 
     final_files = log_id[len(log_id)-1:][0]
     final_numbers = num_range[len(num_range)-1:][0]
-    print(f"Waiting for files {final_numbers} to be processed...")
-    subprocess.run(['condor_wait', f'{final_files}.log'])
+    for index, numbers in enumerate(num_range):
+        print(f"Waiting for files {numbers} to be processed...")
+        subprocess.run(['condor_wait', f'{log_id[index]}.log'])
 
     base_path = f"{basedir}/Outputs/t=300/PID1/Tree"
 
