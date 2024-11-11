@@ -142,6 +142,9 @@ model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),RO
 # region FIT
 fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save())
 
+# Access the covariance matrix
+covMatrix = fit_result.covarianceMatrix()
+
 number_of_bins = 40
 
 frame1 = x.frame()
@@ -269,6 +272,9 @@ nsig_val = ROOT.std.vector('float')()
 nsig_err = ROOT.std.vector('float')()
 nbkg_val = ROOT.std.vector('float')()
 nbkg_err = ROOT.std.vector('float')()
+timing_val = ROOT.std.vector('float')()
+pid_kaon_flag = ROOT.std.vector('float')()
+pid_pion_flag = ROOT.std.vector('float')()
 
 
 
@@ -291,8 +297,14 @@ nsig_val.push_back(nsig.getVal())
 nsig_err.push_back(nsig.getError())
 nbkg_val.push_back(nbkg.getVal())
 nbkg_err.push_back(nbkg.getError())
+timing_val.push_back(timing_value)
+pid_kaon_flag.push_back(PID_kaon_value)
+pid_pion_flag.push_back(PID_pion_value)
 
 # Create branches in the tree
+tree.Branch("timing",timing_val)
+tree.Branch("pid_kaon_flag",pid_kaon_flag)
+tree.Branch("pid_pion_flag",pid_pion_flag)
 tree.Branch("mean", mean_val)
 tree.Branch("mean_error", mean_err)
 tree.Branch("sigma", sigma_val)
@@ -334,6 +346,9 @@ ascii_art = """
 @ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
+print(ascii_art)
+print("COVARIENCE MATRIX")
+covMatrix.Print()
 
 print(ascii_art)
 
