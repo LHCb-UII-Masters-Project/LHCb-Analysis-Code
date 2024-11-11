@@ -29,7 +29,7 @@ timing_res = array('f', [0])
 tree.Branch('timing_res', timing_res, 'timing_res/F')
 PID_pion = array('f', [0])
 tree.Branch('PID_pion', PID_pion, 'PID_pion/F')
-PID_kaon = TString()
+PID_kaon = array('f', [0])
 tree.Branch('PID_kaon', PID_kaon, 'PID_kaon/F')
 Doca_cut = array('f', [0])
 tree.Branch('Doca_cut', Doca_cut, 'Doca_cut/F')
@@ -107,11 +107,13 @@ args = sys.argv
 timing = 300 # Default timing argument if not provided
 pid_switch = 1  # Default PID switch argument if not provided
 rand_seed_arg = int(time.time() * os.getpid())  # Default random seed if not provided
+kaon_switch = 1
 
 timing_res[0] = timing #  Set tree value of timing_res
 rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
 # Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
-PID_pion[0] = 0.99 if pid_switch == 1 else 1 if pid_switch == 2 else PID_pion[0]
+PID_pion[0] = 1 if pid_switch == 1 else 1
+PID_kaon[0] = 1 if kaon_switch == 1 else 0
 # If not batching use 
 if path.dirname(path.realpath(__file__))[-6:] == "python":  # If not batching
   basedir=path.dirname(path.realpath(__file__))
@@ -217,7 +219,6 @@ n_signal=0
 
 #region DETECTOR EFFICIENCY
 eff_directory = os.path.join(basedir, 'Inputs/PEff Kaons_300') if timing == 300 else os.path.join(basedir, 'Inputs/PEff Kaons_150')
-PID_kaon = str(eff_directory)
 # List all file paths
 eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
 boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
