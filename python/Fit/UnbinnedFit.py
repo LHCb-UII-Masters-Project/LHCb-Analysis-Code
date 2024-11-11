@@ -1,6 +1,6 @@
 # region IMPORTS
 import ROOT
-from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem
+from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
 from math import * 
 import sys
 import numpy as np
@@ -121,7 +121,7 @@ for dp in unbinned_data: # change to filtered data for filtering
 
 
 mu = ROOT.RooRealVar("mu1", "mean of CB1", 5.40,5.20,5.50) # gaussian core mean estimate
-sigma = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.001,0.0001,2) # gaussina core std estimate
+sigma = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.015,0.001,1) # gaussina core std estimate
 alphaL = ROOT.RooRealVar("alphaL","cut off gauss left", 1,0.5,8) # gaussian core limit 1 estimate
 alphaR = ROOT.RooRealVar("alphaR","cut off gauss right", 1,0.5,8) # gaussian core limit 2 estimatre
 nL = ROOT.RooRealVar("n1", "nleft of DCB", 1,0.001,10) # first power law exponent estimate
@@ -140,7 +140,10 @@ model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),RO
 #endregion DefPDF
 
 # region FIT
-fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save())
+
+fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save(),ROOT.RooFit.Minos(True))
+
+
 
 # Access the covariance matrix
 covMatrix = fit_result.covarianceMatrix()
@@ -152,7 +155,7 @@ frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins))
 model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
 model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kGreen),ROOT.RooFit.LineStyle(ROOT.kDashed))
-model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.Normalization((data.sumEntries()-nsig.getVal())/data.sumEntries(), ROOT.RooAbsReal.Relative))  # Overall DCB
+model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
 
 chi2 = frame1.chiSquare("sig+bkg", "data",9)
 hpull = frame1.pullHist("data", "sig+bkg")
@@ -253,77 +256,140 @@ c.Write()
 tree = ROOT.TTree("fit_parameters", "Fit Parameters Tree")
 
 # Create variables to hold the parameters and their errors
-mean_val = ROOT.std.vector('float')()
-mean_err = ROOT.std.vector('float')()
-sigma_val = ROOT.std.vector('float')()
-sigma_err = ROOT.std.vector('float')()
-alphaL_val = ROOT.std.vector('float')()
-alphaL_err = ROOT.std.vector('float')()
-alphaR_val = ROOT.std.vector('float')()
-alphaR_err = ROOT.std.vector('float')()
-nL_val = ROOT.std.vector('float')()
-nL_err = ROOT.std.vector('float')()
-nR_val = ROOT.std.vector('float')()
-nR_err = ROOT.std.vector('float')()
-decay_constant_val = ROOT.std.vector('float')()
-decay_constant_err = ROOT.std.vector('float')()
-chi2_val = ROOT.std.vector('float')()
-nsig_val = ROOT.std.vector('float')()
-nsig_err = ROOT.std.vector('float')()
-nbkg_val = ROOT.std.vector('float')()
-nbkg_err = ROOT.std.vector('float')()
-timing_val = ROOT.std.vector('float')()
-pid_kaon_flag = ROOT.std.vector('float')()
-pid_pion_flag = ROOT.std.vector('float')()
+mean_val = ROOT.std.vector('double')()
+mean_err_high = ROOT.std.vector('double')()
+mean_err_low = ROOT.std.vector('double')()
+
+sigma_val = ROOT.std.vector('double')()
+sigma_err_high = ROOT.std.vector('double')()
+sigma_err_low = ROOT.std.vector('double')()
+
+alphaL_val = ROOT.std.vector('double')()
+alphaL_err_high = ROOT.std.vector('double')()
+alphaL_err_low = ROOT.std.vector('double')()
+
+alphaR_val = ROOT.std.vector('double')()
+alphaR_err_high = ROOT.std.vector('double')()
+alphaR_err_low = ROOT.std.vector('double')()
+
+nL_val = ROOT.std.vector('double')()
+nL_err_high = ROOT.std.vector('double')()
+nL_err_low = ROOT.std.vector('double')()
+
+
+nR_val = ROOT.std.vector('double')()
+nR_err_high = ROOT.std.vector('double')()
+nR_err_low = ROOT.std.vector('double')()
+
+decay_constant_val = ROOT.std.vector('double')()
+decay_constant_err_high = ROOT.std.vector('double')()
+decay_constant_err_low = ROOT.std.vector('double')()
+
+chi2_val = ROOT.std.vector('double')()
+
+nsig_val = ROOT.std.vector('double')()
+nsig_err_high = ROOT.std.vector('double')()
+nsig_err_low = ROOT.std.vector('double')()
+
+nbkg_val = ROOT.std.vector('double')()
+nbkg_err_high = ROOT.std.vector('double')()
+nbkg_err_low = ROOT.std.vector('double')()
+
+timing_val = ROOT.std.vector('double')()
+pid_kaon_flag = ROOT.std.vector('double')()
+pid_pion_flag = ROOT.std.vector('double')()
 
 
 
 mean_val.push_back(mu.getVal())
-mean_err.push_back(mu.getError())
+mean_err_high.push_back(mu.getAsymErrorHi())
+mean_err_low.push_back(mu.getAsymErrorLo())
+
 sigma_val.push_back(sigma.getVal())
-sigma_err.push_back(sigma.getError())
+sigma_err_high.push_back(sigma.getAsymErrorHi())
+sigma_err_low.push_back(sigma.getAsymErrorLo())
+
 alphaL_val.push_back(alphaL.getVal())
-alphaL_err.push_back(alphaL.getError())
+alphaL_err_high.push_back(alphaL.getAsymErrorHi())
+alphaL_err_low.push_back(alphaL.getAsymErrorLo())
+
 alphaR_val.push_back(alphaR.getVal())
-alphaR_err.push_back(alphaR.getError())
+alphaR_err_high.push_back(alphaR.getAsymErrorHi())
+alphaR_err_low.push_back(alphaR.getAsymErrorLo())
+
 nL_val.push_back(nL.getVal())
-nL_err.push_back(nL.getError())
+nL_err_high.push_back(nL.getAsymErrorHi())
+nL_err_low.push_back(nL.getAsymErrorLo())
+
 nR_val.push_back(nR.getVal())
-nR_err.push_back(nR.getError())
+nR_err_high.push_back(nR.getAsymErrorHi())
+nR_err_low.push_back(nR.getAsymErrorLo())
+
 decay_constant_val.push_back(decay_constant.getVal())
-decay_constant_err.push_back(decay_constant.getError())
+decay_constant_err_high.push_back(decay_constant.getAsymErrorHi())
+decay_constant_err_low.push_back(decay_constant.getAsymErrorLo())
+
 chi2_val.push_back(chi2)
+
 nsig_val.push_back(nsig.getVal())
-nsig_err.push_back(nsig.getError())
+nsig_err_high.push_back(nsig.getAsymErrorHi())
+nsig_err_low.push_back(nsig.getAsymErrorLo())
+
 nbkg_val.push_back(nbkg.getVal())
-nbkg_err.push_back(nbkg.getError())
+nbkg_err_high.push_back(nbkg.getAsymErrorHi())
+nbkg_err_low.push_back(nbkg.getAsymErrorLo())
+
 timing_val.push_back(timing_value)
 pid_kaon_flag.push_back(PID_kaon_value)
 pid_pion_flag.push_back(PID_pion_value)
+
 
 # Create branches in the tree
 tree.Branch("timing",timing_val)
 tree.Branch("pid_kaon_flag",pid_kaon_flag)
 tree.Branch("pid_pion_flag",pid_pion_flag)
+
 tree.Branch("mean", mean_val)
-tree.Branch("mean_error", mean_err)
+tree.Branch("mean_error_high", mean_err_high)
+tree.Branch("mean_error_low", mean_err_low)
+
 tree.Branch("sigma", sigma_val)
-tree.Branch("sigma_error", sigma_err)
+tree.Branch("sigma_error_high", sigma_err_high)
+tree.Branch("sigma_error_low", sigma_err_low)
+
 tree.Branch("alphaL", alphaL_val)
-tree.Branch("alphaL_error", alphaL_err)
+tree.Branch("alphaL_error_high", alphaL_err_high)
+tree.Branch("alphaL_error_low", alphaL_err_low)
+
 tree.Branch("alphaR", alphaR_val)
-tree.Branch("alphaR_error", alphaR_err)
+tree.Branch("alphaR_error_high", alphaR_err_high)
+tree.Branch("alphaR_error_low", alphaR_err_low)
+
 tree.Branch("nL", nL_val)
-tree.Branch("nL_error", nL_err)
+tree.Branch("nL_error_high", nL_err_high)
+tree.Branch("nL_error_low", nL_err_low)
+
 tree.Branch("nR", nR_val)
-tree.Branch("nR_error", nR_err)
+tree.Branch("nR_error_high", nR_err_high)
+tree.Branch("nR_error_low", nR_err_low)
+
 tree.Branch("decay_constant", decay_constant_val)
-tree.Branch("decay_constant_error", decay_constant_err)
+tree.Branch("decay_constant_error_high", decay_constant_err_high)
+tree.Branch("decay_constant_error_low", decay_constant_err_low)
+
 tree.Branch("chi2", chi2_val)
+
 tree.Branch("nsig", nsig_val)
-tree.Branch("nsig_error", nsig_err)
+tree.Branch("nsig_error_high", nsig_err_high)
+tree.Branch("nsig_error_low", nsig_err_low)
+
 tree.Branch("nbkg", nbkg_val)
-tree.Branch("nbkg_error", nbkg_err)
+tree.Branch("nbkg_error_high", nbkg_err_high)
+tree.Branch("nbkg_error_low", nbkg_err_low)
+
+tree.Branch("timing", timing_val)
+tree.Branch("pid_kaon_flag", pid_kaon_flag)
+tree.Branch("pid_pion_flag", pid_pion_flag)
 
 
 # Fill the tree with values
@@ -347,11 +413,8 @@ ascii_art = """
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
 print(ascii_art)
-print("COVARIENCE MATRIX")
-covMatrix.Print()
 
-print(ascii_art)
-
+print(sigma_err_high,sigma_err_low)
 
 
 
