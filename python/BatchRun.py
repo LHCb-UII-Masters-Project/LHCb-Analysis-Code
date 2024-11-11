@@ -86,21 +86,27 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
 basedir=path.dirname(path.realpath(__file__))
 sys.path.append(basedir)
 args = sys.argv
+local = args[2] == "Local"
+
 
 if args[1] == "Run":
-    local = False
-    files_per_run = int(args[2])
-    tot_num_files = int(args[3])
+    files_per_run = int(args[3])
+    tot_num_files = int(args[4])
     scriptPath = f"{basedir}/BsReconstructorBatch.py"
     batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
     pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+    timing = 300
+    pid_switch = 1
+    kaon_switch = 1
+    rand_seed = None
+    run_args = f"{timing} {pid_switch} {kaon_switch} {rand_seed}"
 
     log_id = []
     num_range = []
     for i in range(0,tot_num_files, files_per_run):
         # print(f"{i}:{i+files_per_run}")
 
-        log_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}", is_local=local))
+        log_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {run_args}", is_local=local))
         num_range.append(f"{i}:{i+files_per_run}")
 
     final_files = log_id[len(log_id)-1:][0]
@@ -114,11 +120,8 @@ if args[1] == "Run":
         for index, numbers in enumerate(num_range):
             print(f"Waiting for files {numbers} to be processed...")
             subprocess.run(['condor_wait', f'{log_id[index]}.log'])
-    
-    timing = 150
-    pid_switch = 1
 
-    base_path = f"{basedir}/Outputs/t=150/PID1/Tree" #  Fix me!
+    base_path = f"{basedir}/Outputs/t={timing}/PID{pid_switch}/Tree"
     # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
 
     chain = ROOT.TChain("Tree")

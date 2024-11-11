@@ -102,16 +102,23 @@ tree.Branch('num_bs', num_bs, 'num_bs/F')
 
 #region USERINPUTS
 
+def get_arg(index, default):
+    try:
+        return int(args[index])
+    except (IndexError, ValueError, TypeError):
+        return default
+
 args = sys.argv
-timing = 150 # Default timing argument if not provided
-pid_switch = 1  # Default PID switch argument if not provided
-rand_seed_arg = int(time.time() * os.getpid())  # Default random seed if not provided
-kaon_switch = 1
+
+timing = get_arg(3, 300)  # Default timing argument if not provided
+pid_switch = get_arg(4, 1)  # Default PID switch argument if not provided
+kaon_switch = get_arg(5, 1)  # Default Kaon switch argument if not provided
+rand_seed_arg = get_arg(6, int(time.time() * os.getpid()))  # Default random seed if not provided
 
 timing_res[0] = timing #  Set tree value of timing_res
 rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
 # Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
-PID_pion[0] = 1 if pid_switch == 1 else 1
+PID_pion[0] = 1 if pid_switch == 1 else 0
 PID_kaon[0] = 1 if kaon_switch == 1 else 0
 # If not batching use 
 if path.dirname(path.realpath(__file__))[-6:] == "python":  # If not batching
@@ -248,7 +255,7 @@ for event in events: # loop through all events
   if pid_switch == 1:
     good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
   elif pid_switch == 0: 
-    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 99/100 dertection chance
+    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 100% detection
 
   bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
   pions = good_pions + bad_pions
