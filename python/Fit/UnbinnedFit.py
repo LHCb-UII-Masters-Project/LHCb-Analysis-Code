@@ -269,6 +269,9 @@ nsig_val = ROOT.std.vector('float')()
 nsig_err = ROOT.std.vector('float')()
 nbkg_val = ROOT.std.vector('float')()
 nbkg_err = ROOT.std.vector('float')()
+timing_val = ROOT.std.vector('float')()
+pid_kaon_flag = ROOT.std.vector('float')()
+pid_pion_flag = ROOT.std.vector('float')()
 
 
 
@@ -291,8 +294,14 @@ nsig_val.push_back(nsig.getVal())
 nsig_err.push_back(nsig.getError())
 nbkg_val.push_back(nbkg.getVal())
 nbkg_err.push_back(nbkg.getError())
+timing_val.push_back(timing_value)
+pid_kaon_flag.push_back(PID_kaon_value)
+pid_pion_flag.push_back(PID_pion_value)
 
 # Create branches in the tree
+tree.Branch("timing",timing_val)
+tree.Branch("pid_kaon_flag",pid_kaon_flag)
+tree.Branch("pid_pion_flag",pid_pion_flag)
 tree.Branch("mean", mean_val)
 tree.Branch("mean_error", mean_err)
 tree.Branch("sigma", sigma_val)
