@@ -9,7 +9,7 @@ from ROOT import TH1D, TChain, TTree, TFile
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
                             launchEnv="",extraSetupCommands = [],
-                            condorSettings={"request_memory":"4000"},delayStart=None):
+                            condorSettings={"request_memory":"4000", "request_cpus":"1"},delayStart=None, is_local=False):
     #having created a notebook that we want to run on condor, write a bash file and submit it.
     
     '''
@@ -72,15 +72,23 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         # f.write('+RequestedChroot="cc7"\n' if not turnOffCC7 else '')
         f.write("queue\n")
 
-    subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; /usr/local/bin/condor_submit {condorScript}',shell=True)
-    time.sleep(3) #try to fix concurrency problem?
-    return condorOut
+    if is_local is True:
+        ret = subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; exec {subScript}',shell=True)
+        time.sleep(3) #try to fix concurrency problem?
+        return ret
+    else:
+        subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; /usr/local/bin/condor_submit -interactive {condorScript}',shell=True)
+        time.sleep(3) #try to fix concurrency problem?
+        return condorOut
+    
+    
 
 basedir=path.dirname(path.realpath(__file__))
 sys.path.append(basedir)
 args = sys.argv
 
 if args[1] == "Run":
+    local = True
     files_per_run = int(args[2])
     tot_num_files = int(args[3])
     scriptPath = f"{basedir}/BsReconstructorBatch.py"
@@ -92,18 +100,25 @@ if args[1] == "Run":
     for i in range(0,tot_num_files, files_per_run):
         # print(f"{i}:{i+files_per_run}")
 
-        log_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}"))
+        log_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}", is_local=local))
         num_range.append(f"{i}:{i+files_per_run}")
 
     final_files = log_id[len(log_id)-1:][0]
     final_numbers = num_range[len(num_range)-1:][0]
-    for index, numbers in enumerate(num_range):
-        print(f"Waiting for files {numbers} to be processed...")
-        subprocess.run(['condor_wait', f'{log_id[index]}.log'])
-
+    local = True
+    if local is True:
+        for index, ret in enumerate(log_id):
+            print(f"Waiting for files {num_range[index]} to be processed...")
+            ret.wait()
+            # time.sleep(3)
+    else:
+        for index, numbers in enumerate(num_range):
+            print(f"Waiting for files {numbers} to be processed...")
+            subprocess.run(['condor_wait', f'{log_id[index]}.log'])
+    
     base_path = f"{basedir}/Outputs/t=300/PID1/Tree"
 
-    output_file = ROOT.TFile("merged_output.root", "RECREATE")
+    output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
 
     chain = ROOT.TChain("Tree")
     hist_sum = None
@@ -120,7 +135,7 @@ if args[1] == "Run":
         f.Close()
 
         if hist_sum is None:
-            hist_sum = hist.Clone("hist_sum")
+            hist_sum = hist.Clone("hist")
             hist_sum.SetDirectory(0)
         else:
             hist_sum.Add(hist)
@@ -129,9 +144,8 @@ if args[1] == "Run":
     output_file.cd()
 
     # Merge the TTrees
-    combined_tree = chain.CloneTree(0)
-    chain.CopyTree("", "")
-    combined_tree.Write("tree")
+    merge_tree = chain.CopyTree("", "")
+    merge_tree.SetName("Tree")
 
     hist_sum.Write()
 
