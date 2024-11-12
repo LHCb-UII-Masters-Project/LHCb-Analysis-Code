@@ -95,10 +95,10 @@ if args[1] == "Run":
     scriptPath = f"{basedir}/BsReconstructorBatch.py"
     batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
     pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-    timing = 300
-    rich_window = 50
-    pid_switch = 1
-    kaon_switch = 1
+    timing = 150  # 150 or 300
+    rich_window = 50  # 200 or 50
+    pid_switch = 0  # 0 or 1
+    kaon_switch = 0  # 0 or 1
     rand_seed = None
     run_args = f"{timing} {rich_window} {pid_switch} {kaon_switch} {rand_seed}"
 
