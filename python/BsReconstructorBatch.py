@@ -73,10 +73,16 @@ ds_chi_ndf = array('f', [0])
 tree.Branch('ds_chi_ndf', ds_chi_ndf, 'ds_chi_ndf/F')
 k1_pt = array('f', [0])
 tree.Branch('k1_pt', k1_pt, 'k1_pt/F')
+k1_eta = array('f', [0])
+tree.Branch('k1_eta', k1_eta, 'k1_eta/F')
 k2_pt = array('f', [0])
-tree.Branch('kw_pt', k2_pt, 'k2_pt/F')
+tree.Branch('k2_pt', k2_pt, 'k2_pt/F')
+k2_eta = array('f', [0])
+tree.Branch('k2_eta', k2_eta, 'k2_eta/F')
 pi1_pt = array('f', [0])
 tree.Branch('pi1_pt', pi1_pt, 'pi1_pt/F')
+pi1_eta = array('f', [0])
+tree.Branch('pi1_eta', pi1_eta, 'pi1_eta/F')
 ds_mass = array('f', [0])
 tree.Branch('ds_mass', ds_mass, 'ds_mass/F')
 ds_chi2_distance = array('f', [0])
@@ -87,8 +93,12 @@ bs_chi2_ndf= array('f', [0])
 tree.Branch('bs_chi2_ndf', bs_chi2_ndf, 'bs_chi2_ndf/F')
 ds_pt= array('f', [0])
 tree.Branch('ds_pt', ds_pt, 'ds_pt/F')
+ds_eta = array('f', [0])
+tree.Branch('ds_eta', ds_eta, 'ds_eta/F')
 pi2_pt= array('f', [0])
 tree.Branch('pi2_pt', pi2_pt, 'pi2_pt/F')
+pi2_eta = array('f', [0])
+tree.Branch('pi2_eta', pi2_eta, 'pi2_eta/F')
 bs_mass= array('f', [0])
 tree.Branch('bs_mass', bs_mass, 'bs_mass/F')
 bs_chi2_distance= array('f', [0])
@@ -309,8 +319,11 @@ for event in events: # loop through all events
       
       ds_chi_ndf[0] = ds_vtx.chi2 / ds_vtx.ndof
       k1_pt[0] = k1.pt()
+      k1_eta[0] = k1.eta()
       k2_pt[0] = k2.pt()
+      k2_eta[0] = k2.eta()
       pi1_pt[0] = pion.pt()
+      pi1_eta[0] = pion.eta()
       ds_mass[0] = ds.mass
       Chi2_ndf_limit[0] = 5
       
@@ -342,7 +355,9 @@ for event in events: # loop through all events
           
           bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
           ds_pt[0] = ds.pt()
+          ds_eta[0] = ds.eta()
           pi2_pt[0] = pion2.pt()
+          pi2_eta[0] = pion2.pt()
 
           b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
           B_chi2_ndf_limit[0] = 5
