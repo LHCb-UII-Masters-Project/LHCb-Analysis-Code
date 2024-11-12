@@ -26,6 +26,8 @@ rand_seed = array('f', [0])
 tree.Branch('rand_seed', rand_seed, 'rand_seed/F')
 timing_res = array('f', [0])
 tree.Branch('timing_res', timing_res, 'timing_res/F')
+rich_window = array('f', [0])
+tree.Branch('rich_window', rich_window, 'rich_window/F')
 PID_pion = array('f', [0])
 tree.Branch('PID_pion', PID_pion, 'PID_pion/F')
 PID_kaon = array('f', [0])
@@ -121,15 +123,17 @@ def get_arg(index, default):
 args = sys.argv
 
 timing = get_arg(3, 300)  # Default timing argument if not provided
-pid_switch = get_arg(4, 1)  # Default PID switch argument if not provided
-kaon_switch = get_arg(5, 1)  # Default Kaon switch argument if not provided
-rand_seed_arg = get_arg(6, int(time.time() * os.getpid()))  # Default random seed if not provided
+rich_time = get_arg(4, 200)
+pid_switch = get_arg(5, 1)  # Default PID switch argument if not provided
+kaon_switch = get_arg(6, 1)  # Default Kaon switch argument if not provided
+rand_seed_arg = get_arg(7, int(time.time() * os.getpid()))  # Default random seed if not provided
 
 timing_res[0] = timing #  Set tree value of timing_res
+rich_window[0] = rich_time
 rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
 # Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
-PID_pion[0] = 1 if pid_switch == 1 else 0
-PID_kaon[0] = 1 if kaon_switch == 1 else 0
+PID_pion[0] = pid_switch
+PID_kaon[0] = kaon_switch
 # If not batching use 
 if path.dirname(path.realpath(__file__))[-6:] == "python":  # If not batching
   basedir=path.dirname(path.realpath(__file__))
@@ -213,10 +217,8 @@ gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the 
 events = TChain("Events") # connects all the events into a single data set
 
 # can be changed to look at different timing resolutions and detector geometries
-if timing == 300:
-  dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um200s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
-else:  # Timing = 150
-  dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um50s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
+
+dir=f"/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{rich_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(args[1]):int(args[2])]
 for file in onlyfiles:
@@ -234,7 +236,7 @@ n_signal=0
 #endregion FILE READING
 
 #region DETECTOR EFFICIENCY
-eff_directory = os.path.join(basedir, 'Inputs/PEff Kaons_300') if timing == 300 else os.path.join(basedir, 'Inputs/PEff Kaons_150')
+eff_directory = os.path.join(basedir, f'Inputs/PEff Kaons_{timing}')
 # List all file paths
 eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
 boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
@@ -275,13 +277,16 @@ for event in events: # loop through all events
   
   all_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] # all kaons
   good_kaons = [] # initialised list to be filled with good kaons
-  for kaon in all_kaons:
-    k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
-    # Adjust conditions and use nested conditionals for efficiency
-    for i in range(len(boundaries)):
-      if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and int(rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
-        good_kaons.append(kaon)
-        continue
+  if kaon_switch == 1:
+    for kaon in all_kaons:
+      k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
+      # Adjust conditions and use nested conditionals for efficiency
+      for i in range(len(boundaries)):
+        if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and int(rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
+          good_kaons.append(kaon)
+          continue
+  else: 
+    good_kaons = all_kaons
 
   Num_kaons[0] = len(all_kaons)
   Num_kaons_detected[0] = len(good_kaons)

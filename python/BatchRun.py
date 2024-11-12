@@ -82,7 +82,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         return condorOut
     
     
-
+start_time = time.time()
 basedir=path.dirname(path.realpath(__file__))
 sys.path.append(basedir)
 args = sys.argv
@@ -96,10 +96,11 @@ if args[1] == "Run":
     batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
     pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
     timing = 300
+    rich_window = 50
     pid_switch = 1
     kaon_switch = 1
     rand_seed = None
-    run_args = f"{timing} {pid_switch} {kaon_switch} {rand_seed}"
+    run_args = f"{timing} {rich_window} {pid_switch} {kaon_switch} {rand_seed}"
 
     log_id = []
     num_range = []
@@ -120,6 +121,7 @@ if args[1] == "Run":
         for index, numbers in enumerate(num_range):
             print(f"Waiting for files {numbers} to be processed...")
             subprocess.run(['condor_wait', f'{log_id[index]}.log'])
+            time.sleep(3)
 
     base_path = f"{basedir}/Outputs/t={timing}/PID{pid_switch}/Tree"
     # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
@@ -152,9 +154,9 @@ if args[1] == "Run":
     merge_tree = chain.CopyTree("", "")
     merge_tree.SetName("Tree")
     
-    
+    pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
 
-    output_file = ROOT.TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/TreeSize" + str(merge_tree.GetEntries()) + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+    output_file = ROOT.TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_combine) + "/Rich" + str(rich_window) + "/_Tree_Size_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
     output_file.cd()
 
     merge_tree.Write("Tree")
@@ -164,8 +166,17 @@ if args[1] == "Run":
     output_file.Write()
     output_file.Close()
 
-    print("Merged TTrees and TH1D histograms")
+    end_time = time.time()
+
 
 elif args[1] == "Test":
     pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
     runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run)
+    end_time = time.time()
+
+# Timer output for checking
+time_taken = end_time - start_time
+minutes = int(time_taken // 60)
+seconds = int(time_taken % 60)
+
+print(f"Time taken: {minutes} minutes and {seconds} seconds")
