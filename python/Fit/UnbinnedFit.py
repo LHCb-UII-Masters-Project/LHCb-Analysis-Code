@@ -1,5 +1,6 @@
 # region IMPORTS
 import ROOT
+from Variables import *
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
 from math import * 
 import sys
@@ -18,6 +19,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
 args = parser.parse_args()
+input_directory = os.path.dirname(args.input_file)
 
 class LHCbStyle:
     def __init__(self, print_msg=False):
@@ -120,28 +122,29 @@ for dp in unbinned_data: # change to filtered data for filtering
     data.add(ROOT.RooArgSet(x))
 
 
-mu = ROOT.RooRealVar("mu1", "mean of CB1", 5.40,5.20,5.50) # gaussian core mean estimate
-sigma = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.001,0.0001,2) # gaussina core std estimate
-alphaL = ROOT.RooRealVar("alphaL","cut off gauss left", 1,0.5,8) # gaussian core limit 1 estimate
-alphaR = ROOT.RooRealVar("alphaR","cut off gauss right", 1,0.5,8) # gaussian core limit 2 estimatre
-nL = ROOT.RooRealVar("n1", "nleft of DCB", 1,0.001,10) # first power law exponent estimate
-nR = ROOT.RooRealVar("n2", "nright of DCB", 1,0.001,3) # second power law exponent estimate
+# Define variables using the updated dictionary
+mu = ROOT.RooRealVar("mu1", "mean of CB1", variables['mu']['value'], variables['mu']['min'], variables['mu']['max'])  # Gaussian core mean estimate
+sigma = ROOT.RooRealVar("sigma1", "std of core gaussian 1", variables['sigma']['value'], variables['sigma']['min'], variables['sigma']['max'])  # Gaussian core std estimate
+alphaL = ROOT.RooRealVar("alphaL", "cut off gauss left", variables['alphaL']['value'], variables['alphaL']['min'], variables['alphaL']['max'])  # Gaussian core limit 1 estimate
+alphaR = ROOT.RooRealVar("alphaR", "cut off gauss right", variables['alphaR']['value'], variables['alphaR']['min'], variables['alphaR']['max'])  # Gaussian core limit 2 estimate
+nL = ROOT.RooRealVar("n1", "nleft of DCB", variables['nL']['value'], variables['nL']['min'], variables['nL']['max'])  # First power law exponent estimate
+nR = ROOT.RooRealVar("n2", "nright of DCB", variables['nR']['value'], variables['nR']['min'], variables['nR']['max'])  # Second power law exponent estimate
 
-sig = ROOT.RooCrystalBall("sig", "double crystal ball",x,mu,sigma,alphaL,nL,alphaR,nR)
+sig = ROOT.RooCrystalBall("sig", "double crystal ball", x, mu, sigma, alphaL, nL, alphaR, nR)
 
-decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", -0.001, -5, 0)
+decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", variables['decay_constant']['value'], variables['decay_constant']['min'], variables['decay_constant']['max'])
 bkg = ROOT.RooExponential("bkg", "Exponential Background", x, decay_constant)
 
-#noisetosignalratio = ROOT.RooRealVar("noisetosignalratio", "fraction of noise in signal", 0.1, 0.0, 0.5)
-nsig = ROOT.RooRealVar("nsig", "number of signal events", data.sumEntries()*0.75, 0, data.sumEntries())
-nbkg = ROOT.RooRealVar("nbkg", "number of background events", data.sumEntries()*0.25, 0, data.sumEntries())
+nsig = ROOT.RooRealVar("nsig", "number of signal events", variables['nsig']['value'], variables['nsig']['min'], variables['nsig']['max'])
+nbkg = ROOT.RooRealVar("nbkg", "number of background events", variables['nbkg']['value'], variables['nbkg']['min'], variables['nbkg']['max'])
+
 
 model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),ROOT.RooArgList(nbkg, nsig))
 #endregion DefPDF
 
 # region FIT
 
-fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save(),ROOT.RooFit.Minos(True))
+fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save(),ROOT.RooFit.Minos(True),ROOT.RooFit.Optimize(False))
 
 
 
@@ -245,10 +248,9 @@ with LHCbStyle() as lbs:
     c.cd()
     c.Update()
     c.Draw()
-    c.SaveAs(f"FitOutputs/{origin_file_name_reduced}_fitted_{current_time}.png")
+    c.SaveAs(f"{input_directory}/{origin_file_name_reduced}_fitted_{current_time}.png")
     # Create a ROOT file
-
-output_file = ROOT.TFile(f"FitOutputs/{origin_file_name_reduced}_fitted_{current_time}.root", "RECREATE")
+output_file = ROOT.TFile(f"{input_directory}/{origin_file_name_reduced}_fitted_{current_time}.root", "RECREATE")
 
 # Write the canvas to the file
 c.Write()
@@ -260,41 +262,59 @@ tree = ROOT.TTree("fit_parameters", "Fit Parameters Tree")
 mean_val = ROOT.std.vector('float')()
 mean_err_high = ROOT.std.vector('float')()
 mean_err_low = ROOT.std.vector('float')()
+mean_err_sym = ROOT.std.vector('float')()
+
 
 sigma_val = ROOT.std.vector('float')()
 sigma_err_high = ROOT.std.vector('float')()
 sigma_err_low = ROOT.std.vector('float')()
+sigma_err_sym = ROOT.std.vector('float')()
+
 
 alphaL_val = ROOT.std.vector('float')()
 alphaL_err_high = ROOT.std.vector('float')()
 alphaL_err_low = ROOT.std.vector('float')()
+alphaL_err_sym = ROOT.std.vector('float')()
+
 
 alphaR_val = ROOT.std.vector('float')()
 alphaR_err_high = ROOT.std.vector('float')()
 alphaR_err_low = ROOT.std.vector('float')()
+alphaR_err_sym = ROOT.std.vector('float')()
+
 
 nL_val = ROOT.std.vector('float')()
 nL_err_high = ROOT.std.vector('float')()
 nL_err_low = ROOT.std.vector('float')()
+nL_err_sym = ROOT.std.vector('float')()
+
 
 
 nR_val = ROOT.std.vector('float')()
 nR_err_high = ROOT.std.vector('float')()
 nR_err_low = ROOT.std.vector('float')()
+nR_err_sym = ROOT.std.vector('float')()
+
 
 decay_constant_val = ROOT.std.vector('float')()
 decay_constant_err_high = ROOT.std.vector('float')()
 decay_constant_err_low = ROOT.std.vector('float')()
+decay_constant_err_sym  = ROOT.std.vector('float')()
+
 
 chi2_val = ROOT.std.vector('float')()
 
 nsig_val = ROOT.std.vector('float')()
 nsig_err_high = ROOT.std.vector('float')()
 nsig_err_low = ROOT.std.vector('float')()
+nsig_err_sym = ROOT.std.vector('float')()
+
 
 nbkg_val = ROOT.std.vector('float')()
 nbkg_err_high = ROOT.std.vector('float')()
 nbkg_err_low = ROOT.std.vector('float')()
+nbkg_err_sym = ROOT.std.vector('float')()
+
 
 timing_val = ROOT.std.vector('float')()
 pid_kaon_flag = ROOT.std.vector('float')()
@@ -305,40 +325,55 @@ pid_pion_flag = ROOT.std.vector('float')()
 mean_val.push_back(mu.getVal())
 mean_err_high.push_back(mu.getAsymErrorHi())
 mean_err_low.push_back(mu.getAsymErrorLo())
+mean_err_sym.push_back(mu.getError())
+
 
 sigma_val.push_back(sigma.getVal())
 sigma_err_high.push_back(sigma.getAsymErrorHi())
 sigma_err_low.push_back(sigma.getAsymErrorLo())
+sigma_err_sym.push_back(sigma.getError())
+
 
 alphaL_val.push_back(alphaL.getVal())
 alphaL_err_high.push_back(alphaL.getAsymErrorHi())
 alphaL_err_low.push_back(alphaL.getAsymErrorLo())
+alphaL_err_sym.push_back(alphaL.getError())
+
 
 alphaR_val.push_back(alphaR.getVal())
 alphaR_err_high.push_back(alphaR.getAsymErrorHi())
 alphaR_err_low.push_back(alphaR.getAsymErrorLo())
+alphaR_err_sym.push_back(alphaR.getError())
+
 
 nL_val.push_back(nL.getVal())
 nL_err_high.push_back(nL.getAsymErrorHi())
 nL_err_low.push_back(nL.getAsymErrorLo())
+nL_err_sym.push_back(nL.getError())
+
 
 nR_val.push_back(nR.getVal())
 nR_err_high.push_back(nR.getAsymErrorHi())
 nR_err_low.push_back(nR.getAsymErrorLo())
+nR_err_sym.push_back(nR.getError())
+
 
 decay_constant_val.push_back(decay_constant.getVal())
 decay_constant_err_high.push_back(decay_constant.getAsymErrorHi())
 decay_constant_err_low.push_back(decay_constant.getAsymErrorLo())
+decay_constant_err_sym.push_back(decay_constant.getError())
 
 chi2_val.push_back(chi2)
 
 nsig_val.push_back(nsig.getVal())
 nsig_err_high.push_back(nsig.getAsymErrorHi())
 nsig_err_low.push_back(nsig.getAsymErrorLo())
+nsig_err_sym.push_back(nsig.getError())
 
 nbkg_val.push_back(nbkg.getVal())
 nbkg_err_high.push_back(nbkg.getAsymErrorHi())
 nbkg_err_low.push_back(nbkg.getAsymErrorLo())
+nbkg_err_sym.push_back(nbkg.getError())
 
 timing_val.push_back(timing_value)
 pid_kaon_flag.push_back(PID_kaon_value)
@@ -353,40 +388,49 @@ tree.Branch("pid_pion_flag",pid_pion_flag)
 tree.Branch("mean", mean_val)
 tree.Branch("mean_error_high", mean_err_high)
 tree.Branch("mean_error_low", mean_err_low)
+tree.Branch("mean_error_sym", mean_err_sym)
 
 tree.Branch("sigma", sigma_val)
 tree.Branch("sigma_error_high", sigma_err_high)
 tree.Branch("sigma_error_low", sigma_err_low)
+tree.Branch("sigma_error_sym", sigma_err_sym)
 
 tree.Branch("alphaL", alphaL_val)
 tree.Branch("alphaL_error_high", alphaL_err_high)
 tree.Branch("alphaL_error_low", alphaL_err_low)
+tree.Branch("alphaL_error_sym", alphaL_err_sym)
 
 tree.Branch("alphaR", alphaR_val)
 tree.Branch("alphaR_error_high", alphaR_err_high)
 tree.Branch("alphaR_error_low", alphaR_err_low)
+tree.Branch("alphaR_error_sym", alphaR_err_sym)
 
 tree.Branch("nL", nL_val)
 tree.Branch("nL_error_high", nL_err_high)
 tree.Branch("nL_error_low", nL_err_low)
+tree.Branch("nL_error_sym", nL_err_sym)
 
 tree.Branch("nR", nR_val)
 tree.Branch("nR_error_high", nR_err_high)
 tree.Branch("nR_error_low", nR_err_low)
+tree.Branch("nR_error_sym", nR_err_sym)
 
 tree.Branch("decay_constant", decay_constant_val)
 tree.Branch("decay_constant_error_high", decay_constant_err_high)
 tree.Branch("decay_constant_error_low", decay_constant_err_low)
+tree.Branch("decay_constant_error_sym", decay_constant_err_sym)
 
 tree.Branch("chi2", chi2_val)
 
 tree.Branch("nsig", nsig_val)
 tree.Branch("nsig_error_high", nsig_err_high)
 tree.Branch("nsig_error_low", nsig_err_low)
+tree.Branch("nsig_error_sym", nsig_err_sym)
 
 tree.Branch("nbkg", nbkg_val)
 tree.Branch("nbkg_error_high", nbkg_err_high)
 tree.Branch("nbkg_error_low", nbkg_err_low)
+tree.Branch("nbkg_error_sym", nbkg_err_sym)
 
 tree.Branch("timing", timing_val)
 tree.Branch("pid_kaon_flag", pid_kaon_flag)
@@ -398,6 +442,8 @@ tree.Fill()
 
 # Write the tree to the file
 tree.Write()
+
+fit_initial_guess_tree.Write()
 
 # Close the ROOT file
 output_file.Close()
@@ -413,10 +459,6 @@ ascii_art = """
 @ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
-print(ascii_art)
-print("COVARIENCE MATRIX")
-covMatrix.Print()
-
 print(ascii_art)
 
 
