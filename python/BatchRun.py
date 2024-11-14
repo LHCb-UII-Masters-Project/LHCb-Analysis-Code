@@ -5,6 +5,7 @@ from os import path, listdir
 import sys
 import ROOT
 from ROOT import TH1D, TChain, TTree, TFile
+from multiprocessing import Process
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -81,107 +82,137 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
     
-    
-start_time = time.time()
-basedir=path.dirname(path.realpath(__file__))
-sys.path.append(basedir)
-args = sys.argv
-local = args[2] == "Local"
+def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, timing=300, 
+                rich_window=50, pid_switch=1, kaon_switch=1, rand_seed=None):
+
+    start_time = time.time()
+    basedir=path.dirname(path.realpath(__file__))
+    sys.path.append(basedir)
+    local = comp == "Local"
 
 
-if args[1] == "Run":
-    files_per_run = int(args[3])
-    tot_num_files = int(args[4])
-    scriptPath = f"{basedir}/BsReconstructorBatch.py"
-    batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
-    pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-    timing = 150  # 150 or 300
-    rich_window = 50  # 200 or 50
-    pid_switch = 1  # 0 or 1
-    kaon_switch = 1  # 0 or 1
-    rand_seed = None
-    run_args = f"{timing} {rich_window} {pid_switch} {kaon_switch} {rand_seed}"
+    if program == "Run":
+        scriptPath = f"{basedir}/BsReconstructorBatch.py"
+        batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
+        pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+        run_args = f"{timing} {rich_window} {pid_switch} {kaon_switch} {rand_seed}"
 
-    log_id = []
-    num_range = []
-    for i in range(0,tot_num_files, files_per_run):
-        # print(f"{i}:{i+files_per_run}")
+        log_id = []
+        num_range = []
+        for i in range(0,tot_num_files, files_per_run):
+            # print(f"{i}:{i+files_per_run}")
 
-        log_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {run_args}", is_local=local))
-        num_range.append(f"{i}:{i+files_per_run}")
+            log_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {run_args}", is_local=local))
+            num_range.append(f"{i}:{i+files_per_run}")
 
-    final_files = log_id[len(log_id)-1:][0]
-    final_numbers = num_range[len(num_range)-1:][0]
-    if local is True:
-        for index, ret in enumerate(log_id):
-            print(f"Waiting for files {num_range[index]} to be processed...")
-            ret.wait()
-            # time.sleep(3)
-    else:
-        for index, numbers in enumerate(num_range):
-            print(f"Waiting for files {numbers} to be processed...")
-            subprocess.run(['condor_wait', f'{log_id[index]}.log'])
-            time.sleep(3)
-
-    base_path = f"{basedir}/Outputs/t={timing}/PID{pid_switch}/Rich{rich_window}/Tree"
-    # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
-
-    chain = ROOT.TChain("Tree")
-    str_chain = []
-    hist_sum = None
-
-    for numbers in num_range:
-        file_path = f"{base_path}{numbers}.root"
-        # print(file_path)
-        str_chain.append(file_path)  # List of filepaths for os.removing later
-        chain.Add(file_path)
-
-        # Open each file separately to retrieve the histogram
-        f = ROOT.TFile.Open(file_path, "READ")
-        hist = f.Get("B_Histogram")
-        hist.SetDirectory(0)
-        f.Close()
-
-        if hist_sum is None:
-            hist_sum = hist.Clone("hist")
-            hist_sum.SetDirectory(0)
+        final_files = log_id[len(log_id)-1:][0]
+        final_numbers = num_range[len(num_range)-1:][0]
+        if local is True:
+            for index, ret in enumerate(log_id):
+                print(f"Waiting for files {num_range[index]} to be processed...")
+                ret.wait()
+                # time.sleep(3)
         else:
-            hist_sum.Add(hist)
-            hist_sum.SetDirectory(0)
+            for index, numbers in enumerate(num_range):
+                print(f"Waiting for files {numbers} to be processed...")
+                subprocess.run(['condor_wait', f'{log_id[index]}.log'])
+                time.sleep(1)
+
+        base_path = f"{basedir}/Outputs/t={timing}/PID{pid_switch}/Rich{rich_window}/Tree"
+        # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
+
+        chain = ROOT.TChain("Tree")
+        str_chain = []
+        hist_sum = None
+
+        for numbers in num_range:
+            file_path = f"{base_path}{numbers}.root"
+            # print(file_path)
+            str_chain.append(file_path)  # List of filepaths for os.removing later
+            chain.Add(file_path)
+
+            # Open each file separately to retrieve the histogram
+            f = ROOT.TFile.Open(file_path, "READ")
+            hist = f.Get("B_Histogram")
+            hist.SetDirectory(0)
+            f.Close()
+
+            if hist_sum is None:
+                hist_sum = hist.Clone("hist")
+                hist_sum.SetDirectory(0)
+            else:
+                hist_sum.Add(hist)
+                hist_sum.SetDirectory(0)
 
 
+        
+
+        # Merge the TTrees
+        merge_tree = chain.CopyTree("", "")
+        merge_tree.SetName("Tree")
+        
+        pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
+
+        output_file = ROOT.TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_combine) + "/Rich" + str(rich_window) + "/_Tree_Size_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+        output_file.cd()
+
+        merge_tree.Write("Tree")
+        hist_sum.Write()
+
+        # Close the output file
+        output_file.Write()
+        output_file.Close()
+
+        for file_path in str_chain:
+            os.remove(file_path)
+
+        end_time = time.time()
+
+
+    elif program == "Test":
+        pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+        runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run)
+        end_time = time.time()
+
+    # Timer output for checking
+    time_taken = end_time - start_time
+    minutes = int(time_taken // 60)
+    seconds = int(time_taken % 60)
+
+    print(f"Time taken: {minutes} minutes and {seconds} seconds")
+
+
+if __name__ == "__main__":  # Stops the script from running if its imported as a module
+    program = "Run"
+    comp = "NonLocal"
+    files_per_run = 2
+    tot_num_files = 4
+    rand_seed = None
+
+    # timing_options = [150, 300]
+    timing_options = [150]
+
+    rich_window = [50, 200]
+    # rich_window = [200]
+
+    # PID_switch = [0,1]
+    PID_switch = [1]
+
+    # kaon_switch = [0,1]
+    kaon_switch = [1]
+
+    process_store = []
+    for t in timing_options:
+        for window in rich_window:
+            for PID in PID_switch:
+                for k_switch in kaon_switch:
+                    p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files, t, 
+                window, PID, k_switch, rand_seed))
+                    process_store.append(p)
+                    time.sleep(1)
+                    
     
-
-    # Merge the TTrees
-    merge_tree = chain.CopyTree("", "")
-    merge_tree.SetName("Tree")
-    
-    pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
-
-    output_file = ROOT.TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_combine) + "/Rich" + str(rich_window) + "/_Tree_Size_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
-    output_file.cd()
-
-    merge_tree.Write("Tree")
-    hist_sum.Write()
-
-    # Close the output file
-    output_file.Write()
-    output_file.Close()
-
-    for file_path in str_chain:
-        os.remove(file_path)
-
-    end_time = time.time()
-
-
-elif args[1] == "Test":
-    pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-    runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run)
-    end_time = time.time()
-
-# Timer output for checking
-time_taken = end_time - start_time
-minutes = int(time_taken // 60)
-seconds = int(time_taken % 60)
-
-print(f"Time taken: {minutes} minutes and {seconds} seconds")
+    for p in process_store:
+        p.start()
+    for p in process_store:
+        p.join()
