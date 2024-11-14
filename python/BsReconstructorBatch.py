@@ -404,7 +404,7 @@ for event in events: # loop through all events
 #print(tree.GetEntries())
 #endregion EVENT LOOP
 if batching == True:
-  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + f"/Tree{args[1]}:{args[2]}" + ".root", "RECREATE")
+  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/Rich" + str(rich_time) +  f"/Tree{args[1]}:{args[2]}" + ".root", "RECREATE")
 else:
   file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/_Tree_Size_" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
 file.WriteObject(tree, "Tree")

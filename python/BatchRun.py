@@ -97,8 +97,8 @@ if args[1] == "Run":
     pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
     timing = 150  # 150 or 300
     rich_window = 50  # 200 or 50
-    pid_switch = 0  # 0 or 1
-    kaon_switch = 0  # 0 or 1
+    pid_switch = 1  # 0 or 1
+    kaon_switch = 1  # 0 or 1
     rand_seed = None
     run_args = f"{timing} {rich_window} {pid_switch} {kaon_switch} {rand_seed}"
 
@@ -123,15 +123,17 @@ if args[1] == "Run":
             subprocess.run(['condor_wait', f'{log_id[index]}.log'])
             time.sleep(3)
 
-    base_path = f"{basedir}/Outputs/t={timing}/PID{pid_switch}/Tree"
+    base_path = f"{basedir}/Outputs/t={timing}/PID{pid_switch}/Rich{rich_window}/Tree"
     # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
 
     chain = ROOT.TChain("Tree")
+    str_chain = []
     hist_sum = None
 
     for numbers in num_range:
         file_path = f"{base_path}{numbers}.root"
         # print(file_path)
+        str_chain.append(file_path)  # List of filepaths for os.removing later
         chain.Add(file_path)
 
         # Open each file separately to retrieve the histogram
@@ -165,6 +167,9 @@ if args[1] == "Run":
     # Close the output file
     output_file.Write()
     output_file.Close()
+
+    for file_path in str_chain:
+        os.remove(file_path)
 
     end_time = time.time()
 
