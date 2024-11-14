@@ -116,7 +116,7 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, r
             for index, numbers in enumerate(num_range):
                 print(f"Waiting for files {numbers} to be processed...")
                 subprocess.run(['condor_wait', f'{log_id[index]}.log'])
-                time.sleep(1)
+                time.sleep(5)
 
         base_path = f"{basedir}/Outputs/Rich{rich_timing}/PID{pid_switch}/Velo{velo_time}/Tree"
         # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
@@ -154,7 +154,7 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, r
         pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
 
         output_file = ROOT.TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_combine) + "/Velo" + str(velo_time) + "/Tree_Size_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
-                                 + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}" + ".root", "RECREATE")
+                                 + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}_Space10_COM14" + ".root", "RECREATE")
         output_file.cd()
 
         merge_tree.Write("Tree")

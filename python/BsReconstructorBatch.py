@@ -34,6 +34,13 @@ PID_kaon = array('f', [0])
 tree.Branch('PID_kaon', PID_kaon, 'PID_kaon/F')
 Doca_cut = array('f', [0])
 tree.Branch('Doca_cut', Doca_cut, 'Doca_cut/F')
+spacial_resolution = array('f', [0])
+tree.Branch('spacial_resolution', spacial_resolution, 'spacial_resolution/F')
+spacial_resolution[0] = 10
+com_energy = array('f', [0])
+tree.Branch('com_energy', com_energy, 'com_energy/F')
+com_energy[0] = 14
+
 Chi2_ndf_limit = array('f', [0])
 tree.Branch('Chi2_ndf_limit', Chi2_ndf_limit, 'Chi2_ndf_limit/F')
 Pphi_limit = array('f', [0])
