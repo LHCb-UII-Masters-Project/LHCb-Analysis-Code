@@ -223,7 +223,7 @@ with LHCbStyle() as lbs:
     legend.AddEntry(dummy_sig_line, "Signal", "l")  # Red dotted line
 
     latex.DrawText(0.2,0.875,"LHCb Simulation")
-    latex.DrawLatex(0.2, 0.825, "%d \\mu s" % timing_value) 
+    latex.DrawLatex(0.2, 0.820, "\\sqrt{s}  = 14 TeV") 
 
 
 
