@@ -127,28 +127,28 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, t
 
         for numbers in num_range:
             file_path = f"{base_path}{numbers}.root"
-            # print(file_path)
-            str_chain.append(file_path)  # List of filepaths for os.removing later
-            chain.Add(file_path)
+            if os.path.exists(file_path):
+                str_chain.append(file_path)  # List of filepaths for os.removing later
+                chain.Add(file_path)
 
-            # Open each file separately to retrieve the histogram
-            f = ROOT.TFile.Open(file_path, "READ")
-            hist = f.Get("B_Histogram")
-            hist.SetDirectory(0)
-            f.Close()
+                # Open each file separately to retrieve the histogram
+                f = ROOT.TFile.Open(file_path, "READ")
+                hist = f.Get("B_Histogram")
+                hist.SetDirectory(0)
+                f.Close()
 
-            if hist_sum is None:
-                hist_sum = hist.Clone("hist")
-                hist_sum.SetDirectory(0)
-            else:
-                hist_sum.Add(hist)
-                hist_sum.SetDirectory(0)
+                if hist_sum is None:
+                    hist_sum = hist.Clone("hist")
+                    hist_sum.SetDirectory(0)
+                else:
+                    hist_sum.Add(hist)
+                    hist_sum.SetDirectory(0)
 
 
         
 
         # Merge the TTrees
-        merge_tree = chain.CopyTree("", "")
+        merge_tree = chain.CopyTree("bs_mass!=0")
         merge_tree.SetName("Tree")
         
         pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
@@ -185,31 +185,28 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, t
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     program = "Run"
     comp = "NonLocal"
-    files_per_run = 2
-    tot_num_files = 4
+    files_per_run = 5
+    tot_num_files = 50
     rand_seed = None
 
-    # timing_options = [150, 300]
-    timing_options = [150]
+    timing_options = [150, 300]
+    # timing_options = [150]
 
     rich_window = [50, 200]
     # rich_window = [200]
 
-    # PID_switch = [0,1]
-    PID_switch = [1]
-
-    # kaon_switch = [0,1]
-    kaon_switch = [1]
+    PID_switch = [0,1]
+    # PID_switch = [1]
 
     process_store = []
     for t in timing_options:
         for window in rich_window:
             for PID in PID_switch:
-                for k_switch in kaon_switch:
-                    p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files, t, 
+                k_switch = 1 if PID == 1 else 0
+                p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files, t, 
                 window, PID, k_switch, rand_seed))
-                    process_store.append(p)
-                    time.sleep(1)
+                process_store.append(p)
+                time.sleep(1)
                     
     
     for p in process_store:
