@@ -19,6 +19,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
 args = parser.parse_args()
+input_directory = os.path.dirname(args.input_file)
 
 class LHCbStyle:
     def __init__(self, print_msg=False):
@@ -247,10 +248,9 @@ with LHCbStyle() as lbs:
     c.cd()
     c.Update()
     c.Draw()
-    c.SaveAs(f"FitOutputs/{origin_file_name_reduced}_fitted_{current_time}.png")
+    c.SaveAs(f"{input_directory}/{origin_file_name_reduced}_fitted_{current_time}.png")
     # Create a ROOT file
-
-output_file = ROOT.TFile(f"FitOutputs/{origin_file_name_reduced}_fitted_{current_time}.root", "RECREATE")
+output_file = ROOT.TFile(f"{input_directory}/{origin_file_name_reduced}_fitted_{current_time}.root", "RECREATE")
 
 # Write the canvas to the file
 c.Write()
@@ -459,10 +459,6 @@ ascii_art = """
 @ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
-print(ascii_art)
-print("COVARIENCE MATRIX")
-covMatrix.Print()
-
 print(ascii_art)
 
 
