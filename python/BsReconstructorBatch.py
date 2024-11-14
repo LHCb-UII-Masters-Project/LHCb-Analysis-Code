@@ -16,7 +16,6 @@ from array import array
 import re
 import sys
 
-version = "BsReconstructor_v1"
 # endregion IMPORTS
 
 #region TREE
@@ -27,6 +26,8 @@ rand_seed = array('f', [0])
 tree.Branch('rand_seed', rand_seed, 'rand_seed/F')
 timing_res = array('f', [0])
 tree.Branch('timing_res', timing_res, 'timing_res/F')
+rich_window = array('f', [0])
+tree.Branch('rich_window', rich_window, 'rich_window/F')
 PID_pion = array('f', [0])
 tree.Branch('PID_pion', PID_pion, 'PID_pion/F')
 PID_kaon = array('f', [0])
@@ -74,10 +75,16 @@ ds_chi_ndf = array('f', [0])
 tree.Branch('ds_chi_ndf', ds_chi_ndf, 'ds_chi_ndf/F')
 k1_pt = array('f', [0])
 tree.Branch('k1_pt', k1_pt, 'k1_pt/F')
+k1_eta = array('f', [0])
+tree.Branch('k1_eta', k1_eta, 'k1_eta/F')
 k2_pt = array('f', [0])
-tree.Branch('kw_pt', k2_pt, 'k2_pt/F')
+tree.Branch('k2_pt', k2_pt, 'k2_pt/F')
+k2_eta = array('f', [0])
+tree.Branch('k2_eta', k2_eta, 'k2_eta/F')
 pi1_pt = array('f', [0])
 tree.Branch('pi1_pt', pi1_pt, 'pi1_pt/F')
+pi1_eta = array('f', [0])
+tree.Branch('pi1_eta', pi1_eta, 'pi1_eta/F')
 ds_mass = array('f', [0])
 tree.Branch('ds_mass', ds_mass, 'ds_mass/F')
 ds_chi2_distance = array('f', [0])
@@ -88,8 +95,12 @@ bs_chi2_ndf= array('f', [0])
 tree.Branch('bs_chi2_ndf', bs_chi2_ndf, 'bs_chi2_ndf/F')
 ds_pt= array('f', [0])
 tree.Branch('ds_pt', ds_pt, 'ds_pt/F')
+ds_eta = array('f', [0])
+tree.Branch('ds_eta', ds_eta, 'ds_eta/F')
 pi2_pt= array('f', [0])
 tree.Branch('pi2_pt', pi2_pt, 'pi2_pt/F')
+pi2_eta = array('f', [0])
+tree.Branch('pi2_eta', pi2_eta, 'pi2_eta/F')
 bs_mass= array('f', [0])
 tree.Branch('bs_mass', bs_mass, 'bs_mass/F')
 bs_chi2_distance= array('f', [0])
@@ -103,17 +114,26 @@ tree.Branch('num_bs', num_bs, 'num_bs/F')
 
 #region USERINPUTS
 
+def get_arg(index, default):
+    try:
+        return int(args[index])
+    except (IndexError, ValueError, TypeError):
+        return default
+
 args = sys.argv
-timing = 300 # Default timing argument if not provided
-pid_switch = 1  # Default PID switch argument if not provided
-rand_seed_arg = int(time.time() * os.getpid())  # Default random seed if not provided
-kaon_switch = 1
+
+timing = get_arg(3, 300)  # Default timing argument if not provided
+rich_time = get_arg(4, 200)
+pid_switch = get_arg(5, 1)  # Default PID switch argument if not provided
+kaon_switch = get_arg(6, 1)  # Default Kaon switch argument if not provided
+rand_seed_arg = get_arg(7, int(time.time() * os.getpid()))  # Default random seed if not provided
 
 timing_res[0] = timing #  Set tree value of timing_res
+rich_window[0] = rich_time
 rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
 # Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
-PID_pion[0] = 1 if pid_switch == 1 else 1
-PID_kaon[0] = 1 if kaon_switch == 1 else 0
+PID_pion[0] = pid_switch
+PID_kaon[0] = kaon_switch
 # If not batching use 
 if path.dirname(path.realpath(__file__))[-6:] == "python":  # If not batching
   basedir=path.dirname(path.realpath(__file__))
@@ -197,10 +217,8 @@ gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the 
 events = TChain("Events") # connects all the events into a single data set
 
 # can be changed to look at different timing resolutions and detector geometries
-if timing == 300:
-  dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um200s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
-else:  # Timing = 150
-  dir="/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um50s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
+
+dir=f"/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{rich_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(args[1]):int(args[2])]
 for file in onlyfiles:
@@ -218,7 +236,7 @@ n_signal=0
 #endregion FILE READING
 
 #region DETECTOR EFFICIENCY
-eff_directory = os.path.join(basedir, 'Inputs/PEff Kaons_300') if timing == 300 else os.path.join(basedir, 'Inputs/PEff Kaons_150')
+eff_directory = os.path.join(basedir, f'Inputs/PEff Kaons_{timing}')
 # List all file paths
 eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
 boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
@@ -249,7 +267,7 @@ for event in events: # loop through all events
   if pid_switch == 1:
     good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
   elif pid_switch == 0: 
-    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 99/100 dertection chance
+    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 100% detection
 
   bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
   pions = good_pions + bad_pions
@@ -259,13 +277,16 @@ for event in events: # loop through all events
   
   all_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] # all kaons
   good_kaons = [] # initialised list to be filled with good kaons
-  for kaon in all_kaons:
-    k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
-    # Adjust conditions and use nested conditionals for efficiency
-    for i in range(len(boundaries)):
-      if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and int(rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
-        good_kaons.append(kaon)
-        continue
+  if kaon_switch == 1:
+    for kaon in all_kaons:
+      k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
+      # Adjust conditions and use nested conditionals for efficiency
+      for i in range(len(boundaries)):
+        if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and int(rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
+          good_kaons.append(kaon)
+          continue
+  else: 
+    good_kaons = all_kaons
 
   Num_kaons[0] = len(all_kaons)
   Num_kaons_detected[0] = len(good_kaons)
@@ -303,8 +324,11 @@ for event in events: # loop through all events
       
       ds_chi_ndf[0] = ds_vtx.chi2 / ds_vtx.ndof
       k1_pt[0] = k1.pt()
+      k1_eta[0] = k1.eta()
       k2_pt[0] = k2.pt()
+      k2_eta[0] = k2.eta()
       pi1_pt[0] = pion.pt()
+      pi1_eta[0] = pion.eta()
       ds_mass[0] = ds.mass
       Chi2_ndf_limit[0] = 5
       
@@ -336,7 +360,9 @@ for event in events: # loop through all events
           
           bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
           ds_pt[0] = ds.pt()
+          ds_eta[0] = ds.eta()
           pi2_pt[0] = pion2.pt()
+          pi2_eta[0] = pion2.pt()
 
           b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
           B_chi2_ndf_limit[0] = 5
@@ -378,9 +404,9 @@ for event in events: # loop through all events
 #print(tree.GetEntries())
 #endregion EVENT LOOP
 if batching == True:
-  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + f"/Tree{args[1]}:{args[2]}" + ".root", "RECREATE")
+  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/Rich" + str(rich_time) +  f"/Tree{args[1]}:{args[2]}" + ".root", "RECREATE")
 else:
-  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/" + version + "_TreeSize" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/_Tree_Size_" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
 file.WriteObject(tree, "Tree")
 file.WriteObject(b_plot, "B_Histogram")
 file.Close()
