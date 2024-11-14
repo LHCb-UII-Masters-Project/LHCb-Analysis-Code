@@ -1,5 +1,6 @@
 # region IMPORTS
 import ROOT
+from Variables import *
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
 from math import * 
 import sys
@@ -120,21 +121,22 @@ for dp in unbinned_data: # change to filtered data for filtering
     data.add(ROOT.RooArgSet(x))
 
 
-mu = ROOT.RooRealVar("mu1", "mean of CB1", 5.366744099,5.35,5.38) # gaussian core mean estimate
-sigma = ROOT.RooRealVar("sigma1","std of core gaussian 1", 0.01517,0.015,0.0152) # gaussina core std estimate
-alphaL = ROOT.RooRealVar("alphaL","cut off gauss left", 1.834,1.7,1.9) # gaussian core limit 1 estimate
-alphaR = ROOT.RooRealVar("alphaR","cut off gauss right", 3.305,2,4) # gaussian core limit 2 estimatre
-nL = ROOT.RooRealVar("n1", "nleft of DCB", 2.534,2.0,3.0) # first power law exponent estimate
-nR = ROOT.RooRealVar("n2", "nright of DCB", 5,4,8) # second power law exponent estimate
+# Define variables using the updated dictionary
+mu = ROOT.RooRealVar("mu1", "mean of CB1", variables['mu']['value'], variables['mu']['min'], variables['mu']['max'])  # Gaussian core mean estimate
+sigma = ROOT.RooRealVar("sigma1", "std of core gaussian 1", variables['sigma']['value'], variables['sigma']['min'], variables['sigma']['max'])  # Gaussian core std estimate
+alphaL = ROOT.RooRealVar("alphaL", "cut off gauss left", variables['alphaL']['value'], variables['alphaL']['min'], variables['alphaL']['max'])  # Gaussian core limit 1 estimate
+alphaR = ROOT.RooRealVar("alphaR", "cut off gauss right", variables['alphaR']['value'], variables['alphaR']['min'], variables['alphaR']['max'])  # Gaussian core limit 2 estimate
+nL = ROOT.RooRealVar("n1", "nleft of DCB", variables['nL']['value'], variables['nL']['min'], variables['nL']['max'])  # First power law exponent estimate
+nR = ROOT.RooRealVar("n2", "nright of DCB", variables['nR']['value'], variables['nR']['min'], variables['nR']['max'])  # Second power law exponent estimate
 
-sig = ROOT.RooCrystalBall("sig", "double crystal ball",x,mu,sigma,alphaL,nL,alphaR,nR)
+sig = ROOT.RooCrystalBall("sig", "double crystal ball", x, mu, sigma, alphaL, nL, alphaR, nR)
 
-decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", -2.568, -3, -2)
+decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", variables['decay_constant']['value'], variables['decay_constant']['min'], variables['decay_constant']['max'])
 bkg = ROOT.RooExponential("bkg", "Exponential Background", x, decay_constant)
 
-#noisetosignalratio = ROOT.RooRealVar("noisetosignalratio", "fraction of noise in signal", 0.1, 0.0, 0.5)
-nsig = ROOT.RooRealVar("nsig", "number of signal events", 44732, 40000, 50000)
-nbkg = ROOT.RooRealVar("nbkg", "number of background events", 2350.003773, 2000, 2700)
+nsig = ROOT.RooRealVar("nsig", "number of signal events", variables['nsig']['value'], variables['nsig']['min'], variables['nsig']['max'])
+nbkg = ROOT.RooRealVar("nbkg", "number of background events", variables['nbkg']['value'], variables['nbkg']['min'], variables['nbkg']['max'])
+
 
 model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),ROOT.RooArgList(nbkg, nsig))
 #endregion DefPDF
@@ -440,6 +442,8 @@ tree.Fill()
 
 # Write the tree to the file
 tree.Write()
+
+fit_initial_guess_tree.Write()
 
 # Close the ROOT file
 output_file.Close()
