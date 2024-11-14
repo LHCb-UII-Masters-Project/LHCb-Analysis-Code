@@ -82,8 +82,8 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
     
-def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, timing=300, 
-                rich_window=50, pid_switch=1, kaon_switch=1, rand_seed=None):
+def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, rich_timing=300, 
+                velo_time=50, pid_switch=1, kaon_switch=1, rand_seed=None):
 
     start_time = time.time()
     basedir=path.dirname(path.realpath(__file__))
@@ -95,7 +95,7 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, t
         scriptPath = f"{basedir}/BsReconstructorBatch.py"
         batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-        run_args = f"{timing} {rich_window} {pid_switch} {kaon_switch} {rand_seed}"
+        run_args = f"{rich_timing} {velo_time} {pid_switch} {kaon_switch} {rand_seed}"
 
         log_id = []
         num_range = []
@@ -118,7 +118,7 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, t
                 subprocess.run(['condor_wait', f'{log_id[index]}.log'])
                 time.sleep(1)
 
-        base_path = f"{basedir}/Outputs/t={timing}/PID{pid_switch}/Rich{rich_window}/Tree"
+        base_path = f"{basedir}/Outputs/Rich{rich_timing}/PID{pid_switch}/Velo{velo_time}/Tree"
         # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
 
         chain = ROOT.TChain("Tree")
@@ -153,7 +153,8 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, t
         
         pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
 
-        output_file = ROOT.TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_combine) + "/Rich" + str(rich_window) + "/_Tree_Size_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+        output_file = ROOT.TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_combine) + "/Velo" + str(velo_time) + "/Tree_Size_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
+                                 + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}" + ".root", "RECREATE")
         output_file.cd()
 
         merge_tree.Write("Tree")
@@ -189,22 +190,22 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     tot_num_files = 50
     rand_seed = None
 
-    timing_options = [150, 300]
-    # timing_options = [150]
+    rich_options = [150, 300]
+    # rich_options = [150]
 
-    rich_window = [50, 200]
-    # rich_window = [200]
+    velo_options = [50, 200]
+    # velo_options = [200]
 
     PID_switch = [0,1]
     # PID_switch = [1]
 
     process_store = []
-    for t in timing_options:
-        for window in rich_window:
+    for rt in rich_options:
+        for vt in velo_options:
             for PID in PID_switch:
                 k_switch = 1 if PID == 1 else 0
-                p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files, t, 
-                window, PID, k_switch, rand_seed))
+                p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files, rt, 
+                vt, PID, k_switch, rand_seed))
                 process_store.append(p)
                 time.sleep(1)
                     

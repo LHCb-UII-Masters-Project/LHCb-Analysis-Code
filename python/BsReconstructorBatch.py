@@ -24,10 +24,10 @@ file_number = array('f', [0])
 tree.Branch('file_number', file_number, 'file_number/F')
 rand_seed = array('f', [0])
 tree.Branch('rand_seed', rand_seed, 'rand_seed/F')
-timing_res = array('f', [0])
-tree.Branch('timing_res', timing_res, 'timing_res/F')
-rich_window = array('f', [0])
-tree.Branch('rich_window', rich_window, 'rich_window/F')
+rich_window_timing = array('f', [0])
+tree.Branch('rich_window_timing', rich_window_timing, 'rich_window_timing/F')
+velo_timing = array('f', [0])
+tree.Branch('velo_timing', velo_timing, 'velo_timing/F')
 PID_pion = array('f', [0])
 tree.Branch('PID_pion', PID_pion, 'PID_pion/F')
 PID_kaon = array('f', [0])
@@ -122,14 +122,14 @@ def get_arg(index, default):
 
 args = sys.argv
 
-timing = get_arg(3, 300)  # Default timing argument if not provided
-rich_time = get_arg(4, 200)
+rich_timing = get_arg(3, 300)  # Default timing argument if not provided
+velo_time = get_arg(4, 200)
 pid_switch = get_arg(5, 1)  # Default PID switch argument if not provided
 kaon_switch = get_arg(6, 1)  # Default Kaon switch argument if not provided
 rand_seed_arg = get_arg(7, int(time.time() * os.getpid()))  # Default random seed if not provided
 
-timing_res[0] = timing #  Set tree value of timing_res
-rich_window[0] = rich_time
+rich_window_timing[0] = rich_timing #  Set tree value of timing_res
+velo_timing[0] = velo_time
 rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
 # Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
 PID_pion[0] = pid_switch
@@ -218,7 +218,7 @@ events = TChain("Events") # connects all the events into a single data set
 
 # can be changed to look at different timing resolutions and detector geometries
 
-dir=f"/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{rich_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
+dir=f"/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{velo_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(args[1]):int(args[2])]
 for file in onlyfiles:
@@ -227,7 +227,7 @@ entry=0
 plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 b_plot = ROOT.TH1D("m_bs","",100,5.1,5.6)
-b_plot.SetTitle("Reconstructed B^s Mass Plot t = " + str(timing)) 
+b_plot.SetTitle("Reconstructed B^s Mass Plot t = " + str(rich_timing)) 
 b_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 b_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
@@ -236,12 +236,12 @@ n_signal=0
 #endregion FILE READING
 
 #region DETECTOR EFFICIENCY
-eff_directory = os.path.join(basedir, f'Inputs/PEff Kaons_{timing}')
+eff_directory = os.path.join(basedir, f'Inputs/PEff Kaons_{rich_timing}')
 # List all file paths
 eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
 boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
 
-models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if timing == 300 else None]
+models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if rich_timing == 300 else None]
 #endregion DETECTOR EFFICIENCY
 file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 
@@ -404,9 +404,9 @@ for event in events: # loop through all events
 #print(tree.GetEntries())
 #endregion EVENT LOOP
 if batching == True:
-  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/Rich" + str(rich_time) +  f"/Tree{args[1]}:{args[2]}" + ".root", "RECREATE")
+  file = TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_switch) + "/Velo" + str(velo_time) +  f"/Tree{args[1]}:{args[2]}" + ".root", "RECREATE")
 else:
-  file = TFile(f"{basedir}/Outputs/t=" + str(timing) + "/PID" + str(pid_switch) + "/_Tree_Size_" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+  file = TFile(f"{basedir}/Outputs/t=" + str(rich_timing) + "/PID" + str(pid_switch) + "/_Tree_Size_" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
 file.WriteObject(tree, "Tree")
 file.WriteObject(b_plot, "B_Histogram")
 file.Close()
