@@ -127,6 +127,19 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, r
 
         for numbers in num_range:
             file_path = f"{base_path}{numbers}.root"
+            counter = 0
+            while os.path.exists(file_path) == False and counter < 1:
+                before_colon, after_colon = numbers.split(":")
+                upper = int(after_colon)
+                lower = int(before_colon)
+                print(f"Redoing {lower}:{upper} redo {counter}")
+                a = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
+                                          extraArgs=f"{lower} {upper} {run_args}", is_local=local)
+                subprocess.run(['condor_wait', f'{a}.log'])
+                counter += 1
+                time.sleep(4)
+            # Make faster or switch to (while file does not exist and condorwait) in BsReconstructorBatch
+
             if os.path.exists(file_path):
                 str_chain.append(file_path)  # List of filepaths for os.removing later
                 chain.Add(file_path)
@@ -166,6 +179,9 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, r
 
         for file_path in str_chain:
             os.remove(file_path)
+        
+        print(f"Made Tree" f"/TS_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
+                                 + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}")
 
         end_time = time.time()
 
@@ -190,14 +206,15 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     tot_num_files = 50
     rand_seed = None
 
-    rich_options = [150, 300]
-    # rich_options = [150]
+    # rich_options = [150, 300]
+    rich_options = [300]
 
+    PID_switch = [0,1]
+    # PID_switch = [0]
+    
     velo_options = [50, 200]
     # velo_options = [200]
 
-    PID_switch = [0,1]
-    # PID_switch = [1]
 
     process_store = []
     for rt in rich_options:
