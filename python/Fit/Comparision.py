@@ -33,6 +33,7 @@ pid_status = []
 colours = []
 line_styles = []
 pid_status = []
+marker_styles = []
 
 
 
@@ -64,8 +65,12 @@ for index,file_name in enumerate(args.input_files):
     pid_status.append(pid_kaon_value)
 
     histograms.append(file_hist)
-    colours.append(index+1)
+    if index == 0:
+        colours.append(1)
+    else:
+        colours.append(index+1)
     line_styles.append(index+1)
+    marker_styles.append(index+1)
 
 
 # Create a canvas to draw the histograms on
@@ -85,6 +90,8 @@ with LHCbStyle() as lbs:
         histogram.SetLineColor(colour)  # Set color for distinction
         histogram.SetStats(0) 
         histogram.SetLineStyle(line_styles[i])
+        #histogram.SetMarkerStyle(20 + marker_styles[i])
+
         if len(histograms) == 2:
             histogram.GetYaxis().SetRangeUser(0,histogram.GetMaximum()+300)
         elif len(histograms) >2:
