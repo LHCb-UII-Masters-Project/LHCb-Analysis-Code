@@ -118,38 +118,37 @@ num_bs= array('f', [0])
 tree.Branch('num_bs', num_bs, 'num_bs/F')
 #endregion TREE
 
-
 #region USERINPUTS
 
-def get_arg(index, default):
+def get_arg(index, default):  # Arg function that returns relevant arguments and deals with missing args
     try:
         return int(args[index])
     except (IndexError, ValueError, TypeError):
         return default
 
 args = sys.argv
-
 lower = get_arg(1, 0)  # Default timing argument if not provided
 upper = get_arg(2, 2)  # Default timing argument if not provided
 rich_timing = get_arg(3, 300)  # Default timing argument if not provided
-velo_time = get_arg(4, 200)
+velo_time = get_arg(4, 200)  # Default velo time argument if not provided
 pid_switch = get_arg(5, 1)  # Default PID switch argument if not provided
 kaon_switch = get_arg(6, 1)  # Default Kaon switch argument if not provided
-run_size = args[7]
+run_size = args[7]  # Run size determines which event directory is read from
 rand_seed_arg = get_arg(8, int(time.time() * os.getpid()))  # Default random seed if not provided
 
-rich_window_timing[0] = rich_timing #  Set tree value of timing_res
+# Set tree values from user inputs
+rich_window_timing[0] = rich_timing
 velo_timing[0] = velo_time
-rand_seed[0] = rand_seed_arg #  Set tree value of rand_seed
-# Set tree PID_pion to 0.99 if pid_switch is 1 (99% pion detection chance), to 1 if pid_switch is 2 (100% detection), otherwise keep its current value.
+rand_seed[0] = rand_seed_arg
 PID_pion[0] = pid_switch
 PID_kaon[0] = kaon_switch
-# If not batching use 
-if path.dirname(path.realpath(__file__))[-6:] == "python":  # If not batching
+
+# File is run in different place when batching and when not
+if path.dirname(path.realpath(__file__))[-6:] == "python": # Checks if path ends in "python"
   basedir=path.dirname(path.realpath(__file__))
   sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
   batching = False
-else:  # If batching, exits batch output and batch outputs folder
+else:
   basedir = f"{path.dirname(path.realpath(__file__))}/../../../.."
   sys.path.append(f"{path.dirname(path.realpath(__file__))}/../../../..")
   batching = True
@@ -203,6 +202,7 @@ def dira_bpv( particle, vertices, max_dt):
   return (dx * p.x() + dy * p.y() + dz * p.z() ) / sqrt( (dx**2 + dy**2 + dz**2 )*p.P2() ) 
 
 def get_file_number(file_name):
+  """Takes the full file name and returns the number (what changes between each files)"""
   # Use regex to find the number after "4d-"
   match = re.search(r"4d-(\d+)", file_name)
   if match:
@@ -217,9 +217,11 @@ def eff_model(df):
   linear_function = ROOT.TF1("linear_function", "[0] + [1]*x", np.min(x), np.max(x))
   scatter_plot.Fit(linear_function)
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
+
 #endregion FUNCTION DEFINITIONS
 
 #region FILE READING
+
 sys.path.insert(0,basedir) 
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
@@ -227,25 +229,28 @@ gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the 
 
 events = TChain("Events") # connects all the events into a single data set
 
-# can be changed to look at different timing resolutions and detector geometries
 if run_size == "Large":
+  # If using the large directory, have to filter to just the files we're interested in
   dir=f"/disk/moose/lhcb/djdt/u2_globopt/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{velo_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
   onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 
   pattern = r"U2Tuple_u2_250um_4d-(\d+)-SX_10um\d+s_75umcylindr3p5_nu38_Bs2Dspi_\d+\.root"
+  # All relevant files contain this string
 
   # Process the filenames
-  onlyfileslive = []
+  onlyfileslive = []  # ;)
   for filename in onlyfiles:
     match = re.match(pattern, filename)
     if match:
-      onlyfileslive.append(filename)  # Extract the number and convert to integer
+      onlyfileslive.append(filename)
   onlyfiles = onlyfileslive
 else:
   dir=f"/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{velo_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
   onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 
 onlyfiles = onlyfiles[int(lower):int(upper)]
+# Since list is formed in order for every run, this selects the relevant files to be run
+
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
@@ -258,24 +263,29 @@ b_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
 
 n_signal=0
+
 #endregion FILE READING
 
 #region DETECTOR EFFICIENCY
+
 eff_directory = os.path.join(basedir, f'Inputs/PEff Kaons_{rich_timing}')
 # List all file paths
 eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
 boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
 
 models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if rich_timing == 300 else None]
+
 #endregion DETECTOR EFFICIENCY
-file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 
 #region EVENT LOOP
-current_file_name = "" #  Sets to empty string so first loop sets event number to 1
+
+file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
+current_file_name = "" #  Sets to empty string so first event loop changes it
+
 for event in events: # loop through all events
 
   if events.GetFile().GetName() != current_file_name: #  If no longer in same file as before
-    current_file_name = events.GetFile().GetName() #  Set event name to be the name of current file
+    current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
     # print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
 
@@ -289,13 +299,13 @@ for event in events: # loop through all events
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
   total_pions = [track for track in displaced_tracks if abs( track.trueID ) == 211]
+  # Uses proccess ID inefficiency if turned on, else keep all displaced pions and doesn't add misconstructs
   if pid_switch == 1:
     good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
+    bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
+    pions = good_pions + bad_pions
   elif pid_switch == 0: 
-    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 100% detection
-
-  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
-  pions = good_pions + bad_pions
+    pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 100% detection
 
   Num_pions[0] = len(total_pions)
   Num_pions_detected[0] = len(pions)
@@ -305,8 +315,8 @@ for event in events: # loop through all events
   if kaon_switch == 1:
     for kaon in all_kaons:
       k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
-      # Adjust conditions and use nested conditionals for efficiency
       for i in range(len(boundaries)):
+        # Finds appropriate model and uses rand number to apply efficiency  in that region
         if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and int(rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
           good_kaons.append(kaon)
           continue
@@ -410,7 +420,7 @@ for event in events: # loop through all events
           if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
           b_plot.Fill(bs.mass * 0.001)
           bs_mass[0] = bs.mass * 0.001
-          entry = entry + 1 # entry is the event being examined
+          entry += 1 # entry is the event being examined
           num_bs[0] = entry
       # if is_signal : 
       #plot.Fill(ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
@@ -427,8 +437,11 @@ for event in events: # loop through all events
   
 #tree.Show(5)
 #print(tree.GetEntries())
+
 #endregion EVENT LOOP
+
 file = TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_switch) + "/Velo" + str(velo_time) +  f"/Tree{lower}:{upper}" + ".root", "RECREATE")
+# Creates temporary tree (deleted when trees are combined)
 file.WriteObject(tree, "Tree")
 file.WriteObject(b_plot, "B_Histogram")
 file.Close()

@@ -74,6 +74,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         f.write("queue\n")
 
     if is_local is True:
+        # If running locally, must use ret instead of condor_wait
         ret = subprocess.Popen(f'cd {subScript[:subScript.rfind("/")]} ; chmod +x {subScript} ; exec {subScript}',shell=True)
         time.sleep(3) #try to fix concurrency problem?
         return ret
@@ -82,66 +83,86 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
     
-def macro_batch(program="Run", size="Small", comp="Local", files_per_run=2, tot_num_files=4, rich_timing=300, 
+def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_num_files=4, rich_timing=300, 
                 velo_time=50, pid_switch=1, kaon_switch=1, rand_seed=None):
+    """
+    Function that can be called by a procces in order to run multiple combinations of arguments simultaneously
 
-    start_time = time.time()
+    Parameters:
+    program - Run or Test, Run is default and Test can be used to check on condor
+    comp - Local or NonLocal, determines where the files are run
+    size - Large or Small determines where the event files are pulled from (large or small store)
+    files_per_run - Number of files allocated to each condor core
+    tot_num_files - Total number of files to be run per combination of parameters
+    et al. - Parameters for BsReconstructorBatch
+    """
+
+    start_time = time.time()  # Starts a timer for outputing
     basedir=path.dirname(path.realpath(__file__))
     sys.path.append(basedir)
-    local = comp == "Local"
+    local = comp == "Local"  # True if Local, False if other
 
 
     if program == "Run":
+        #region RUN SCRIPT
+
+        # Define arguments for RunThisScript
         scriptPath = f"{basedir}/BsReconstructorBatch.py"
         batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
+        # PID included as batched jobs start at same time
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
         run_args = f"{rich_timing} {velo_time} {pid_switch} {kaon_switch} {size} {rand_seed}"
 
-        log_id = []
-        num_range = []
+        wait_id = []  # Holds the return that can be used to make program wait for completion
+        num_range = []  # List of strings [0:5, 5:10 ,...]
         for i in range(0,tot_num_files, files_per_run):
             # print(f"{i}:{i+files_per_run}")
 
-            log_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {run_args}", is_local=local))
+            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {run_args}", is_local=local))
+            # Runs with all arguments passed, inlcuding if to run local or on Condor
             num_range.append(f"{i}:{i+files_per_run}")
 
-        final_files = log_id[len(log_id)-1:][0]
-        final_numbers = num_range[len(num_range)-1:][0]
         if local is True:
-            for index, ret in enumerate(log_id):
+            # Uses ret to wait if local
+            for index, ret in enumerate(wait_id):
                 print(f"Waiting for files {num_range[index]} to be processed...")
                 ret.wait()
-                # time.sleep(3)
+                time.sleep(3)
         else:
+            # Uses condor_wait to wait if on condor
             for index, numbers in enumerate(num_range):
                 print(f"Waiting for files {numbers} to be processed...")
-                subprocess.run(['condor_wait', f'{log_id[index]}.log'])
+                subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
                 time.sleep(5)
 
-        base_path = f"{basedir}/Outputs/Rich{rich_timing}/PID{pid_switch}/Velo{velo_time}/Tree"
-        # output_file = ROOT.TFile("MergedOutput.root", "RECREATE")
+        #endregion RUN SCRIPT
 
+        #region MERGE TREES
+        base_path = f"{basedir}/Outputs/Rich{rich_timing}/PID{pid_switch}/Velo{velo_time}/Tree"
+        # Sets base path to where trees are expected
         chain = ROOT.TChain("Tree")
-        str_chain = []
+        str_chain = []  # List of filepaths for os.removing later
         hist_sum = None
+        # Initialises chain for tree, chain for tree names and hist for combining
 
         for numbers in num_range:
-            file_path = f"{base_path}{numbers}.root"
+            file_path = f"{base_path}{numbers}.root"  # Full path of one relevant file
             counter = 0
             while os.path.exists(file_path) == False and counter < 1:
+                # Trys to repaeat tree creation twice if can't find it
                 before_colon, after_colon = numbers.split(":")
                 upper = int(after_colon)
                 lower = int(before_colon)
                 print(f"Redoing {lower}:{upper} redo {counter}")
-                a = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
+                redo_id = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
                                           extraArgs=f"{lower} {upper} {run_args}", is_local=local)
-                subprocess.run(['condor_wait', f'{a}.log'])
+                subprocess.run(['condor_wait', f'{redo_id}.log'])
                 counter += 1
-                time.sleep(4)
-            # Make faster or switch to (while file does not exist and condorwait) in BsReconstructorBatch
+                time.sleep(3)
 
             if os.path.exists(file_path):
-                str_chain.append(file_path)  # List of filepaths for os.removing later
+                # If repeats are successful or it existed to begin with:
+                str_chain.append(file_path)
                 chain.Add(file_path)
 
                 # Open each file separately to retrieve the histogram
@@ -158,18 +179,17 @@ def macro_batch(program="Run", size="Small", comp="Local", files_per_run=2, tot_
                     hist_sum.SetDirectory(0)
 
 
-        
-
-        # Merge the TTrees
-        merge_tree = chain.CopyTree("bs_mass!=0")
+        merge_tree = chain.CopyTree("bs_mass!=0")  # Filters empty 0 mass Bs made by combining
         merge_tree.SetName("Tree")
         
+        # Replicates calling logic for file writing purposes
         pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
 
+        # Full output file name given here
         output_file = ROOT.TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_combine) + "/Velo" + str(velo_time) + "/Tree_Size_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
                                  + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}_Space10_COM14" + ".root", "RECREATE")
+        # Writes to the output file
         output_file.cd()
-
         merge_tree.Write("Tree")
         hist_sum.Write()
 
@@ -177,6 +197,7 @@ def macro_batch(program="Run", size="Small", comp="Local", files_per_run=2, tot_
         output_file.Write()
         output_file.Close()
 
+        # Deletes the trees that made up the now combined tree
         for file_path in str_chain:
             os.remove(file_path)
         
@@ -184,27 +205,28 @@ def macro_batch(program="Run", size="Small", comp="Local", files_per_run=2, tot_
                                  + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}")
 
         end_time = time.time()
-
+        
+        #endregion MERGE TREES
 
     elif program == "Test":
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-        runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run)
+        runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run, is_local=local)
         end_time = time.time()
 
-    # Timer output for checking
+    # Timer output for interest
     time_taken = end_time - start_time
     minutes = int(time_taken // 60)
     seconds = int(time_taken % 60)
-
     print(f"Time taken: {minutes} minutes and {seconds} seconds")
 
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
+    # Inputs for macrobatch
     program = "Run"
-    size = "Large"
     comp = "NonLocal"
-    files_per_run = 2
-    tot_num_files = 6
+    size = "Large"
+    files_per_run = 15
+    tot_num_files = 480
     rand_seed = None
 
     # rich_options = [150, 300]
@@ -214,20 +236,20 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     PID_switch = [1]
     
     # velo_options = [50, 200]
-    velo_options = [200]
+    velo_options = [50]
 
-
+    # Makes proccesses for all combinations of arguments
     process_store = []
     for rt in rich_options:
         for vt in velo_options:
             for PID in PID_switch:
                 k_switch = 1 if PID == 1 else 0
-                p = Process(target = macro_batch, args = (program, size, comp, files_per_run, tot_num_files, rt, 
+                p = Process(target = macro_batch, args = (program, comp, size, files_per_run, tot_num_files, rt, 
                 vt, PID, k_switch, rand_seed))
                 process_store.append(p)
                 time.sleep(1)
                     
-    
+    # Starts proccesses and then waits for them to be complete
     for p in process_store:
         p.start()
     for p in process_store:
