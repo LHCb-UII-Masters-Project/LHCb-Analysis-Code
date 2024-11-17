@@ -82,7 +82,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
     
-def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, rich_timing=300, 
+def macro_batch(program="Run", size="Small", comp="Local", files_per_run=2, tot_num_files=4, rich_timing=300, 
                 velo_time=50, pid_switch=1, kaon_switch=1, rand_seed=None):
 
     start_time = time.time()
@@ -95,7 +95,7 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, r
         scriptPath = f"{basedir}/BsReconstructorBatch.py"
         batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-        run_args = f"{rich_timing} {velo_time} {pid_switch} {kaon_switch} {rand_seed}"
+        run_args = f"{rich_timing} {velo_time} {pid_switch} {kaon_switch} {size} {rand_seed}"
 
         log_id = []
         num_range = []
@@ -201,19 +201,20 @@ def macro_batch(program="Run", comp="Local", files_per_run=2, tot_num_files=4, r
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     program = "Run"
+    size = "Large"
     comp = "NonLocal"
-    files_per_run = 5
-    tot_num_files = 50
+    files_per_run = 2
+    tot_num_files = 6
     rand_seed = None
 
     # rich_options = [150, 300]
     rich_options = [300]
 
-    PID_switch = [0,1]
-    # PID_switch = [0]
+    # PID_switch = [0,1]
+    PID_switch = [1]
     
-    velo_options = [50, 200]
-    # velo_options = [200]
+    # velo_options = [50, 200]
+    velo_options = [200]
 
 
     process_store = []
@@ -221,7 +222,7 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
         for vt in velo_options:
             for PID in PID_switch:
                 k_switch = 1 if PID == 1 else 0
-                p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files, rt, 
+                p = Process(target = macro_batch, args = (program, size, comp, files_per_run, tot_num_files, rt, 
                 vt, PID, k_switch, rand_seed))
                 process_store.append(p)
                 time.sleep(1)

@@ -129,11 +129,14 @@ def get_arg(index, default):
 
 args = sys.argv
 
+lower = get_arg(1, 0)  # Default timing argument if not provided
+upper = get_arg(2, 2)  # Default timing argument if not provided
 rich_timing = get_arg(3, 300)  # Default timing argument if not provided
 velo_time = get_arg(4, 200)
 pid_switch = get_arg(5, 1)  # Default PID switch argument if not provided
 kaon_switch = get_arg(6, 1)  # Default Kaon switch argument if not provided
-rand_seed_arg = get_arg(7, int(time.time() * os.getpid()))  # Default random seed if not provided
+run_size = args[7]
+rand_seed_arg = get_arg(8, int(time.time() * os.getpid()))  # Default random seed if not provided
 
 rich_window_timing[0] = rich_timing #  Set tree value of timing_res
 velo_timing[0] = velo_time
@@ -144,6 +147,7 @@ PID_kaon[0] = kaon_switch
 # If not batching use 
 if path.dirname(path.realpath(__file__))[-6:] == "python":  # If not batching
   basedir=path.dirname(path.realpath(__file__))
+  sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
   batching = False
 else:  # If batching, exits batch output and batch outputs folder
   basedir = f"{path.dirname(path.realpath(__file__))}/../../../.."
@@ -224,10 +228,24 @@ gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the 
 events = TChain("Events") # connects all the events into a single data set
 
 # can be changed to look at different timing resolutions and detector geometries
+if run_size == "Large":
+  dir=f"/disk/moose/lhcb/djdt/u2_globopt/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{velo_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
+  onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 
-dir=f"/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{velo_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
-onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
-onlyfiles = onlyfiles[int(args[1]):int(args[2])]
+  pattern = r"U2Tuple_u2_250um_4d-(\d+)-SX_10um\d+s_75umcylindr3p5_nu38_Bs2Dspi_\d+\.root"
+
+  # Process the filenames
+  onlyfileslive = []
+  for filename in onlyfiles:
+    match = re.match(pattern, filename)
+    if match:
+      onlyfileslive.append(filename)  # Extract the number and convert to integer
+  onlyfiles = onlyfileslive
+else:
+  dir=f"/disk/moose/general/djdt/lhcbUII_masters/dataStore/Beam7000GeV-md100-nu38-VerExtAngle_vpOnly/13264021/VP_U2_ParamModel-SX/SX_10um{velo_time}s_75umcylindr3p5_nu38_Bs2Dspi_2111/moore/"
+  onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
+
+onlyfiles = onlyfiles[int(lower):int(upper)]
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
@@ -410,10 +428,7 @@ for event in events: # loop through all events
 #tree.Show(5)
 #print(tree.GetEntries())
 #endregion EVENT LOOP
-if batching == True:
-  file = TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_switch) + "/Velo" + str(velo_time) +  f"/Tree{args[1]}:{args[2]}" + ".root", "RECREATE")
-else:
-  file = TFile(f"{basedir}/Outputs/t=" + str(rich_timing) + "/PID" + str(pid_switch) + "/_Tree_Size_" + str(tree.GetEntries()) + "_Seed_" + str(time.time() * rand_seed[0]) + "_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+file = TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_switch) + "/Velo" + str(velo_time) +  f"/Tree{lower}:{upper}" + ".root", "RECREATE")
 file.WriteObject(tree, "Tree")
 file.WriteObject(b_plot, "B_Histogram")
 file.Close()
