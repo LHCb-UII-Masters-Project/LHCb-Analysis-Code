@@ -127,13 +127,13 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
             for index, ret in enumerate(wait_id):
                 print(f"Waiting for files {num_range[index]} to be processed...")
                 ret.wait()
-                time.sleep(3)
+                time.sleep(1)
         else:
             # Uses condor_wait to wait if on condor
             for index, numbers in enumerate(num_range):
                 print(f"Waiting for files {numbers} to be processed...")
                 subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
-                time.sleep(5)
+                time.sleep(1)
 
         #endregion RUN SCRIPT
 
@@ -225,12 +225,12 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "Run"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 15
-    tot_num_files = 480
+    files_per_run = 5
+    tot_num_files = 200
     rand_seed = None
 
     # rich_options = [150, 300]
-    rich_options = [300]
+    rich_options = [150]
 
     # PID_switch = [0,1]
     PID_switch = [1]
