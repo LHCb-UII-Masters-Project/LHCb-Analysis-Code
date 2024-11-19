@@ -364,7 +364,6 @@ for event in events: # loop through all events
       k2_eta[0] = k2.eta()
       pi1_pt[0] = pion.pt()
       pi1_eta[0] = pion.eta()
-      ds_mass[0] = ds.mass
       Chi2_ndf_limit[0] = 5
       
       if ds_vtx.chi2 / ds_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
@@ -387,6 +386,9 @@ for event in events: # loop through all events
       B_dira_limit[0] = 0.9
       if dira_bpv(ds,event.Vertices,0.050)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
       
+      ds_mass[0] = ds.mass
+      ds_pt[0] = ds.pt()
+      ds_eta[0] = ds.eta()
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
       for pion2 in pions:
           bs_vtx = ROOT.uVertex( [ds, pion2] )
@@ -394,10 +396,8 @@ for event in events: # loop through all events
           is_b_signal = is_from(ds, event, 431) and is_from(pion2, event,431)
           
           bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
-          ds_pt[0] = ds.pt()
-          ds_eta[0] = ds.eta()
           pi2_pt[0] = pion2.pt()
-          pi2_eta[0] = pion2.pt()
+          pi2_eta[0] = pion2.eta()
 
           b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
           B_chi2_ndf_limit[0] = 5

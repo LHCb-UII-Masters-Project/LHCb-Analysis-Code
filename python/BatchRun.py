@@ -225,19 +225,19 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     # Inputs for macrobatch
     program = "Run"
     comp = "NonLocal"
-    size = "Small"
+    size = "Large"
     files_per_run = 5
-    tot_num_files = 50
+    tot_num_files = 200
     rand_seed = None
 
     rich_options = [150, 300]
-    # rich_options = [150]
+    # rich_options = [300]
 
     PID_switch = [0,1]
     # PID_switch = [1]
     
-    velo_options = [50, 200]
-    # velo_options = [50]
+    # velo_options = [50, 200]
+    velo_options = [50]
 
     # Makes proccesses for all combinations of arguments
     process_store = []
@@ -262,5 +262,6 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
         try: 
             for p in process_store:
                 p.kill()
+            subprocess.run(["condor_rm", "user293"], check=True)
         except NameError:
             print("No Processes to Kill")
