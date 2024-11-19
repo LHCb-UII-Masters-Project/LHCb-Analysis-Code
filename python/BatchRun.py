@@ -178,6 +178,7 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
                     hist_sum.Add(hist)
                     hist_sum.SetDirectory(0)
 
+        ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
 
         merge_tree = chain.CopyTree("bs_mass!=0")  # Filters empty 0 mass Bs made by combining
         merge_tree.SetName("Tree")
@@ -224,33 +225,42 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     # Inputs for macrobatch
     program = "Run"
     comp = "NonLocal"
-    size = "Large"
+    size = "Small"
     files_per_run = 5
-    tot_num_files = 200
+    tot_num_files = 50
     rand_seed = None
 
-    # rich_options = [150, 300]
-    rich_options = [150]
+    rich_options = [150, 300]
+    # rich_options = [150]
 
-    # PID_switch = [0,1]
-    PID_switch = [1]
+    PID_switch = [0,1]
+    # PID_switch = [1]
     
-    # velo_options = [50, 200]
-    velo_options = [50]
+    velo_options = [50, 200]
+    # velo_options = [50]
 
     # Makes proccesses for all combinations of arguments
     process_store = []
-    for rt in rich_options:
-        for vt in velo_options:
-            for PID in PID_switch:
-                k_switch = 1 if PID == 1 else 0
-                p = Process(target = macro_batch, args = (program, comp, size, files_per_run, tot_num_files, rt, 
-                vt, PID, k_switch, rand_seed))
-                process_store.append(p)
-                time.sleep(1)
-                    
-    # Starts proccesses and then waits for them to be complete
-    for p in process_store:
-        p.start()
-    for p in process_store:
-        p.join()
+    try:
+    # process_store = []
+        for rt in rich_options:
+            for vt in velo_options:
+                for PID in PID_switch:
+                    k_switch = 1 if PID == 1 else 0
+                    p = Process(target = macro_batch, args = (program, comp, size, files_per_run, tot_num_files, rt, 
+                    vt, PID, k_switch, rand_seed))
+                    process_store.append(p)
+                    time.sleep(1)
+                        
+        # Starts proccesses and then waits for them to be complete
+        for p in process_store:
+            p.start()
+        for p in process_store:
+            p.join()
+    
+    except KeyboardInterrupt:
+        try: 
+            for p in process_store:
+                p.kill()
+        except NameError:
+            print("No Processes to Kill")
