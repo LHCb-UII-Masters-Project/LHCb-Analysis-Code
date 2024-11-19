@@ -92,6 +92,8 @@ pi1_pt = array('f', [0])
 tree.Branch('pi1_pt', pi1_pt, 'pi1_pt/F')
 pi1_eta = array('f', [0])
 tree.Branch('pi1_eta', pi1_eta, 'pi1_eta/F')
+pi1_ID = array('f', [0])
+tree.Branch('pi1_ID', pi1_ID, 'pi1_ID/F')
 ds_mass = array('f', [0])
 tree.Branch('ds_mass', ds_mass, 'ds_mass/F')
 ds_chi2_distance = array('f', [0])
@@ -364,6 +366,7 @@ for event in events: # loop through all events
       k2_eta[0] = k2.eta()
       pi1_pt[0] = pion.pt()
       pi1_eta[0] = pion.eta()
+      pi1_ID[0] = abs(pion.trueID)
       Chi2_ndf_limit[0] = 5
       
       if ds_vtx.chi2 / ds_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
