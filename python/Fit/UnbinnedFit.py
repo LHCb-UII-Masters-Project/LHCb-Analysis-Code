@@ -15,7 +15,6 @@ from datetime import datetime
 import time
 import argparse
 
-# TO DO: SIGNAL + BCKG - BCKG PLOT AND YIELD!
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
 args = parser.parse_args()
@@ -70,11 +69,12 @@ class LHCbStyle:
 
 # region READ
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
-tree = root_file.Get("Tree")
-tree.SetDirectory(0)
+run_tree = root_file.Get("Tree")
+run_tree.SetName("Run_params")
+run_tree.SetDirectory(0)
 root_file.Close()
 #Use RDataFrame to access the data 
-rdf = ROOT.RDataFrame(tree) 
+rdf = ROOT.RDataFrame(run_tree) 
 # Convert the bs_mass branch to a Numpy array
 unbinned_data = rdf.AsNumpy(columns=["bs_mass"])["bs_mass"]
 
@@ -85,10 +85,12 @@ PID_pion = array('f', [0])
 PID_kaon= array('f', [0])
 
 # Set branch address
-tree.SetBranchAddress("timing_res", timing)
-tree.SetBranchAddress("PID_pion", PID_pion)
-tree.SetBranchAddress("PID_kaon", PID_kaon)
-tree.GetEntry(0)
+run_tree.SetBranchAddress("rich_window_timing", timing)
+#un_tree.SetBranchAddress("timing_res", timing)
+
+run_tree.SetBranchAddress("PID_pion", PID_pion)
+run_tree.SetBranchAddress("PID_kaon", PID_kaon)
+run_tree.GetEntry(0)
 
 
 timing_value = (timing[0])
@@ -224,6 +226,13 @@ with LHCbStyle() as lbs:
 
     latex.DrawText(0.2,0.875,"LHCb Simulation")
     latex.DrawLatex(0.2, 0.820, "\\sqrt{s}  = 14 TeV") 
+    latex2 = ROOT.TLatex() 
+    latex2.SetNDC() 
+    latex2.SetTextSize(0.03)  
+    plot_time = time.strftime("%d %m %y", time.localtime())
+
+    latex2.DrawLatex(0.1, 0.09, f"J.McQueen({plot_time})")
+
 
 
 
@@ -239,11 +248,6 @@ with LHCbStyle() as lbs:
     frame2.GetXaxis().SetTitleSize(0.05) # Increase this value to make the font size larger
     frame2.Draw()
     line.Draw("same")
-
-    current_date = datetime.now().strftime("%d/%m/%y")
-
-    latex.DrawText(0.2,0.875,f"JM {current_date}")
-
     
     c.cd()
     c.Update()
@@ -442,6 +446,7 @@ tree.Fill()
 
 # Write the tree to the file
 tree.Write()
+run_tree.Write()
 
 fit_initial_guess_tree.Write()
 
