@@ -41,8 +41,10 @@ com_energy = array('f', [0])
 tree.Branch('com_energy', com_energy, 'com_energy/F')
 com_energy[0] = 14
 
-Chi2_ndf_limit = array('f', [0])
-tree.Branch('Chi2_ndf_limit', Chi2_ndf_limit, 'Chi2_ndf_limit/F')
+ds_chi2_ndf_limit = array('f', [0]) # Formerly Chi2_ndf_limit
+tree.Branch('ds_chi2_ndf_limit', ds_chi2_ndf_limit, 'ds_chi2_ndf_limit/F')
+Chi2_ndf_kills = array('f', [0])
+tree.Branch('Chi2_ndf_kills', Chi2_ndf_kills, 'Chi2_ndf_kills/F')
 Pphi_limit = array('f', [0])
 tree.Branch('Pphi_limit', Pphi_limit, 'Pphi_limit/F')
 Ds_mass_upper_limit = array('f', [0])
@@ -51,10 +53,14 @@ Ds_mass_lower_limit = array('f', [0])
 tree.Branch('Ds_mass_lower_limit', Ds_mass_lower_limit, 'Ds_mass_lower_limit/F')
 D_chi2_distance_limit = array('f', [0])
 tree.Branch('D_chi2_distance_limit', D_chi2_distance_limit, 'D_chi2_distance_limit/F')
+D_chi2_distance_kills = array('f', [0])
+tree.Branch('D_chi2_distance_kills', D_chi2_distance_kills, 'D_chi2_distance_kills/F')
 D_dira_limit = array('f', [0])
 tree.Branch('D_dira_limit', D_dira_limit, 'D_dira_limit/F')
 B_chi2_ndf_limit = array('f', [0])
 tree.Branch('B_chi2_ndf_limit', B_chi2_ndf_limit, 'B_chi2_ndf_limit/F')
+B_chi2_kills = array('f', [0])
+tree.Branch('B_chi2_kills', B_chi2_kills, 'B_chi2_kills/F')
 Pb_limit = array('f', [0])
 tree.Branch('Pb_limit', Pb_limit, 'Pb_limit/F')
 B_mass_upper_limit = array('f', [0])
@@ -63,6 +69,8 @@ B_mass_lower_limit = array('f', [0])
 tree.Branch('B_mass_lower_limit', B_mass_lower_limit, 'B_mass_lower_limit/F')
 B_chi2_distance_limit = array('f', [0])
 tree.Branch('B_chi2_distance_limit', B_chi2_distance_limit, 'B_chi2_distance_limit/F')
+B_chi2_distance_kills = array('f', [0])
+tree.Branch('B_chi2_distance_kills', B_chi2_distance_kills, 'B_chi2_distance_kills/F')
 B_dira_limit = array('f', [0])
 tree.Branch('B_dira_limit', B_dira_limit, 'B_dira_limit/F')
 
@@ -104,6 +112,8 @@ ds_dira= array('f', [0])
 tree.Branch('ds_dira', ds_dira, 'ds_dira/F')
 bs_chi2_ndf= array('f', [0])
 tree.Branch('bs_chi2_ndf', bs_chi2_ndf, 'bs_chi2_ndf/F')
+bs_chi2_kills = array('f', [0])
+tree.Branch('bs_chi2_kills', bs_chi2_kills, 'bs_chi2_kills/F')
 ds_pt= array('f', [0])
 tree.Branch('ds_pt', ds_pt, 'ds_pt/F')
 ds_eta = array('f', [0])
@@ -116,6 +126,8 @@ bs_mass= array('f', [0])
 tree.Branch('bs_mass', bs_mass, 'bs_mass/F')
 bs_chi2_distance= array('f', [0])
 tree.Branch('bs_chi2_distance', bs_chi2_distance, 'bs_chi2_distance/F')
+bs_chi2_distance_kills = array('f', [0])
+tree.Branch('bs_chi2_distance_kills', bs_chi2_distance_kills, 'bs_chi2_distance_kills/F')
 bs_dira= array('f', [0])
 tree.Branch('bs_dira', bs_dira, 'bs_dira/F')
 num_bs= array('f', [0])
@@ -371,9 +383,11 @@ for event in events: # loop through all events
       pi1_pt[0] = pion.pt()
       pi1_eta[0] = pion.eta()
       pi1_ID[0] = abs(pion.trueID)
-      Chi2_ndf_limit[0] = 5
+      ds_chi2_ndf_limit[0] = 5 # Formerly Chi2_ndf_limit
     
-      if ds_vtx.chi2 / ds_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
+      if ds_vtx.chi2 / ds_vtx.ndof > 5 : 
+        Chi2_ndf_kills[0] += 1
+        continue # if the chi2/ndf is not acceptable, disgard possible particle
       Pphi_limit[0] = 1800
       if k1.pt() + k2.pt() + pion.pt() < 1800 : continue # insufficient momentum to create a phi, discard
       Ds_mass_lower_limit[0] = 1800
@@ -388,7 +402,9 @@ for event in events: # loop through all events
 
 #     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
       D_chi2_distance_limit[0] = 50
-      if ds_vtx.chi2_distance(pv) < 50 : continue # if the product of the Chi squareds of the particle and the vertex
+      if ds_vtx.chi2_distance(pv) < 50 : 
+        D_chi2_distance_kills[0] += 1
+        continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
       B_dira_limit[0] = 0.9
       if dira_bpv(ds,event.Vertices,0.050)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
@@ -410,7 +426,9 @@ for event in events: # loop through all events
 
             b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
             B_chi2_ndf_limit[0] = 15
-            if bs_vtx.chi2 / bs_vtx.ndof > 15 : continue # if the chi2/ndf is not acceptable, disgard possible particle
+            if bs_vtx.chi2 / bs_vtx.ndof > 15 : 
+              bs_chi2_kills[0] += 1
+              continue # if the chi2/ndf is not acceptable, disgard possible particle
             Pb_limit[0] = 5000
             if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
             B_mass_lower_limit[0] = 5100
@@ -423,7 +441,9 @@ for event in events: # loop through all events
             bs_dira[0] = dira_bpv(bs,event.Vertices,0.050)
 
             B_chi2_distance_limit[0] = 30
-            if bs_vtx.chi2_distance(b_pv) < 30 : continue 
+            if bs_vtx.chi2_distance(b_pv) < 30 : 
+              B_chi2_distance_kills[0] += 1
+              continue 
             B_dira_limit[0] = 0.9
             if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
             b_plot.Fill(bs.mass * 0.001)
