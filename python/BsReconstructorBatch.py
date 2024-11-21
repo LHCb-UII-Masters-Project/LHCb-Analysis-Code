@@ -321,9 +321,9 @@ for event in events: # loop through all events
       k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
       for i in range(len(boundaries)):
         # Finds appropriate model and uses rand number to apply efficiency  in that region
-        if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and int(rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
+        if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and (rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
           good_kaons.append(kaon)
-          continue
+          break
   else: 
     good_kaons = all_kaons
 
@@ -345,7 +345,8 @@ for event in events: # loop through all events
   Num_phi_candidates[0] = len(phi_candidates)
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
-  for pion in pions : 
+
+  for pion in pions :
     for k1,k2,phi,phi_vtx in phi_candidates: 
       # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
       # created by the kaons, and phi_vtx is the vertex in which the combination occurs
@@ -371,7 +372,7 @@ for event in events: # loop through all events
       pi1_eta[0] = pion.eta()
       pi1_ID[0] = abs(pion.trueID)
       Chi2_ndf_limit[0] = 5
-      
+    
       if ds_vtx.chi2 / ds_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
       Pphi_limit[0] = 1800
       if k1.pt() + k2.pt() + pion.pt() < 1800 : continue # insufficient momentum to create a phi, discard
@@ -397,28 +398,28 @@ for event in events: # loop through all events
       ds_eta[0] = ds.eta()
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
       for pion2 in pions:
-          bs_vtx = ROOT.uVertex( [ds, pion2] )
-          bs = ROOT.uParticle( [ds,pion2] )
-          is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
-          b_sig[0] = 1 if is_b_signal is True else 0
-          
-          bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
-          pi2_pt[0] = pion2.pt()
-          pi2_eta[0] = pion2.eta()
+          if pion2 is not pion:
+            bs_vtx = ROOT.uVertex( [ds, pion2] )
+            bs = ROOT.uParticle( [ds,pion2] )
+            is_b_signal = is_from(ds, event, 431) and is_from(pion2, event,431) # the number is for the particle they decayed from
+            
+            bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
+            pi2_pt[0] = pion2.pt()
+            pi2_eta[0] = pion2.eta()
 
-          b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
-          B_chi2_ndf_limit[0] = 5
-          if bs_vtx.chi2 / bs_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
-          Pb_limit[0] = 5000
-          if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
-          B_mass_lower_limit[0] = 5100
-          B_mass_upper_limit[0] = 5600
-          if bs.mass < 5100 or bs.mass  > 5600 : continue
+            b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
+            B_chi2_ndf_limit[0] = 5
+            if bs_vtx.chi2 / bs_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
+            Pb_limit[0] = 5000
+            if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
+            B_mass_lower_limit[0] = 5100
+            B_mass_upper_limit[0] = 5600
+            if bs.mass < 5100 or bs.mass  > 5600 : continue
 
-          b_pv  = bs.bpv_4d( event.Vertices )
+            b_pv  = bs.bpv_4d( event.Vertices )
 
-          bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
-          bs_dira[0] = dira_bpv(bs,event.Vertices,0.050)
+            bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
+            bs_dira[0] = dira_bpv(bs,event.Vertices,0.050)
 
           B_chi2_distance_limit[0] = 50
           B_chi2_distance_limit[0] = 50
