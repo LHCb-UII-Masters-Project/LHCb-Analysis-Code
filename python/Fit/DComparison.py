@@ -36,17 +36,15 @@ pid_status = []
 marker_styles = []
 
 
+
 for index,file_name in enumerate(args.input_files):
 # Open the ROOT files and get the histograms
     root_file = ROOT.TFile.Open(file_name, "READ")
-    file_tree = root_file.Get("Tree")
+    file_hist = root_file.Get("D_Histogram")
+    file_tree = root_file.Get("RunParams")
     file_tree.SetDirectory(0)
+    file_hist.SetDirectory(0)
     root_file.Close()
-
-    rdf = ROOT.RDataFrame(file_tree)
-    unbinned_data = rdf.AsNumpy(columns=["ds_mass"])["ds_mass"]
-
-
 
     rich_window_timing_arr = array('f', [0])
     velo_timing_arr = array('f', [0])
@@ -66,12 +64,7 @@ for index,file_name in enumerate(args.input_files):
     rich_window_timings.append(rich_window_timing_value)
     pid_status.append(pid_kaon_value)
 
-    file_hist = ROOT.TH1F("hist", "histogram", 100, min(unbinned_data), max(unbinned_data))
-    for dp in unbinned_data:
-        file_hist.Fill(dp)
-    histograms.append(file_hist.Clone("Clone of histogram"))
-    file_hist.Delete()
-    file_hist = None
+    histograms.append(file_hist)
     if index == 0:
         colours.append(1)
     else:
@@ -107,7 +100,7 @@ with LHCbStyle() as lbs:
 
         histogram.SetTitle("")
         histogram.GetYaxis().SetTitle("Entries")
-        histogram.GetXaxis().SetTitle("m_{D0} [GeV/c^{2}]")
+        histogram.GetXaxis().SetTitle("m_{D0s} [GeV/c^{2}]")
         histogram.Draw(draw_option)
         hist_canvas.Update()
 

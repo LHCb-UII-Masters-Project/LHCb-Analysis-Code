@@ -40,8 +40,8 @@ marker_styles = []
 for index,file_name in enumerate(args.input_files):
 # Open the ROOT files and get the histograms
     root_file = ROOT.TFile.Open(file_name, "READ")
-    file_hist = root_file.Get("hist")
-    file_tree = root_file.Get("Tree")
+    file_hist = root_file.Get("B_Histogram")
+    file_tree = root_file.Get("RunParams")
     file_tree.SetDirectory(0)
     file_hist.SetDirectory(0)
     root_file.Close()
@@ -141,7 +141,7 @@ with LHCbStyle() as lbs:
     pid_status_string = "_".join(pid_strings)
     
     current_time = time.strftime("%Y-%m-%d_%H", time.localtime())
-    hist_canvas.SaveAs(f"ComparisonPlots/VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.png")
+    hist_canvas.SaveAs(f"ComparisonPlots/B_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.png")
 
 ascii_art = """
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
