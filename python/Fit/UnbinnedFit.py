@@ -70,11 +70,12 @@ class LHCbStyle:
 # region READ
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("Tree")
+outputs = root_file.Get("Outputs")
 run_tree.SetName("Run_params")
 run_tree.SetDirectory(0)
 root_file.Close()
 #Use RDataFrame to access the data 
-rdf = ROOT.RDataFrame(run_tree) 
+rdf = ROOT.RDataFrame(outputs) 
 # Convert the bs_mass branch to a Numpy array
 unbinned_data = rdf.AsNumpy(columns=["bs_mass"])["bs_mass"]
 
@@ -254,7 +255,7 @@ with LHCbStyle() as lbs:
     c.Draw()
     c.SaveAs(f"{input_directory}/{origin_file_name_reduced}_fitted_{current_time}.png")
     # Create a ROOT file
-output_file = ROOT.TFile(f"{input_directory}/{origin_file_name_reduced}_fitted_{current_time}.root", "RECREATE")
+output_file = ROOT.TFile(f"{input_directory}/F_{origin_file_name_reduced}_fitted_{current_time}.root", "RECREATE")
 
 # Write the canvas to the file
 c.Write()
