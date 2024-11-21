@@ -6,6 +6,7 @@ import sys
 import ROOT
 from ROOT import TH1D, TChain, TTree, TFile
 from multiprocessing import Process
+import random
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -138,7 +139,7 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
         #endregion RUN SCRIPT
 
         #region MERGE TREES
-        base_path = f"{basedir}/Outputs/Rich{rich_timing}/PID{pid_switch}/Velo{velo_time}/Tree"
+        base_path = f"{basedir}/Outputs/Rich{rich_timing}/PID{pid_switch}/Velo{velo_time}"
         # Sets base path to where trees are expected
         chain = ROOT.TChain("Tree")
         str_chain = []  # List of filepaths for os.removing later
@@ -146,16 +147,16 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
         # Initialises chain for tree, chain for tree names and hist for combining
 
         for numbers in num_range:
-            file_path = f"{base_path}{numbers}.root"  # Full path of one relevant file
+            file_path = f"{base_path}/Tree{numbers}.root"  # Full path of one relevant file
             counter = 0
             while os.path.exists(file_path) == False and counter < 1:
                 # Trys to repaeat tree creation twice if can't find it
                 before_colon, after_colon = numbers.split(":")
                 upper = int(after_colon)
                 lower = int(before_colon)
-                print(f"Redoing {lower}:{upper} redo {counter}")
+                print(f"Redoing {lower}:{upper} - Redo #{counter}")
                 redo_id = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
-                                          extraArgs=f"{lower} {upper} {run_args}", is_local=local)
+                                          extraArgs=f"{lower} {upper} {run_args}", is_local=local) #, delayStart=random.randint(0,100)
                 subprocess.run(['condor_wait', f'{redo_id}.log'])
                 counter += 1
                 time.sleep(3)
@@ -163,46 +164,27 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
             if os.path.exists(file_path):
                 # If repeats are successful or it existed to begin with:
                 str_chain.append(file_path)
-                chain.Add(file_path)
+            
+            # Replicates calling logic for file writing purposes
+            pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
 
-                # Open each file separately to retrieve the histogram
-                f = ROOT.TFile.Open(file_path, "READ")
-                hist = f.Get("B_Histogram")
-                hist.SetDirectory(0)
-                f.Close()
+            # Output file name
+            output_file = f"{base_path}/TS_Demo_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}.root"
 
-                if hist_sum is None:
-                    hist_sum = hist.Clone("hist")
-                    hist_sum.SetDirectory(0)
-                else:
-                    hist_sum.Add(hist)
-                    hist_sum.SetDirectory(0)
+            # Create the hadd command
+            command = ["hadd", "-f", output_file] + str_chain
 
-        ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
-
-        merge_tree = chain.CopyTree("bs_mass!=0")  # Filters empty 0 mass Bs made by combining
-        merge_tree.SetName("Tree")
-        
-        # Replicates calling logic for file writing purposes
-        pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
-
-        # Full output file name given here
-        output_file = ROOT.TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_combine) + "/Velo" + str(velo_time) + "/TS_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
-                                 + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}_Space10_COM14" + ".root", "RECREATE")
-        # Writes to the output file
-        output_file.cd()
-        merge_tree.Write("Tree")
-        hist_sum.Write()
-
-        # Close the output file
-        output_file.Write()
-        output_file.Close()
+            # Run the hadd command using subprocess
+            try:
+                subprocess.run(command, check=True)
+            except subprocess.CalledProcessError as e:
+                print(f"Error while merging files: {e}")
 
         # Deletes the trees that made up the now combined tree
         for file_path in str_chain:
             os.remove(file_path)
         
-        print(f"Made Tree" f"/TS_" + str(merge_tree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
+        print(f"Made Tree" f"/TS_" + "Demo" + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
                                  + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}")
 
         end_time = time.time()
@@ -224,17 +206,17 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
     program = "Run"
-    comp = "NonLocal"
-    size = "Large"
-    files_per_run = 5
-    tot_num_files = 200
+    comp = "Local"
+    size = "Small"
+    files_per_run = 2
+    tot_num_files = 4
     rand_seed = None
 
-    rich_options = [150, 300]
-    # rich_options = [300]
+    # rich_options = [150, 300]
+    rich_options = [300]
 
-    PID_switch = [0,1]
-    # PID_switch = [1]
+    # PID_switch = [0,1]
+    PID_switch = [1]
     
     # velo_options = [50, 200]
     velo_options = [50]
