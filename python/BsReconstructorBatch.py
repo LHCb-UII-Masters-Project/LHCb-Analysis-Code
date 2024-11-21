@@ -401,7 +401,8 @@ for event in events: # loop through all events
           if pion2 is not pion:
             bs_vtx = ROOT.uVertex( [ds, pion2] )
             bs = ROOT.uParticle( [ds,pion2] )
-            is_b_signal = is_from(ds, event, 431) and is_from(pion2, event,431) # the number is for the particle they decayed from
+            is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
+            b_sig[0] = 1 if is_b_signal is True else 0
             
             bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
             pi2_pt[0] = pion2.pt()
