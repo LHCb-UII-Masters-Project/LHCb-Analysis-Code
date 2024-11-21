@@ -59,8 +59,6 @@ D_dira_limit = array('f', [0])
 tree.Branch('D_dira_limit', D_dira_limit, 'D_dira_limit/F')
 B_chi2_ndf_limit = array('f', [0])
 tree.Branch('B_chi2_ndf_limit', B_chi2_ndf_limit, 'B_chi2_ndf_limit/F')
-B_chi2_kills = array('f', [0])
-tree.Branch('B_chi2_kills', B_chi2_kills, 'B_chi2_kills/F')
 Pb_limit = array('f', [0])
 tree.Branch('Pb_limit', Pb_limit, 'Pb_limit/F')
 B_mass_upper_limit = array('f', [0])
@@ -69,8 +67,8 @@ B_mass_lower_limit = array('f', [0])
 tree.Branch('B_mass_lower_limit', B_mass_lower_limit, 'B_mass_lower_limit/F')
 B_chi2_distance_limit = array('f', [0])
 tree.Branch('B_chi2_distance_limit', B_chi2_distance_limit, 'B_chi2_distance_limit/F')
-B_chi2_distance_kills = array('f', [0])
-tree.Branch('B_chi2_distance_kills', B_chi2_distance_kills, 'B_chi2_distance_kills/F')
+bs_chi2_distance_kills = array('f', [0])
+tree.Branch('bs_chi2_distance_kills', bs_chi2_distance_kills, 'bs_chi2_distance_kills/F')
 B_dira_limit = array('f', [0])
 tree.Branch('B_dira_limit', B_dira_limit, 'B_dira_limit/F')
 
@@ -126,8 +124,6 @@ bs_mass= array('f', [0])
 tree.Branch('bs_mass', bs_mass, 'bs_mass/F')
 bs_chi2_distance= array('f', [0])
 tree.Branch('bs_chi2_distance', bs_chi2_distance, 'bs_chi2_distance/F')
-bs_chi2_distance_kills = array('f', [0])
-tree.Branch('bs_chi2_distance_kills', bs_chi2_distance_kills, 'bs_chi2_distance_kills/F')
 bs_dira= array('f', [0])
 tree.Branch('bs_dira', bs_dira, 'bs_dira/F')
 num_bs= array('f', [0])
@@ -136,21 +132,21 @@ tree.Branch('num_bs', num_bs, 'num_bs/F')
 
 #region USERINPUTS
 
-def get_arg(index, default):  # Arg function that returns relevant arguments and deals with missing args
+def get_arg(index, default, args):  # Arg function that returns relevant arguments and deals with missing args
     try:
         return int(args[index])
     except (IndexError, ValueError, TypeError):
         return default
 
 args = sys.argv
-lower = get_arg(1, 0)  # Default timing argument if not provided
-upper = get_arg(2, 2)  # Default timing argument if not provided
-rich_timing = get_arg(3, 300)  # Default timing argument if not provided
-velo_time = get_arg(4, 200)  # Default velo time argument if not provided
-pid_switch = get_arg(5, 1)  # Default PID switch argument if not provided
-kaon_switch = get_arg(6, 1)  # Default Kaon switch argument if not provided
+lower = get_arg(1, 0, args)  # Default timing argument if not provided
+upper = get_arg(2, 2, args)  # Default timing argument if not provided
+rich_timing = get_arg(3, 300, args)  # Default timing argument if not provided
+velo_time = get_arg(4, 200, args)  # Default velo time argument if not provided
+pid_switch = get_arg(5, 1, args)  # Default PID switch argument if not provided
+kaon_switch = get_arg(6, 1, args)  # Default Kaon switch argument if not provided
 run_size = args[7]  # Run size determines which event directory is read from
-rand_seed_arg = get_arg(8, int(time.time() * os.getpid()))  # Default random seed if not provided
+rand_seed_arg = get_arg(8, int(time.time() * os.getpid()), args)  # Default random seed if not provided
 
 # Set tree values from user inputs
 rich_window_timing[0] = rich_timing
@@ -442,7 +438,7 @@ for event in events: # loop through all events
 
             B_chi2_distance_limit[0] = 30
             if bs_vtx.chi2_distance(b_pv) < 30 : 
-              B_chi2_distance_kills[0] += 1
+              bs_chi2_distance_kills[0] += 1
               continue 
             B_dira_limit[0] = 0.9
             if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
