@@ -66,6 +66,8 @@ tree.Branch('B_chi2_distance_limit', B_chi2_distance_limit, 'B_chi2_distance_lim
 B_dira_limit = array('f', [0])
 tree.Branch('B_dira_limit', B_dira_limit, 'B_dira_limit/F')
 
+b_sig = array('f', [0])
+tree.Branch('b_sig', b_sig, 'b_sig/F')
 Num_pions = array('f', [0])
 tree.Branch('Num_pions', Num_pions, 'Num_pions/F')
 Num_kaons = array('f', [0])
@@ -289,7 +291,7 @@ for event in events: # loop through all events
   if events.GetFile().GetName() != current_file_name: #  If no longer in same file as before
     current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
-    # print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
+    print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
 
   # scaled_tracks = []
   # for track in event.Particles : 
@@ -336,6 +338,7 @@ for event in events: # loop through all events
   nPVs = npvs( event ) # the number of primary verticies in an event
   Num_pv[0] = nPVs
   found_signal = False # placeholder for when a signal is found, default of no signal found
+  found_b_signal = False
   #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)}") # prints event information
   phi_candidates = ROOT.combine( kp, km, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
@@ -396,7 +399,8 @@ for event in events: # loop through all events
       for pion2 in pions:
           bs_vtx = ROOT.uVertex( [ds, pion2] )
           bs = ROOT.uParticle( [ds,pion2] )
-          is_b_signal = is_from(ds, event, 431) and is_from(pion2, event,431)
+          is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
+          b_sig[0] = 1 if is_b_signal is True else 0
           
           bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
           pi2_pt[0] = pion2.pt()
@@ -425,6 +429,8 @@ for event in events: # loop through all events
           bs_mass[0] = bs.mass * 0.001
           entry += 1 # entry is the event being examined
           num_bs[0] = entry
+          found_b_signal |= is_b_signal
+
       # if is_signal : 
       #plot.Fill(ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
       found_signal |= is_signal 
