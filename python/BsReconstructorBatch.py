@@ -399,8 +399,8 @@ for event in events: # loop through all events
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
       for pion2 in pions:
           if pion2 is not pion:
-            bs_vtx = ROOT.uVertex( [ds, pion2] )
-            bs = ROOT.uParticle( [ds,pion2] )
+            bs_vtx = ROOT.uVertex( [pion, k1, k2, pion2] )
+            bs = ROOT.uParticle( [pion, k1, k2, pion2] )
             is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
             b_sig[0] = 1 if is_b_signal is True else 0
             
@@ -422,15 +422,15 @@ for event in events: # loop through all events
             bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
             bs_dira[0] = dira_bpv(bs,event.Vertices,0.050)
 
-          B_chi2_distance_limit[0] = 30
-          if bs_vtx.chi2_distance(b_pv) < 30 : continue 
-          B_dira_limit[0] = 0.9
-          if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
-          b_plot.Fill(bs.mass * 0.001)
-          bs_mass[0] = bs.mass * 0.001
-          entry += 1 # entry is the event being examined
-          num_bs[0] = entry
-          found_b_signal |= is_b_signal
+            B_chi2_distance_limit[0] = 30
+            if bs_vtx.chi2_distance(b_pv) < 30 : continue 
+            B_dira_limit[0] = 0.9
+            if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
+            b_plot.Fill(bs.mass * 0.001)
+            bs_mass[0] = bs.mass * 0.001
+            entry += 1 # entry is the event being examined
+            num_bs[0] = entry
+            found_b_signal |= is_b_signal
 
       # if is_signal : 
       #plot.Fill(ds.mass * 0.001) # found the allowed D particle and adds to the mass plot (see equations)
