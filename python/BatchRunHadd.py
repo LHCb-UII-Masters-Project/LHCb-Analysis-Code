@@ -6,6 +6,7 @@ import sys
 import ROOT
 from ROOT import TH1D, TChain, TTree, TFile
 from multiprocessing import Process
+import random
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -138,28 +139,25 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
         #endregion RUN SCRIPT
 
         #region MERGE TREES
-        base_path = f"{basedir}/Outputs/Rich{rich_timing}/PID{pid_switch}/Velo{velo_time}/Tree"
+        base_path = f"{basedir}/Outputs/Rich{rich_timing}/PID{pid_switch}/Velo{velo_time}"
         # Sets base path to where trees are expected
-        OutChain = ROOT.TChain("Outputs")
-        RunPChain = ROOT.TChain("RunParams")
-        RunLChain = ROOT.TChain("RunLimits")
-        RunDChain = ROOT.TChain("RunDiagnostics")
+        chain = ROOT.TChain("Tree")
         str_chain = []  # List of filepaths for os.removing later
-        b_hist_sum = None
-        d_hist_sum = None
+        hist_sum = None
+        entries = 0
         # Initialises chain for tree, chain for tree names and hist for combining
 
         for numbers in num_range:
-            file_path = f"{base_path}{numbers}.root"  # Full path of one relevant file
+            file_path = f"{base_path}/Tree{numbers}.root"  # Full path of one relevant file
             counter = 0
             while os.path.exists(file_path) == False and counter < 1:
                 # Trys to repaeat tree creation twice if can't find it
                 before_colon, after_colon = numbers.split(":")
                 upper = int(after_colon)
                 lower = int(before_colon)
-                print(f"Redoing {lower}:{upper} redo {counter}")
+                print(f"Redoing {lower}:{upper} - Redo #{counter}")
                 redo_id = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
-                                          extraArgs=f"{lower} {upper} {run_args}", is_local=local)
+                                          extraArgs=f"{lower} {upper} {run_args}", is_local=local) #, delayStart=random.randint(0,100)
                 subprocess.run(['condor_wait', f'{redo_id}.log'])
                 counter += 1
                 time.sleep(3)
@@ -167,67 +165,27 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
             if os.path.exists(file_path):
                 # If repeats are successful or it existed to begin with:
                 str_chain.append(file_path)
-                OutChain.Add(file_path)
-                RunPChain.Add(file_path)
-                RunLChain.Add(file_path)
-                RunDChain.Add(file_path)
-
-                # Open each file separately to retrieve the histogram
                 f = ROOT.TFile.Open(file_path, "READ")
-                b_hist = f.Get("B_Histogram")
-                d_hist = f.Get("B_Histogram")
-                b_hist.SetDirectory(0)
-                d_hist.SetDirectory(0)
+                tree = f.Get("RunParams")
+                entries += tree.GetEntries()
                 f.Close()
 
-                if b_hist_sum is None:
-                    b_hist_sum = b_hist.Clone("hist")
-                    b_hist_sum.SetDirectory(0)
-                else:
-                    b_hist_sum.Add(b_hist)
-                    b_hist_sum.SetDirectory(0)
-                if d_hist_sum is None:
-                    d_hist_sum = d_hist.Clone("hist")
-                    d_hist_sum.SetDirectory(0)
-                else:
-                    d_hist_sum.Add(d_hist)
-                    d_hist_sum.SetDirectory(0)
-
-        ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
-
-        OutTree = OutChain.CopyTree("bs_mass!=0")
-        RunPTree = RunPChain.CopyTree("")
-        RunLTree = RunLChain.CopyTree("")
-        RunDTree = RunDChain.CopyTree("")
-        OutTree.SetName("Outputs")
-        RunPTree.SetName("RunParams")
-        RunLTree.SetName("RunLimits")
-        RunDTree.SetName("RunDiagnostics")
-        
         # Replicates calling logic for file writing purposes
         pid_combine = 1 if pid_switch == 1 and kaon_switch == 1 else 0
+        output_file = f"{base_path}/TS_{entries}_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}.root"
 
-        # Full output file name given here
-        output_file = ROOT.TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_combine) + "/Velo" + str(velo_time) + "/TS_" + str(OutTree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
-                                 + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}_Space10_COM14" + ".root", "RECREATE")
-        # Writes to the output file
-        output_file.cd()
-        OutTree.Write("Outputs")
-        RunPTree.Write("RunParams")
-        RunLTree.Write("RunLimits")
-        RunDTree.Write("RunDiagnostics")
-        b_hist_sum.Write("B_Histogram")
-        d_hist_sum.Write("D_Histogram")
-
-        # Close the output file
-        output_file.Write()
-        output_file.Close()
+        # Create the hadd command
+        command = ["hadd", "-f", output_file] + str_chain
+        try:
+            subprocess.run(command, check=True)  # Run Hadd using subprocess
+        except subprocess.CalledProcessError as e:
+            print(f"Error while merging files: {e}")
 
         # Deletes the trees that made up the now combined tree
-        for file_path in str_chain:
-            os.remove(file_path)
+        # for file_path in str_chain:
+            # os.remove(file_path)
         
-        print(f"Made Tree" f"/TS_" + str(OutTree.GetEntries()) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
+        print(f"Made Tree" f"/TS_" + str(entries) + "_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) 
                                  + f"Rich{rich_timing}_PID{pid_combine}_Velo{velo_time}")
 
         end_time = time.time()
@@ -255,7 +213,7 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     tot_num_files = 6
     rand_seed = None
 
-    #rich_options = [150, 300]
+    # rich_options = [150, 300]
     rich_options = [300]
 
     # PID_switch = [0,1]
