@@ -407,8 +407,8 @@ for event in events: # loop through all events
           pi2_eta[0] = pion2.eta()
 
           b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
-          B_chi2_ndf_limit[0] = 5
-          if bs_vtx.chi2 / bs_vtx.ndof > 5 : continue # if the chi2/ndf is not acceptable, disgard possible particle
+          B_chi2_ndf_limit[0] = 15
+          if bs_vtx.chi2 / bs_vtx.ndof > 15 : continue # if the chi2/ndf is not acceptable, disgard possible particle
           Pb_limit[0] = 5000
           if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
           B_mass_lower_limit[0] = 5100
@@ -420,9 +420,8 @@ for event in events: # loop through all events
           bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
           bs_dira[0] = dira_bpv(bs,event.Vertices,0.050)
 
-          B_chi2_distance_limit[0] = 50
-          B_chi2_distance_limit[0] = 50
-          if bs_vtx.chi2_distance(b_pv) < 50 : continue 
+          B_chi2_distance_limit[0] = 30
+          if bs_vtx.chi2_distance(b_pv) < 30 : continue 
           B_dira_limit[0] = 0.9
           if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
           b_plot.Fill(bs.mass * 0.001)
