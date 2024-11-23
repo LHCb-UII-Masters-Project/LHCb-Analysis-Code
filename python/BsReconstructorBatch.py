@@ -172,6 +172,7 @@ PID_kaon[0] = kaon_switch
 
 max_timing = velo_time*0.001
 dsMass = 1968.35
+bsMass = 5.36692*1000
 
 
 
@@ -460,8 +461,6 @@ for event in events: # loop through all events
             if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
             B_mass_lower_limit[0] = 5100
             B_mass_upper_limit[0] = 5600
-            if bs.mass < 5000 or bs.mass  > 7000 : continue
-
             b_pv  = bs.bpv_4d( event.Vertices )
 
             bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
@@ -473,6 +472,8 @@ for event in events: # loop through all events
               continue 
             B_dira_limit[0] = 0.9
             if dira_bpv(bs,event.Vertices,max_timing)  < 0.90 : continue
+            if (bs.mass<bsMass-300) or (bs.mass>bsMass+300): continue
+
             b_plot.Fill(bs.mass * 0.001)
             bs_mass[0] = bs.mass * 0.001
             entry += 1 # entry is the event being examined
