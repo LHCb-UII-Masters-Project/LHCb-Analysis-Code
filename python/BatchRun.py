@@ -175,7 +175,7 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
                 # Open each file separately to retrieve the histogram
                 f = ROOT.TFile.Open(file_path, "READ")
                 b_hist = f.Get("B_Histogram")
-                d_hist = f.Get("B_Histogram")
+                d_hist = f.Get("D_Histogram")
                 b_hist.SetDirectory(0)
                 d_hist.SetDirectory(0)
                 f.Close()
@@ -186,6 +186,7 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
                 else:
                     b_hist_sum.Add(b_hist)
                     b_hist_sum.SetDirectory(0)
+
                 if d_hist_sum is None:
                     d_hist_sum = d_hist.Clone("hist")
                     d_hist_sum.SetDirectory(0)
@@ -251,18 +252,18 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "Run"
     comp = "NonLocal"
     size = "Small"
-    files_per_run = 2
-    tot_num_files = 6
+    files_per_run = 5
+    tot_num_files = 50
     rand_seed = None
 
     #rich_options = [150, 300]
     rich_options = [300]
 
-    # PID_switch = [0,1]
-    PID_switch = [1]
+    PID_switch = [0,1]
+    # PID_switch = [1]
     
-    # velo_options = [50, 200]
-    velo_options = [50]
+    velo_options = [50, 200]
+    # velo_options = [50]
 
     # Makes proccesses for all combinations of arguments
     process_store = []

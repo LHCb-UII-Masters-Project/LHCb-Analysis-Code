@@ -281,15 +281,15 @@ onlyfiles = onlyfiles[int(lower):int(upper)]
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
-plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
+# plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 b_plot = ROOT.TH1D("m_bs","",100,5.1,5.6)
 b_plot.SetTitle("Reconstructed B^s Mass Plot t = " + str(rich_timing)) 
 b_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 b_plot.GetYaxis().SetTitle("Frequency")
 
-d_plot = ROOT.TH1D("m_ds","",100,5.1,5.6)
-d_plot.SetTitle("Reconstructed d^s Mass Plot t = " + str(rich_timing)) 
+d_plot = ROOT.TH1D("m_ds","",100,1.8,2.1)
+d_plot.SetTitle("Reconstructed D^s Mass Plot t = " + str(rich_timing)) 
 d_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 d_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
