@@ -19,7 +19,7 @@ import sys
 # endregion IMPORTS
 
 #region RunParams
-RunParams = ROOT.TTree("fit_parameters", "Fit Parameters Tree")
+RunParams = ROOT.TTree("RunParams", "RunParams")
 file_number = array('f', [0])
 RunParams.Branch('file_number', file_number, 'file_number/F')
 rand_seed = array('f', [0])
@@ -41,11 +41,13 @@ RunParams.Branch('spacial_resolution', spacial_resolution, 'spacial_resolution/F
 spacial_resolution[0] = 10
 com_energy = array('f', [0])
 RunParams.Branch('com_energy', com_energy, 'com_energy/F')
+bs_mass= array('f', [0])
+RunParams.Branch('bs_mass', bs_mass, 'bs_mass/F')
 com_energy[0] = 14
 #endregion RunParams
 
 #region RunLimts
-RunLimits = ROOT.TTree("Run Limits", "Run Limits")
+RunLimits = ROOT.TTree("RunLimits", "RunLimits")
 ds_chi2_ndf_limit = array('f', [0]) # Formerly Chi2_ndf_limit
 RunLimits.Branch('ds_chi2_ndf_limit', ds_chi2_ndf_limit, 'ds_chi2_ndf_limit/F')
 Pphi_limit = array('f', [0])
@@ -69,10 +71,11 @@ RunLimits.Branch('B_mass_lower_limit', B_mass_lower_limit, 'B_mass_lower_limit/F
 B_chi2_distance_limit = array('f', [0])
 B_dira_limit = array('f', [0])
 RunLimits.Branch('B_dira_limit', B_dira_limit, 'B_dira_limit/F')
+RunLimits.Branch('bs_mass', bs_mass, 'bs_mass/F')
 #endregion RunLimts
 
 #region RunDiagnostics
-RunDiagnostics = TTree("Run Diagnostics","Run Diagnostics")
+RunDiagnostics = TTree("RunDiagnostics","RunDiagnostics")
 Chi2_ndf_kills = array('f', [0])
 RunDiagnostics.Branch('Chi2_ndf_kills', Chi2_ndf_kills, 'Chi2_ndf_kills/F')
 D_chi2_distance_kills = array('f', [0])
@@ -81,6 +84,7 @@ bs_chi2_distance_kills = array('f', [0])
 RunDiagnostics.Branch('bs_chi2_distance_kills', bs_chi2_distance_kills, 'bs_chi2_distance_kills/F')
 bs_chi2_kills = array('f', [0])
 RunDiagnostics.Branch('bs_chi2_kills', bs_chi2_kills, 'bs_chi2_kills/F')
+RunDiagnostics.Branch('bs_mass', bs_mass, 'bs_mass/F')
 #endregion RunDiagnostics
 
 #region Outputs
@@ -123,7 +127,6 @@ ds_dira= array('f', [0])
 Outputs.Branch('ds_dira', ds_dira, 'ds_dira/F')
 bs_chi2_ndf= array('f', [0])
 Outputs.Branch('bs_chi2_ndf', bs_chi2_ndf, 'bs_chi2_ndf/F')
-bs_chi2_kills = array('f', [0])
 Outputs.Branch('bs_chi2_kills', bs_chi2_kills, 'bs_chi2_kills/F')
 ds_pt= array('f', [0])
 Outputs.Branch('ds_pt', ds_pt, 'ds_pt/F')
@@ -133,14 +136,13 @@ pi2_pt= array('f', [0])
 Outputs.Branch('pi2_pt', pi2_pt, 'pi2_pt/F')
 pi2_eta = array('f', [0])
 Outputs.Branch('pi2_eta', pi2_eta, 'pi2_eta/F')
-bs_mass= array('f', [0])
-Outputs.Branch('bs_mass', bs_mass, 'bs_mass/F')
 bs_chi2_distance= array('f', [0])
 Outputs.Branch('bs_chi2_distance', bs_chi2_distance, 'bs_chi2_distance/F')
 bs_dira= array('f', [0])
 Outputs.Branch('bs_dira', bs_dira, 'bs_dira/F')
 num_bs= array('f', [0])
 Outputs.Branch('num_bs', num_bs, 'num_bs/F')
+Outputs.Branch('bs_mass', bs_mass, 'bs_mass/F')
 #endregion Outputs
 
 #region USERINPUTS
@@ -317,7 +319,7 @@ for event in events: # loop through all events
   if events.GetFile().GetName() != current_file_name: #  If no longer in same file as before
     current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
-    print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
+    # print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
 
   # scaled_tracks = []
   # for track in event.Particles : 

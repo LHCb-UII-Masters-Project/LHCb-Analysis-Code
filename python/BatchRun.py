@@ -196,9 +196,9 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
         ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
 
         OutTree = OutChain.CopyTree("bs_mass!=0")
-        RunPTree = RunPChain.CopyTree("")
-        RunLTree = RunLChain.CopyTree("")
-        RunDTree = RunDChain.CopyTree("")
+        RunPTree = RunPChain.CopyTree("bs_mass!=0")
+        RunLTree = RunLChain.CopyTree("bs_mass!=0")
+        RunDTree = RunDChain.CopyTree("bs_mass!=0")
         OutTree.SetName("Outputs")
         RunPTree.SetName("RunParams")
         RunLTree.SetName("RunLimits")
@@ -249,7 +249,7 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
     program = "Run"
-    comp = "Local"
+    comp = "NonLocal"
     size = "Small"
     files_per_run = 2
     tot_num_files = 6
