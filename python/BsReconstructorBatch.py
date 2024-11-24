@@ -170,6 +170,13 @@ rand_seed[0] = rand_seed_arg
 PID_pion[0] = pid_switch
 PID_kaon[0] = kaon_switch
 
+max_timing = velo_time*0.001
+dsMass = 1968.35
+bsMass = 5.36692*1000
+
+
+
+
 # File is run in different place when batching and when not
 if path.dirname(path.realpath(__file__))[-6:] == "python": # Checks if path ends in "python"
   basedir=path.dirname(path.realpath(__file__))
@@ -374,6 +381,9 @@ for event in events: # loop through all events
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
 
+  Bs_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if abs( track.trueID ) == 211]
+
+
   for pion in pions :
     for k1,k2,phi,phi_vtx in phi_candidates: 
       # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
@@ -414,24 +424,25 @@ for event in events: # loop through all events
       # particle (minimum Chi squared) 
 
       ds_chi2_distance[0] = ds_vtx.chi2_distance(pv)
-      ds_dira[0] = dira_bpv(ds,event.Vertices,0.050)
+      ds_dira[0] = dira_bpv(ds,event.Vertices,max_timing)
 
 #     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
-      D_chi2_distance_limit[0] = 50
-      if ds_vtx.chi2_distance(pv) < 50 : 
+      D_chi2_distance_limit[0] = velo_time
+      if ds_vtx.chi2_distance(pv) < velo_time : 
         D_chi2_distance_kills[0] += 1
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
       B_dira_limit[0] = 0.9
-      if dira_bpv(ds,event.Vertices,0.050)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
+      if dira_bpv(ds,event.Vertices,max_timing)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
       
       ds_mass[0] = ds.mass
       ds_pt[0] = ds.pt()
       ds_eta[0] = ds.eta()
       d_plot.Fill(ds.mass*0.001)
+      if (ds.mass<dsMass-30) or (ds.mass>dsMass+30): continue
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
-      for pion2 in pions:
-          if pion2 is not pion:
+      for pion2 in Bs_good_pions:
+            if pion2.charge() + ds.charge() !=0: continue
             bs_vtx = ROOT.uVertex( [pion, k1, k2, pion2] )
             bs = ROOT.uParticle( [pion, k1, k2, pion2] )
             is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
@@ -442,7 +453,7 @@ for event in events: # loop through all events
             pi2_eta[0] = pion2.eta()
 
             b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
-            B_chi2_ndf_limit[0] = 15
+            B_chi2_ndf_limit[0] = 5
             if bs_vtx.chi2 / bs_vtx.ndof > 15 : 
               bs_chi2_kills[0] += 1
               continue # if the chi2/ndf is not acceptable, disgard possible particle
@@ -450,19 +461,19 @@ for event in events: # loop through all events
             if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
             B_mass_lower_limit[0] = 5100
             B_mass_upper_limit[0] = 5600
-            if bs.mass < 5100 or bs.mass  > 5600 : continue
-
             b_pv  = bs.bpv_4d( event.Vertices )
 
             bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
-            bs_dira[0] = dira_bpv(bs,event.Vertices,0.050)
+            bs_dira[0] = dira_bpv(bs,event.Vertices,max_timing)
 
-            B_chi2_distance_limit[0] = 30
-            if bs_vtx.chi2_distance(b_pv) < 30 : 
+            B_chi2_distance_limit[0] = velo_time
+            if bs_vtx.chi2_distance(b_pv) < (velo_time) : 
               bs_chi2_distance_kills[0] += 1
               continue 
             B_dira_limit[0] = 0.9
-            if dira_bpv(bs,event.Vertices,0.050)  < 0.9 : continue
+            if dira_bpv(bs,event.Vertices,max_timing)  < 0.90 : continue
+            if (bs.mass<bsMass-300) or (bs.mass>bsMass+300): continue
+
             b_plot.Fill(bs.mass * 0.001)
             bs_mass[0] = bs.mass * 0.001
             entry += 1 # entry is the event being examined
