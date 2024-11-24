@@ -69,10 +69,10 @@ class LHCbStyle:
 
 # region READ
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
-run_tree = root_file.Get("Tree")
+run_tree = root_file.Get("RunParams")
 outputs = root_file.Get("Outputs")
-run_tree.SetName("Run_params")
 run_tree.SetDirectory(0)
+outputs.SetDirectory(0)
 root_file.Close()
 #Use RDataFrame to access the data 
 rdf = ROOT.RDataFrame(outputs) 

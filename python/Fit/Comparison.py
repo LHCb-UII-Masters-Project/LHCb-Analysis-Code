@@ -85,18 +85,24 @@ with LHCbStyle() as lbs:
 
     for i in range(len(histograms)):
         histogram = histograms[i]
-        draw_option = "" if i == 0 else "same"
+        draw_option = "E" if i == 0 else "same E"
         colour = colours[i]
         histogram.SetLineColor(colour)  # Set color for distinction
         histogram.SetStats(0) 
         histogram.SetLineStyle(line_styles[i])
+        histogram.SetBins(100,5.24,5.26)
+
         #histogram.SetMarkerStyle(20 + marker_styles[i])
 
         if len(histograms) <= 2:
             histogram.GetYaxis().SetRangeUser(0,histogram.GetMaximum()+300)
+
+
+
         elif len(histograms) >2:
             add_space = (len(histograms)-2)*150
             histogram.GetYaxis().SetRangeUser(0,histogram.GetMaximum()+300+add_space)
+
 
         histogram.SetTitle("")
         histogram.GetYaxis().SetTitle("Entries")
@@ -140,7 +146,7 @@ with LHCbStyle() as lbs:
     pid_strings = [str(status) for status in pid_status]
     pid_status_string = "_".join(pid_strings)
     
-    current_time = time.strftime("%Y-%m-%d_%H", time.localtime())
+    current_time = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
     hist_canvas.SaveAs(f"ComparisonPlots/B_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.png")
 
 ascii_art = """
