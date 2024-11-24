@@ -82,6 +82,10 @@ D_mass_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
 RunDiagnostics.Branch('D_mass_sig_kills', D_mass_sig_kills, 'D_mass_sig_kills/F')
 D_mass_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
 RunDiagnostics.Branch('D_mass_bac_kills', D_mass_bac_kills, 'D_mass_bac_kills/F')
+D_mass2_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('D_mass2_sig_kills', D_mass2_sig_kills, 'D_mass2_sig_kills/F')
+D_mass2_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('D_mass2_bac_kills', D_mass2_bac_kills, 'D_mass2_bac_kills/F')
 D_chi2_sig_kills = array('f', [0])
 RunDiagnostics.Branch('D_chi2_sig_kills', D_chi2_sig_kills, 'D_chi2_sig_kills/F')
 D_chi2_bac_kills = array('f', [0])
@@ -495,7 +499,12 @@ for event in events: # loop through all events
       ds_pt[0] = ds.pt()
       ds_eta[0] = ds.eta()
       d_plot.Fill(ds.mass*0.001)
-      # if (ds.mass<dsMass-30) or (ds.mass>dsMass+30): continue
+      if (ds.mass<dsMass-30) or (ds.mass>dsMass+30):
+        if is_signal:
+          D_mass2_sig_kills[0] += 1
+        else:
+          D_mass2_bac_kills[0] += 1
+        continue
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
       # Is doca cut no longer used on dm_candidate 
       for pion2 in Bs_good_pions:
