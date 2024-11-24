@@ -170,7 +170,7 @@ rand_seed[0] = rand_seed_arg
 PID_pion[0] = pid_switch
 PID_kaon[0] = kaon_switch
 
-max_timing = velo_time*0.001
+max_timing = 5*velo_time*0.001
 dsMass = 1968.35
 bsMass = 5.36692*1000
 
@@ -447,13 +447,15 @@ for event in events: # loop through all events
             bs = ROOT.uParticle( [pion, k1, k2, pion2] )
             is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
             b_sig[0] = 1 if is_b_signal is True else 0
+            if (bs.mass<bsMass-300) or (bs.mass>bsMass+300): continue
+
             
             bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
             pi2_pt[0] = pion2.pt()
             pi2_eta[0] = pion2.eta()
 
             b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
-            B_chi2_ndf_limit[0] = 5
+            B_chi2_ndf_limit[0] = 15
             if bs_vtx.chi2 / bs_vtx.ndof > 15 : 
               bs_chi2_kills[0] += 1
               continue # if the chi2/ndf is not acceptable, disgard possible particle
@@ -467,12 +469,11 @@ for event in events: # loop through all events
             bs_dira[0] = dira_bpv(bs,event.Vertices,max_timing)
 
             B_chi2_distance_limit[0] = velo_time
-            if bs_vtx.chi2_distance(b_pv) < (velo_time) : 
+            if bs_vtx.chi2_distance(b_pv) < velo_time: 
               bs_chi2_distance_kills[0] += 1
               continue 
             B_dira_limit[0] = 0.9
             if dira_bpv(bs,event.Vertices,max_timing)  < 0.90 : continue
-            if (bs.mass<bsMass-300) or (bs.mass>bsMass+300): continue
 
             b_plot.Fill(bs.mass * 0.001)
             bs_mass[0] = bs.mass * 0.001
