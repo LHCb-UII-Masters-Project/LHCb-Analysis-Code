@@ -24,8 +24,6 @@ file_number = array('f', [0])
 RunParams.Branch('file_number', file_number, 'file_number/F')
 rand_seed = array('f', [0])
 RunParams.Branch('rand_seed', rand_seed, 'rand_seed/F')
-rand_seed = array('f', [0])
-RunParams.Branch('rand_seed', rand_seed, 'rand_seed/F')
 rich_window_timing = array('f', [0])
 RunParams.Branch('rich_window_timing', rich_window_timing, 'rich_window_timing/F')
 velo_timing = array('f', [0])
@@ -48,22 +46,22 @@ com_energy[0] = 14
 
 #region RunLimts
 RunLimits = ROOT.TTree("RunLimits", "RunLimits")
-ds_chi2_ndf_limit = array('f', [0]) # Formerly Chi2_ndf_limit
-RunLimits.Branch('ds_chi2_ndf_limit', ds_chi2_ndf_limit, 'ds_chi2_ndf_limit/F')
-Pphi_limit = array('f', [0])
-RunLimits.Branch('Pphi_limit', Pphi_limit, 'Pphi_limit/F')
-Ds_mass_upper_limit = array('f', [0])
-RunLimits.Branch('Ds_mass_upper_limit', Ds_mass_upper_limit, 'Ds_mass_upper_limit/F')
-Ds_mass_lower_limit = array('f', [0])
-RunLimits.Branch('Ds_mass_lower_limit', Ds_mass_lower_limit, 'Ds_mass_lower_limit/F')
+D_chi2_limit = array('f', [0]) # Formerly Chi2_ndf_limit
+RunLimits.Branch('D_chi2_limit', D_chi2_limit, 'D_chi2_limit/F')
+D_Pcomposite_limit = array('f', [0])
+RunLimits.Branch('D_Pcomposite_limit', D_Pcomposite_limit, 'D_Pcomposite_limit/F')
+D_mass_upper_limit = array('f', [0])
+RunLimits.Branch('D_mass_upper_limit', D_mass_upper_limit, 'D_mass_upper_limit/F')
+D_mass_lower_limit = array('f', [0])
+RunLimits.Branch('D_mass_lower_limit', D_mass_lower_limit, 'D_mass_lower_limit/F')
 D_chi2_distance_limit = array('f', [0])
 RunLimits.Branch('D_chi2_distance_limit', D_chi2_distance_limit, 'D_chi2_distance_limit/F')
 D_dira_limit = array('f', [0])
 RunLimits.Branch('D_dira_limit', D_dira_limit, 'D_dira_limit/F')
-B_chi2_ndf_limit = array('f', [0])
-RunLimits.Branch('B_chi2_ndf_limit', B_chi2_ndf_limit, 'B_chi2_ndf_limit/F')
-Pb_limit = array('f', [0])
-RunLimits.Branch('Pb_limit', Pb_limit, 'Pb_limit/F')
+B_chi2_limit = array('f', [0])
+RunLimits.Branch('B_chi2_limit', B_chi2_limit, 'B_chi2_limit/F')
+B_Pcomposite_limit = array('f', [0])
+RunLimits.Branch('B_Pcomposite_limit', B_Pcomposite_limit, 'B_Pcomposite_limit/F')
 B_mass_upper_limit = array('f', [0])
 RunLimits.Branch('B_mass_upper_limit', B_mass_upper_limit, 'B_mass_upper_limit/F')
 B_mass_lower_limit = array('f', [0])
@@ -76,14 +74,56 @@ RunLimits.Branch('bs_mass', bs_mass, 'bs_mass/F')
 
 #region RunDiagnostics
 RunDiagnostics = TTree("RunDiagnostics","RunDiagnostics")
-Chi2_ndf_kills = array('f', [0])
-RunDiagnostics.Branch('Chi2_ndf_kills', Chi2_ndf_kills, 'Chi2_ndf_kills/F')
-D_chi2_distance_kills = array('f', [0])
-RunDiagnostics.Branch('D_chi2_distance_kills', D_chi2_distance_kills, 'D_chi2_distance_kills/F')
-bs_chi2_distance_kills = array('f', [0])
-RunDiagnostics.Branch('bs_chi2_distance_kills', bs_chi2_distance_kills, 'bs_chi2_distance_kills/F')
-bs_chi2_kills = array('f', [0])
-RunDiagnostics.Branch('bs_chi2_kills', bs_chi2_kills, 'bs_chi2_kills/F')
+D_Pcomposite_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('D_Pcomposite_sig_kills', D_Pcomposite_sig_kills, 'D_Pcomposite_sig_kills/F')
+D_Pcomposite_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('D_Pcomposite_bac_kills', D_Pcomposite_bac_kills, 'D_Pcomposite_bac_kills/F')
+D_mass_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('D_mass_sig_kills', D_mass_sig_kills, 'D_mass_sig_kills/F')
+D_mass_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('D_mass_bac_kills', D_mass_bac_kills, 'D_mass_bac_kills/F')
+D_mass2_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('D_mass2_sig_kills', D_mass2_sig_kills, 'D_mass2_sig_kills/F')
+D_mass2_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('D_mass2_bac_kills', D_mass2_bac_kills, 'D_mass2_bac_kills/F')
+D_chi2_sig_kills = array('f', [0])
+RunDiagnostics.Branch('D_chi2_sig_kills', D_chi2_sig_kills, 'D_chi2_sig_kills/F')
+D_chi2_bac_kills = array('f', [0])
+RunDiagnostics.Branch('D_chi2_bac_kills', D_chi2_bac_kills, 'D_chi2_bac_kills/F')
+D_chi2_distance_sig_kills = array('f', [0])
+RunDiagnostics.Branch('D_chi2_distance_sig_kills', D_chi2_distance_sig_kills, 'D_chi2_distance_sig_kills/F')
+D_chi2_distance_bac_kills = array('f', [0])
+RunDiagnostics.Branch('D_chi2_distance_bac_kills', D_chi2_distance_bac_kills, 'D_chi2_distance_bac_kills/F')
+D_dira_sig_kills = array('f', [0])
+RunDiagnostics.Branch('D_dira_sig_kills', D_dira_sig_kills, 'D_dira_sig_kills/F')
+D_dira_bac_kills = array('f', [0])
+RunDiagnostics.Branch('D_dira_bac_kills', D_dira_bac_kills, 'D_dira_bac_kills/F')
+
+B_sign_sig_kills = array('f', [0])
+RunDiagnostics.Branch('B_sign_sig_kills', B_sign_sig_kills, 'B_sign_sig_kills/F')
+B_sign_bac_kills = array('f', [0])
+RunDiagnostics.Branch('B_sign_bac_kills', B_sign_bac_kills, 'B_sign_bac_kills/F')
+B_chi2_sig_kills = array('f', [0])
+RunDiagnostics.Branch('B_chi2_sig_kills', B_chi2_sig_kills, 'B_chi2_sig_kills/F')
+B_chi2_bac_kills = array('f', [0])
+RunDiagnostics.Branch('B_chi2_bac_kills', B_chi2_bac_kills, 'B_chi2_bac_kills/F')
+B_Pcomposite_sig_kills = array('f', [0])
+RunDiagnostics.Branch('B_Pcomposite_sig_kills', B_Pcomposite_sig_kills, 'B_Pcomposite_sig_kills/F')
+B_Pcomposite_bac_kills = array('f', [0])
+RunDiagnostics.Branch('B_Pcomposite_bac_kills', B_Pcomposite_bac_kills, 'B_Pcomposite_bac_kills/F')
+B_chi2_distance_sig_kills = array('f', [0])
+RunDiagnostics.Branch('B_chi2_distance_sig_kills', B_chi2_distance_sig_kills, 'B_chi2_distance_sig_kills/F')
+B_chi2_disatance_bac_kills = array('f', [0])
+RunDiagnostics.Branch('B_chi2_disatance_bac_kills', B_chi2_disatance_bac_kills, 'B_chi2_disatance_bac_kills/F')
+B_dira_sig_kills = array('f', [0])
+RunDiagnostics.Branch('B_dira_sig_kills', B_dira_sig_kills, 'B_dira_sig_kills/F')
+B_dira_bac_kills = array('f', [0])
+RunDiagnostics.Branch('B_dira_bac_kills', B_dira_bac_kills, 'B_dira_bac_kills/F')
+B_mass_sig_kills = array('f', [0])
+RunDiagnostics.Branch('B_mass_sig_kills', B_mass_sig_kills, 'B_mass_sig_kills/F')
+B_mass_bac_kills = array('f', [0])
+RunDiagnostics.Branch('B_mass_bac_kills', B_mass_bac_kills, 'B_mass_bac_kills/F')
+
 RunDiagnostics.Branch('bs_mass', bs_mass, 'bs_mass/F')
 #endregion RunDiagnostics
 
@@ -103,8 +143,8 @@ Num_phi_candidates = array('f', [0])
 Outputs.Branch('Num_Phi_candidates', Num_phi_candidates, 'Num_Phi_candidates/F')
 Num_pv = array('f', [0])
 Outputs.Branch('Num_pv', Num_pv, 'Num_pv/F')
-ds_chi_ndf = array('f', [0])
-Outputs.Branch('ds_chi_ndf', ds_chi_ndf, 'ds_chi_ndf/F')
+D_chi2 = array('f', [0])
+Outputs.Branch('D_chi2', D_chi2, 'D_chi2/F')
 k1_pt = array('f', [0])
 Outputs.Branch('k1_pt', k1_pt, 'k1_pt/F')
 k1_eta = array('f', [0])
@@ -121,13 +161,12 @@ pi1_ID = array('f', [0])
 Outputs.Branch('pi1_ID', pi1_ID, 'pi1_ID/F')
 ds_mass = array('f', [0])
 Outputs.Branch('ds_mass', ds_mass, 'ds_mass/F')
-ds_chi2_distance = array('f', [0])
-Outputs.Branch('ds_chi2_distance', ds_chi2_distance, 'ds_chi2_distance/F')
-ds_dira= array('f', [0])
-Outputs.Branch('ds_dira', ds_dira, 'ds_dira/F')
-bs_chi2_ndf= array('f', [0])
-Outputs.Branch('bs_chi2_ndf', bs_chi2_ndf, 'bs_chi2_ndf/F')
-Outputs.Branch('bs_chi2_kills', bs_chi2_kills, 'bs_chi2_kills/F')
+D_chi2_distance = array('f', [0])
+Outputs.Branch('D_chi2_distance', D_chi2_distance, 'D_chi2_distance/F')
+D_dira= array('f', [0])
+Outputs.Branch('D_dira', D_dira, 'D_dira/F')
+B_chi2 = array('f', [0])
+Outputs.Branch('B_chi2', B_chi2, 'B_chi2/F')
 ds_pt= array('f', [0])
 Outputs.Branch('ds_pt', ds_pt, 'ds_pt/F')
 ds_eta = array('f', [0])
@@ -136,10 +175,10 @@ pi2_pt= array('f', [0])
 Outputs.Branch('pi2_pt', pi2_pt, 'pi2_pt/F')
 pi2_eta = array('f', [0])
 Outputs.Branch('pi2_eta', pi2_eta, 'pi2_eta/F')
-bs_chi2_distance= array('f', [0])
-Outputs.Branch('bs_chi2_distance', bs_chi2_distance, 'bs_chi2_distance/F')
-bs_dira= array('f', [0])
-Outputs.Branch('bs_dira', bs_dira, 'bs_dira/F')
+B_chi2_distance= array('f', [0])
+Outputs.Branch('B_chi2_distance', B_chi2_distance, 'B_chi2_distance/F')
+B_dira= array('f', [0])
+Outputs.Branch('B_dira', B_dira, 'B_dira/F')
 num_bs= array('f', [0])
 Outputs.Branch('num_bs', num_bs, 'num_bs/F')
 Outputs.Branch('bs_mass', bs_mass, 'bs_mass/F')
@@ -288,15 +327,15 @@ onlyfiles = onlyfiles[int(lower):int(upper)]
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
-plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
+# plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 b_plot = ROOT.TH1D("m_bs","",100,5.1,5.6)
 b_plot.SetTitle("Reconstructed B^s Mass Plot t = " + str(rich_timing)) 
 b_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 b_plot.GetYaxis().SetTitle("Frequency")
 
-d_plot = ROOT.TH1D("m_ds","",100,5.1,5.6)
-d_plot.SetTitle("Reconstructed d^s Mass Plot t = " + str(rich_timing)) 
+d_plot = ROOT.TH1D("m_ds","",100,1.8,2.1)
+d_plot.SetTitle("Reconstructed D^s Mass Plot t = " + str(rich_timing)) 
 d_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 d_plot.GetYaxis().SetTitle("Frequency")
 b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
@@ -401,7 +440,7 @@ for event in events: # loop through all events
       
       vtx_chi2.Fill( ds_vtx.chi2 / ds_vtx.ndof, is_signal) # Fills the chi2 graph for the candiate signal
       
-      ds_chi_ndf[0] = ds_vtx.chi2 / ds_vtx.ndof
+      D_chi2[0] = ds_vtx.chi2 / ds_vtx.ndof
       k1_pt[0] = k1.pt()
       k1_eta[0] = k1.eta()
       k2_pt[0] = k2.pt()
@@ -409,71 +448,124 @@ for event in events: # loop through all events
       pi1_pt[0] = pion.pt()
       pi1_eta[0] = pion.eta()
       pi1_ID[0] = abs(pion.trueID)
-      ds_chi2_ndf_limit[0] = 5 # Formerly Chi2_ndf_limit
+      D_chi2_limit[0] = 5 # Formerly Chi2_ndf_limit
     
       if ds_vtx.chi2 / ds_vtx.ndof > 5 : 
-        Chi2_ndf_kills[0] += 1
+        if is_signal:
+          D_chi2_sig_kills[0] += 1
+        else:
+          D_chi2_bac_kills[0] += 1
         continue # if the chi2/ndf is not acceptable, disgard possible particle
-      Pphi_limit[0] = 1800
-      if k1.pt() + k2.pt() + pion.pt() < 1800 : continue # insufficient momentum to create a phi, discard
-      Ds_mass_lower_limit[0] = 1800
-      Ds_mass_upper_limit[0] = 2100
-      if ds.mass < 1800 or ds.mass  > 2100 : continue # insufficient mass to create D particle, discard
+      D_Pcomposite_limit[0] = 1800
+      if k1.pt() + k2.pt() + pion.pt() < 1800 :
+        if is_signal:
+          D_Pcomposite_sig_kills[0] += 1
+        else:
+          D_Pcomposite_bac_kills[0] += 1
+        continue # insufficient momentum to create a phi, discard
+      D_mass_lower_limit[0] = 1800
+      D_mass_upper_limit[0] = 2100
+      if ds.mass < 1800 or ds.mass  > 2100 :
+        if is_signal:
+          D_mass_sig_kills[0] += 1
+        else:
+          D_mass_bac_kills[0] += 1
+        continue # insufficient mass to create D particle, discard
 
       pv  = ds.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
       # particle (minimum Chi squared) 
 
-      ds_chi2_distance[0] = ds_vtx.chi2_distance(pv)
-      ds_dira[0] = dira_bpv(ds,event.Vertices,max_timing)
+      D_chi2_distance[0] = ds_vtx.chi2_distance(pv)
+      D_dira[0] = dira_bpv(ds,event.Vertices,max_timing)
 
 #     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
       D_chi2_distance_limit[0] = velo_time
       if ds_vtx.chi2_distance(pv) < velo_time : 
-        D_chi2_distance_kills[0] += 1
+        if is_signal:
+          D_chi2_distance_sig_kills[0] += 1
+        else:
+          D_chi2_distance_bac_kills[0] += 1
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
       B_dira_limit[0] = 0.9
-      if dira_bpv(ds,event.Vertices,max_timing)  < 0.9 : continue # if the cos of the angle between momenta is less than 0.9 discard
+      if dira_bpv(ds,event.Vertices,max_timing)  < 0.9 : 
+        if is_signal:
+          D_dira_sig_kills[0] += 1
+        else:
+          D_dira_bac_kills[0] += 1
+        continue # if the cos of the angle between momenta is less than 0.9 discard
       
       ds_mass[0] = ds.mass
       ds_pt[0] = ds.pt()
       ds_eta[0] = ds.eta()
       d_plot.Fill(ds.mass*0.001)
-      if (ds.mass<dsMass-30) or (ds.mass>dsMass+30): continue
+      if (ds.mass<dsMass-30) or (ds.mass>dsMass+30):
+        if is_signal:
+          D_mass2_sig_kills[0] += 1
+        else:
+          D_mass2_bac_kills[0] += 1
+        continue
       # dm_candidate = ROOT.combine( ds, pi, doca_cut, 15, -1)
+      # Is doca cut no longer used on dm_candidate 
       for pion2 in Bs_good_pions:
-            if pion2.charge() + ds.charge() !=0: continue
+            is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
+            if pion2.charge() + ds.charge() !=0: 
+              if is_b_signal:
+                B_sign_sig_kills[0] += 1
+              else:
+                B_sign_bac_kills[0] += 1
+              continue
             bs_vtx = ROOT.uVertex( [pion, k1, k2, pion2] )
             bs = ROOT.uParticle( [pion, k1, k2, pion2] )
-            is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
             b_sig[0] = 1 if is_b_signal is True else 0
-            if (bs.mass<bsMass-300) or (bs.mass>bsMass+300): continue
 
             
-            bs_chi2_ndf[0] = bs_vtx.chi2 / bs_vtx.ndof
+            B_chi2[0] = bs_vtx.chi2 / bs_vtx.ndof
             pi2_pt[0] = pion2.pt()
             pi2_eta[0] = pion2.eta()
 
             b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
-            B_chi2_ndf_limit[0] = 15
+            B_chi2_limit[0] = 15
             if bs_vtx.chi2 / bs_vtx.ndof > 15 : 
-              bs_chi2_kills[0] += 1
+              if is_b_signal:
+                B_chi2_sig_kills[0] += 1
+              else:
+                B_chi2_bac_kills[0] += 1
               continue # if the chi2/ndf is not acceptable, disgard possible particle
-            Pb_limit[0] = 5000
-            if ds.pt() + pion2.pt() < 5000 : continue # insufficient momentum to create a phi, discard
+            B_Pcomposite_limit[0] = 5000
+            if ds.pt() + pion2.pt() < 5000 :
+              if is_b_signal:
+                B_Pcomposite_sig_kills[0] += 1
+              else:
+                B_Pcomposite_bac_kills[0] += 1
+              continue # insufficient momentum to create a phi, discard
             B_mass_lower_limit[0] = 5100
             B_mass_upper_limit[0] = 5600
             b_pv  = bs.bpv_4d( event.Vertices )
 
-            bs_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
-            bs_dira[0] = dira_bpv(bs,event.Vertices,max_timing)
+            B_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
+            B_dira[0] = dira_bpv(bs,event.Vertices,max_timing)
 
             B_chi2_distance_limit[0] = velo_time
-            if bs_vtx.chi2_distance(b_pv) < velo_time: 
-              bs_chi2_distance_kills[0] += 1
+            if bs_vtx.chi2_distance(b_pv) < (velo_time) : 
+              if is_b_signal:
+                B_chi2_distance_sig_kills[0] += 1
+              else:
+                B_chi2_disatance_bac_kills[0] += 1
               continue 
             B_dira_limit[0] = 0.9
-            if dira_bpv(bs,event.Vertices,max_timing)  < 0.90 : continue
+            if dira_bpv(bs,event.Vertices,max_timing)  < 0.90 :
+              if is_b_signal:
+                B_dira_sig_kills[0] += 1
+              else:
+                B_dira_bac_kills[0] += 1
+              continue
+            if (bs.mass<bsMass-300) or (bs.mass>bsMass+300):
+              if is_b_signal:
+                B_mass_sig_kills[0] += 1
+              else:
+                B_mass_bac_kills[0] += 1
+              continue
 
             b_plot.Fill(bs.mass * 0.001)
             bs_mass[0] = bs.mass * 0.001
