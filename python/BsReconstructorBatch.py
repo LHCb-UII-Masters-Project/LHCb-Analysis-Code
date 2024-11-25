@@ -209,7 +209,7 @@ rand_seed[0] = rand_seed_arg
 PID_pion[0] = pid_switch
 PID_kaon[0] = kaon_switch
 
-max_timing = 5*velo_time*0.001
+max_timing = velo_time*0.001
 dsMass = 1968.35
 bsMass = 5.36692*1000
 
@@ -479,8 +479,8 @@ for event in events: # loop through all events
       D_dira[0] = dira_bpv(ds,event.Vertices,max_timing)
 
 #     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
-      D_chi2_distance_limit[0] = velo_time
-      if ds_vtx.chi2_distance(pv) < velo_time : 
+      D_chi2_distance_limit[0] = 50
+      if ds_vtx.chi2_distance(pv) < 50 : 
         if is_signal:
           D_chi2_distance_sig_kills[0] += 1
         else:
@@ -546,8 +546,8 @@ for event in events: # loop through all events
             B_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
             B_dira[0] = dira_bpv(bs,event.Vertices,max_timing)
 
-            B_chi2_distance_limit[0] = velo_time
-            if bs_vtx.chi2_distance(b_pv) < (velo_time) : 
+            B_chi2_distance_limit[0] = 50
+            if bs_vtx.chi2_distance(b_pv) < 50 : 
               if is_b_signal:
                 B_chi2_distance_sig_kills[0] += 1
               else:
