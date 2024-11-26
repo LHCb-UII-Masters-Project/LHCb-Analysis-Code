@@ -210,6 +210,7 @@ PID_pion[0] = pid_switch
 PID_kaon[0] = kaon_switch
 
 max_timing = velo_time*0.001
+#max_timing = 0.050
 dsMass = 1968.35
 bsMass = 5.36692*1000
 

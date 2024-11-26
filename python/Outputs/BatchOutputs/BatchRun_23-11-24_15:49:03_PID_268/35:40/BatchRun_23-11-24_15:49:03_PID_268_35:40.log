@@ -1,0 +1,51 @@
+000 (527.000.000) 2024-11-23 15:49:24 Job submitted from host: <147.188.47.47:9618?addrs=147.188.47.47-9618&alias=eprexb.ph.bham.ac.uk&noUDP&sock=schedd_1171491_f6ca>
+...
+040 (527.000.000) 2024-11-23 15:49:40 Started transferring input files
+	Transferring to host: <147.188.47.71:9618?addrs=147.188.47.71-9618&alias=eplwk001.ph.bham.ac.uk&noUDP&sock=slot1_30_864817_8fb9_63665>
+...
+040 (527.000.000) 2024-11-23 15:49:40 Finished transferring input files
+...
+001 (527.000.000) 2024-11-23 15:49:41 Job executing on host: <147.188.47.71:9618?addrs=147.188.47.71-9618&alias=eplwk001.ph.bham.ac.uk&noUDP&sock=startd_864732_ce1e>
+	SlotName: slot1_30@eplwk001.ph.bham.ac.uk
+	CondorScratchDir = "/var/lib/condor/execute/dir_2786734"
+	Cpus = 1
+	Disk = 7699
+	GPUs = 0
+	Memory = 4096
+...
+006 (527.000.000) 2024-11-23 15:49:50 Image size of job updated: 189724
+	185  -  MemoryUsage of job (MB)
+	189352  -  ResidentSetSize of job (KB)
+...
+006 (527.000.000) 2024-11-23 15:54:51 Image size of job updated: 1218228
+	1190  -  MemoryUsage of job (MB)
+	1217952  -  ResidentSetSize of job (KB)
+...
+006 (527.000.000) 2024-11-23 15:59:33 Image size of job updated: 2563616
+	1741  -  MemoryUsage of job (MB)
+	1782372  -  ResidentSetSize of job (KB)
+...
+040 (527.000.000) 2024-11-23 15:59:33 Started transferring output files
+...
+040 (527.000.000) 2024-11-23 15:59:33 Finished transferring output files
+...
+005 (527.000.000) 2024-11-23 15:59:34 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:01:07, Sys 0 00:00:11  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:01:07, Sys 0 00:00:11  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	4229  -  Run Bytes Sent By Job
+	952  -  Run Bytes Received By Job
+	4229  -  Total Bytes Sent By Job
+	952  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.10        1         1 
+	   Disk (KB)            :    36           1      7699 
+	   GPUs                 :                           0 
+	   Memory (MB)          :  1741        4000      4096 
+	   TimeExecute (s)      :   592                       
+	   TimeSlotBusy (s)     :   593                       
+
+	Job terminated of its own accord at 2024-11-23T15:59:33Z with exit-code 0.
+...

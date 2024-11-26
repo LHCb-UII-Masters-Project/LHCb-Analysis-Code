@@ -1,5 +1,5 @@
-/disk/homedisk/home/user294/Documents/selections/build/CMakeFiles/Event.dir
-/disk/homedisk/home/user294/Documents/selections/build/CMakeFiles/event_dict.dir
-/disk/homedisk/home/user294/Documents/selections/build/CMakeFiles/adaptor.dir
-/disk/homedisk/home/user294/Documents/selections/build/CMakeFiles/edit_cache.dir
-/disk/homedisk/home/user294/Documents/selections/build/CMakeFiles/rebuild_cache.dir
+/home/user294/Documents/selections/build/CMakeFiles/Event.dir
+/home/user294/Documents/selections/build/CMakeFiles/event_dict.dir
+/home/user294/Documents/selections/build/CMakeFiles/adaptor.dir
+/home/user294/Documents/selections/build/CMakeFiles/edit_cache.dir
+/home/user294/Documents/selections/build/CMakeFiles/rebuild_cache.dir

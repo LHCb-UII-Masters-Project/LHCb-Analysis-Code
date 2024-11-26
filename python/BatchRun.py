@@ -35,7 +35,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
     '''
     
     #will create a general condor out folder that stores all the results and details
-    jobDir = f"/home/user293/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
+    jobDir = f"/home/user294/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
 
     os.makedirs(jobDir,exist_ok=True,)
     #now empty dir if there is anything in there!
@@ -259,8 +259,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     #rich_options = [150, 300]
     rich_options = [300]
 
-    PID_switch = [0,1]
-    # PID_switch = [1]
+   # PID_switch = [0,1]
+    PID_switch = [0]
     
     velo_options = [50, 200]
     # velo_options = [50]
@@ -288,6 +288,6 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
         try: 
             for p in process_store:
                 p.kill()
-            subprocess.run(["condor_rm", "user293"], check=True)
+            subprocess.run(["condor_rm", "user294"], check=True)
         except NameError:
             print("No Processes to Kill")

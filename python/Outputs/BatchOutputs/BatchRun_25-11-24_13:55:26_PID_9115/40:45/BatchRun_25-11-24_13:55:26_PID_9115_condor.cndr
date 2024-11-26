@@ -1,0 +1,9 @@
+Executable = /home/user294/Documents/selections/python/Outputs/BatchOutputs/BatchRun_25-11-24_13:55:26_PID_9115/40:45/BatchRun_25-11-24_13:55:26_PID_9115_40:45_Sub.sh
+output = /home/user294/Documents/selections/python/Outputs/BatchOutputs/BatchRun_25-11-24_13:55:26_PID_9115/40:45/BatchRun_25-11-24_13:55:26_PID_9115_40:45.o
+error = /home/user294/Documents/selections/python/Outputs/BatchOutputs/BatchRun_25-11-24_13:55:26_PID_9115/40:45/BatchRun_25-11-24_13:55:26_PID_9115_40:45.e
+log = /home/user294/Documents/selections/python/Outputs/BatchOutputs/BatchRun_25-11-24_13:55:26_PID_9115/40:45/BatchRun_25-11-24_13:55:26_PID_9115_40:45.log
+getenv = True
+request_memory = 4000
+request_cpus = 1
++SingularityImage = "/image/alma9-image"
+queue

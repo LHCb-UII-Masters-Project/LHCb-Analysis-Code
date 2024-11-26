@@ -39,13 +39,13 @@ TrackState::TrackState( const TrackState& state, const double& new_z )
     cov(i::y, i::tx) += dz  * C(i::tx, i::ty);
     cov(i::x, i::ty) += dz  * C(i::tx, i::ty);
 
-    #if RECO_4D
+    #if RECO4D
         const auto nb = dz / ( tb * c_light * c_light ); 
         cov(i::x , i::t) += dz * C(i::tx, i::t) + nb * ( tx * C(i::x, i::tx) + ty * C(i::x,i::ty) + dz * tx*C(i::tx,i::tx) + dz*ty*C(i::tx,ty) );
         cov(i::y , i::t) += dz * C(i::ty, i::t) + nb * ( ty * C(i::y, i::ty) + tx * C(i::y,i::tx) + dz * ty*C(i::ty,i::ty) + dz*tx*C(i::tx,ty) );
         cov(i::tx, i::t) += nb * ( tx * C(i::tx,i::tx) + ty*C(i::tx, i::ty) ); 
         cov(i::ty, i::t) += nb * ( tx * C(i::tx,i::ty) + ty*C(i::ty, i::ty) );
-        cov(i::t , i::t) += nb*nb * ( tx*tx * C(i::tx,i::tx) + 2 * tx * ty * C(i::tx, i::ty ) + ty*ty*C(i::ty*i::ty) ) 
+        cov(i::t , i::t) += nb*nb * ( tx*tx * C(i::tx,i::tx) + 2 * tx * ty * C(i::tx, i::ty ) + ty*ty*C(i::ty, i::ty) ) 
                          + 2 * nb * ( tx * C(i::tx, i::t) + ty * C(i::ty, i::t ) );  
     #else 
         cov(i::t, i::t) = 1; 

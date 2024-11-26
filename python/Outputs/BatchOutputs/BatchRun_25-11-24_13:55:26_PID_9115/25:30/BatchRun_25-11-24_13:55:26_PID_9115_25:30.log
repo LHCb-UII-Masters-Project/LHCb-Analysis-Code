@@ -1,0 +1,47 @@
+000 (2039.000.000) 2024-11-25 13:55:41 Job submitted from host: <147.188.47.47:9618?addrs=147.188.47.47-9618&alias=eprexb.ph.bham.ac.uk&noUDP&sock=schedd_1171491_f6ca>
+...
+040 (2039.000.000) 2024-11-25 13:55:47 Started transferring input files
+	Transferring to host: <147.188.47.71:9618?addrs=147.188.47.71-9618&alias=eplwk001.ph.bham.ac.uk&noUDP&sock=slot1_21_864817_8fb9_65721>
+...
+040 (2039.000.000) 2024-11-25 13:55:47 Finished transferring input files
+...
+001 (2039.000.000) 2024-11-25 13:55:48 Job executing on host: <147.188.47.71:9618?addrs=147.188.47.71-9618&alias=eplwk001.ph.bham.ac.uk&noUDP&sock=startd_864732_ce1e>
+	SlotName: slot1_21@eplwk001.ph.bham.ac.uk
+	CondorScratchDir = "/var/lib/condor/execute/dir_1815784"
+	Cpus = 1
+	Disk = 7699
+	GPUs = 0
+	Memory = 4096
+...
+006 (2039.000.000) 2024-11-25 13:55:57 Image size of job updated: 396712
+	388  -  MemoryUsage of job (MB)
+	396692  -  ResidentSetSize of job (KB)
+...
+006 (2039.000.000) 2024-11-25 13:57:57 Image size of job updated: 797688
+	388  -  MemoryUsage of job (MB)
+	396784  -  ResidentSetSize of job (KB)
+...
+040 (2039.000.000) 2024-11-25 13:57:57 Started transferring output files
+...
+040 (2039.000.000) 2024-11-25 13:57:57 Finished transferring output files
+...
+005 (2039.000.000) 2024-11-25 13:57:57 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:01:57, Sys 0 00:00:06  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:01:57, Sys 0 00:00:06  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	2731  -  Run Bytes Sent By Job
+	956  -  Run Bytes Received By Job
+	2731  -  Total Bytes Sent By Job
+	956  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.99        1         1 
+	   Disk (KB)            :    39           1      7699 
+	   GPUs                 :                           0 
+	   Memory (MB)          :   388        4000      4096 
+	   TimeExecute (s)      :   129                       
+	   TimeSlotBusy (s)     :   130                       
+
+	Job terminated of its own accord at 2024-11-25T13:57:57Z with exit-code 0.
+...

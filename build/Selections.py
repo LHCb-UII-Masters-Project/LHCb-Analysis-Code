@@ -1,8 +1,8 @@
 
 def load_event_library() : 
     from ROOT import gSystem, gInterpreter 
-    gInterpreter.AddIncludePath('/disk/homedisk/home/user294/Documents/selections/include')
-    gSystem.Load( '/disk/homedisk/home/user294/Documents/selections/build/libEvent.so')
+    gInterpreter.AddIncludePath('/home/user294/Documents/selections/include')
+    gSystem.Load( '/home/user294/Documents/selections/build/libEvent.so')
 
 def get_secondary_vertices( event ) :
     from ROOT import uComposite

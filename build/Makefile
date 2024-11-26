@@ -48,19 +48,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /cvmfs/sft.cern.ch/lcg/releases/CMake/3.26.2-0664a/x86_64-el9-clang16-dbg/bin/cmake
+CMAKE_COMMAND = /cvmfs/sft.cern.ch/lcg/releases/CMake/3.26.2-0664a/x86_64-el9-gcc12-opt/bin/cmake
 
 # The command to remove a file.
-RM = /cvmfs/sft.cern.ch/lcg/releases/CMake/3.26.2-0664a/x86_64-el9-clang16-dbg/bin/cmake -E rm -f
+RM = /cvmfs/sft.cern.ch/lcg/releases/CMake/3.26.2-0664a/x86_64-el9-gcc12-opt/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /disk/homedisk/home/user294/Documents/selections
+CMAKE_SOURCE_DIR = /home/user294/Documents/selections
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /disk/homedisk/home/user294/Documents/selections/build
+CMAKE_BINARY_DIR = /home/user294/Documents/selections/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -78,7 +78,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/cvmfs/sft.cern.ch/lcg/releases/CMake/3.26.2-0664a/x86_64-el9-clang16-dbg/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/cvmfs/sft.cern.ch/lcg/releases/CMake/3.26.2-0664a/x86_64-el9-gcc12-opt/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /disk/homedisk/home/user294/Documents/selections/build/CMakeFiles /disk/homedisk/home/user294/Documents/selections/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/user294/Documents/selections/build/CMakeFiles /home/user294/Documents/selections/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /disk/homedisk/home/user294/Documents/selections/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/user294/Documents/selections/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

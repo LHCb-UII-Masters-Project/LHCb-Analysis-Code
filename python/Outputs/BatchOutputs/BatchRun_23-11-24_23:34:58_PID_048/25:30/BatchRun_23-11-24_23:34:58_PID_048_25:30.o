@@ -1,0 +1,43 @@
+/usr/bin/singularity -s exec -S /tmp -S /var/tmp -W /var/lib/condor/execute/dir_3609592 --pwd /var/lib/condor/execute/dir_3609592 -B /var/lib/condor/execute/dir_3609592 -B /var/lib -B /etc/condor -B /var/run -B /disk/moose -B /scratch -B /cvmfs -B /disk/homedisk -B /home --home /var/lib/condor/execute/dir_3609592 -C /image/alma9-image /var/lib/condor/execute/dir_3609592/BatchRun_23-11-24_23:34:58_PID_048_25:30_Sub.sh
+/usr/bin/singularity -s exec -S /tmp -S /var/tmp -W /var/lib/condor/execute/dir_3609592 --pwd /var/lib/condor/execute/dir_3609592 -B /var/lib/condor/execute/dir_3609592 -B /var/lib -B /etc/condor -B /var/run -B /disk/moose -B /scratch -B /cvmfs -B /disk/homedisk -B /home --home /var/lib/condor/execute/dir_3609592 -C /image/alma9-image /etc/condor/container_wrapper.sh /var/lib/condor/execute/dir_3609592/BatchRun_23-11-24_23:34:58_PID_048_25:30_Sub.sh
+****************************************
+Minimizer is Minuit2 / Migrad
+Chi2                      =     0.124615
+NDf                       =            1
+Edm                       =  7.19556e-23
+NCalls                    =           40
+p0                        =      7.76538   +/-   3.5233      
+p1                        =  -0.00234615   +/-   0.00119911  
+****************************************
+Minimizer is Minuit2 / Migrad
+Chi2                      =   0.00049655
+NDf                       =            8
+Edm                       =  1.40347e-27
+NCalls                    =           37
+p0                        =     0.813936   +/-   0.0080354   
+p1                        =  5.81932e-06   +/-   1.38647e-06 
+****************************************
+Minimizer is Minuit2 / Migrad
+Chi2                      =  2.77424e-27
+NDf                       =            0
+Edm                       =  2.76805e-27
+NCalls                    =           37
+p0                        =          0.9   +/-   2.23607     
+p1                        =        5e-06   +/-   0.000141421 
+****************************************
+Minimizer is Minuit2 / Migrad
+Chi2                      =  9.81996e-28
+NDf                       =            1
+Edm                       =  9.82211e-28
+NCalls                    =           38
+p0                        =         0.95   +/-   9.04616e-14 
+p1                        =  1.94818e-19   +/-   2.21585e-18 
+****************************************
+Minimizer is Minuit2 / Migrad
+Chi2                      =      0.00175
+NDf                       =            3
+Edm                       =  4.70424e-26
+NCalls                    =           38
+p0                        =         1.25   +/-   0.0620484   
+p1                        =     -5.5e-06   +/-   7.63763e-07 
+Job completed successfully, deleting temporary output file
