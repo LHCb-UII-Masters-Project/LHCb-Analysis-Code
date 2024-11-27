@@ -518,7 +518,6 @@ for event in events: # loop through all events
               continue
             bs_vtx = ROOT.uVertex( [pion, k1, k2, pion2] )
             bs = ROOT.uParticle( [pion, k1, k2, pion2] )
-            b_sig[0] = 1 if is_b_signal is True else 0
 
             
             B_chi2[0] = bs_vtx.chi2 / bs_vtx.ndof
@@ -567,7 +566,8 @@ for event in events: # loop through all events
               else:
                 B_mass_bac_kills[0] += 1
               continue
-
+            
+            b_sig[0] = 1 if is_b_signal is True else 0
             b_plot.Fill(bs.mass * 0.001)
             bs_mass[0] = bs.mass * 0.001
             entry += 1 # entry is the event being examined

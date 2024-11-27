@@ -151,6 +151,7 @@ model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),RO
 # region FIT
 minos_params = ROOT.RooArgSet(mu,sigma,nsig,nbkg)
 
+<<<<<<< HEAD
 fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), 
                          ROOT.RooFit.Strategy(2),
                            ROOT.RooFit.Minimizer("Minuit",'migradimproved'),
@@ -164,7 +165,7 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
 
 
 
-number_of_bins = 40
+number_of_bins = 30
 
 frame1 = x.frame()
 frame1.SetTitle("")
@@ -186,7 +187,7 @@ line.SetLineColor(ROOT.kBlue)
 origin_file_path = root_file.GetName()
 origin_file_name = os.path.basename(origin_file_path)
 origin_file_name_reduced = origin_file_name.replace(".root", "")
-current_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+current_time = time.strftime("%H-%M-%S_%d-%m-%Y", time.localtime())
 
 with LHCbStyle() as lbs:
     c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
@@ -262,9 +263,9 @@ with LHCbStyle() as lbs:
     c.cd()
     c.Update()
     c.Draw()
-    c.SaveAs(f"{input_directory}/{origin_file_name_reduced}_fitted_{current_time}.png")
+    c.SaveAs(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.png")
     # Create a ROOT file
-output_file = ROOT.TFile(f"{input_directory}/F_{origin_file_name_reduced}_fitted_{current_time}.root", "RECREATE")
+output_file = ROOT.TFile(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.root", "RECREATE")
 
 # Write the canvas to the file
 c.Write()
@@ -435,22 +436,49 @@ fit_initial_guess_tree.Write()
 output_file.Close()
 
 ascii_art = """
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@    ___  ________  ________  ___  __    ________  ___       ________  _________   @
-@   |\  \|\   __  \|\   ____\|\  \|\  \ |\   __  \|\  \     |\   __  \|\___   ___\ @
-@   \ \  \ \  \|\  \ \  \___|\ \  \/  /|\ \  \|\  \ \  \    \ \  \|\  \|___ \  \_| @
-@ __ \ \  \ \   __  \ \  \    \ \   ___  \ \   ____\ \  \    \ \  \\\  \   \ \  \  @
-@|\  \\_\  \ \  \ \  \ \  \____\ \  \\ \  \ \  \___|\ \  \____\ \  \\\  \   \ \  \ @
-@\ \________\ \__\ \__\ \_______\ \__\\ \__\ \__\    \ \_______\ \_______\   \ \__\@
-@ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+.%%%%%%..%%..%%...%%%%...%%..%%..........%%%%%...%%.......%%%%...%%%%%%.
+.%%......%%..%%..%%..%%..%%%.%%..........%%..%%..%%......%%..%%....%%...
+.%%%%....%%..%%..%%%%%%..%%.%%%..........%%%%%...%%......%%..%%....%%...
+.%%......%%..%%..%%..%%..%%..%%..........%%......%%......%%..%%....%%...
+.%%%%%%...%%%%...%%..%%..%%..%%..........%%......%%%%%%...%%%%.....%%...
 """
 print(ascii_art)
 
+inputs = [
+    mean_guess, sigma_guess, alphaL_guess, alphaR_guess, nL_guess,
+    nR_guess, decay_constant_guess, nbkg_guess, nsig_guess,
+    mean_min, sigma_min, alphaL_min, alphaR_min, nL_min,
+    nR_min, decay_constant_min, nbkg_min, nsig_min,
+    mean_max, sigma_max, alphaL_max, alphaR_max, nL_max,
+    nR_max, decay_constant_max, nbkg_max, nsig_max
+]
 
+# Associate output names with their values
+output_dict = {
+    "mean_val": mean_val,
+    "sigma_val": sigma_val,
+    "alphaL_val": alphaL_val,
+    "alphaR_val": alphaR_val,
+    "nL_val": nL_val,
+    "nR_val": nR_val,
+    "decay_constant_val": decay_constant_val,
+    "nsig_val": nsig_val,
+    "nbkg_val": nbkg_val,
+}
 
+# Group inputs into guesses, mins, and maxes
+guesses = inputs[:9]
+mins = inputs[9:18]
+maxes = inputs[18:]
 
-
-
-
+# Iterate over output names and values, and check conditions
+for i, (name, output) in enumerate(output_dict.items()):
+    if output == guesses[i]:
+        print(f"{name} ({output}) is equal to the guess ({guesses[i]}).")
+    elif output == mins[i]:
+        print(f"{name} ({output}) is equal to the minimum ({mins[i]}).")
+    elif output == maxes[i]:
+        print(f"{name} ({output}) is equal to the maximum ({maxes[i]}).")
+    # else:
+        # print(f"{name} ({output}) does not match guess, min, or max.")
 
