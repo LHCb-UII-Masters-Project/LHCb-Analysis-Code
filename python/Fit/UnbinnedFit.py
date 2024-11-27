@@ -151,7 +151,6 @@ model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),RO
 # region FIT
 minos_params = ROOT.RooArgSet(mu,sigma,nsig,nbkg)
 
-<<<<<<< HEAD
 fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), 
                          ROOT.RooFit.Strategy(2),
                            ROOT.RooFit.Minimizer("Minuit",'migradimproved'),
