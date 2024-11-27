@@ -80,6 +80,8 @@ rdf = ROOT.RDataFrame(outputs)
 unbinned_data = rdf.AsNumpy(columns=["bs_mass"])["bs_mass"]
 
 
+
+
 # Create a variable to hold the value
 timing = array('f', [0])
 PID_pion = array('f', [0])
@@ -127,6 +129,7 @@ for dp in unbinned_data: # change to filtered data for filtering
 
 # Define variables using the updated dictionary
 mu = ROOT.RooRealVar("mu1", "mean of CB1", variables['mu']['value'], variables['mu']['min'], variables['mu']['max'])  # Gaussian core mean estimate
+#mu.setConstant(True)
 sigma = ROOT.RooRealVar("sigma1", "std of core gaussian 1", variables['sigma']['value'], variables['sigma']['min'], variables['sigma']['max'])  # Gaussian core std estimate
 alphaL = ROOT.RooRealVar("alphaL", "cut off gauss left", variables['alphaL']['value'], variables['alphaL']['min'], variables['alphaL']['max'])  # Gaussian core limit 1 estimate
 alphaR = ROOT.RooRealVar("alphaR", "cut off gauss right", variables['alphaR']['value'], variables['alphaR']['min'], variables['alphaR']['max'])  # Gaussian core limit 2 estimate
@@ -146,14 +149,20 @@ model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),RO
 #endregion DefPDF
 
 # region FIT
+minos_params = ROOT.RooArgSet(mu,sigma,nsig,nbkg)
 
-fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), ROOT.RooFit.Strategy(2), ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Extended(True),ROOT.RooFit.Save(),ROOT.RooFit.Minos(True),ROOT.RooFit.Optimize(False))
+fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), 
+                         ROOT.RooFit.Strategy(2),
+                           ROOT.RooFit.Minimizer("Minuit",'migradimproved'),
+                           ROOT.RooFit.Extended(True),
+                           ROOT.RooFit.Save(),
+                           ROOT.RooFit.Minos(minos_params),
+                           ROOT.RooFit.Optimize(True),
+                           ROOT.RooFit.MaxCalls(5000000))
 
 
 
 
-# Access the covariance matrix
-covMatrix = fit_result.covarianceMatrix()
 
 number_of_bins = 40
 
@@ -277,33 +286,23 @@ sigma_err_sym = ROOT.std.vector('float')()
 
 
 alphaL_val = ROOT.std.vector('float')()
-alphaL_err_high = ROOT.std.vector('float')()
-alphaL_err_low = ROOT.std.vector('float')()
 alphaL_err_sym = ROOT.std.vector('float')()
 
 
 alphaR_val = ROOT.std.vector('float')()
-alphaR_err_high = ROOT.std.vector('float')()
-alphaR_err_low = ROOT.std.vector('float')()
 alphaR_err_sym = ROOT.std.vector('float')()
 
 
 nL_val = ROOT.std.vector('float')()
-nL_err_high = ROOT.std.vector('float')()
-nL_err_low = ROOT.std.vector('float')()
 nL_err_sym = ROOT.std.vector('float')()
 
 
 
 nR_val = ROOT.std.vector('float')()
-nR_err_high = ROOT.std.vector('float')()
-nR_err_low = ROOT.std.vector('float')()
 nR_err_sym = ROOT.std.vector('float')()
 
 
 decay_constant_val = ROOT.std.vector('float')()
-decay_constant_err_high = ROOT.std.vector('float')()
-decay_constant_err_low = ROOT.std.vector('float')()
 decay_constant_err_sym  = ROOT.std.vector('float')()
 
 
@@ -340,32 +339,22 @@ sigma_err_sym.push_back(sigma.getError())
 
 
 alphaL_val.push_back(alphaL.getVal())
-alphaL_err_high.push_back(alphaL.getAsymErrorHi())
-alphaL_err_low.push_back(alphaL.getAsymErrorLo())
 alphaL_err_sym.push_back(alphaL.getError())
 
 
 alphaR_val.push_back(alphaR.getVal())
-alphaR_err_high.push_back(alphaR.getAsymErrorHi())
-alphaR_err_low.push_back(alphaR.getAsymErrorLo())
 alphaR_err_sym.push_back(alphaR.getError())
 
 
 nL_val.push_back(nL.getVal())
-nL_err_high.push_back(nL.getAsymErrorHi())
-nL_err_low.push_back(nL.getAsymErrorLo())
 nL_err_sym.push_back(nL.getError())
 
 
 nR_val.push_back(nR.getVal())
-nR_err_high.push_back(nR.getAsymErrorHi())
-nR_err_low.push_back(nR.getAsymErrorLo())
 nR_err_sym.push_back(nR.getError())
 
 
 decay_constant_val.push_back(decay_constant.getVal())
-decay_constant_err_high.push_back(decay_constant.getAsymErrorHi())
-decay_constant_err_low.push_back(decay_constant.getAsymErrorLo())
 decay_constant_err_sym.push_back(decay_constant.getError())
 
 chi2_val.push_back(chi2)
@@ -401,28 +390,18 @@ tree.Branch("sigma_error_low", sigma_err_low)
 tree.Branch("sigma_error_sym", sigma_err_sym)
 
 tree.Branch("alphaL", alphaL_val)
-tree.Branch("alphaL_error_high", alphaL_err_high)
-tree.Branch("alphaL_error_low", alphaL_err_low)
 tree.Branch("alphaL_error_sym", alphaL_err_sym)
 
 tree.Branch("alphaR", alphaR_val)
-tree.Branch("alphaR_error_high", alphaR_err_high)
-tree.Branch("alphaR_error_low", alphaR_err_low)
 tree.Branch("alphaR_error_sym", alphaR_err_sym)
 
 tree.Branch("nL", nL_val)
-tree.Branch("nL_error_high", nL_err_high)
-tree.Branch("nL_error_low", nL_err_low)
 tree.Branch("nL_error_sym", nL_err_sym)
 
 tree.Branch("nR", nR_val)
-tree.Branch("nR_error_high", nR_err_high)
-tree.Branch("nR_error_low", nR_err_low)
 tree.Branch("nR_error_sym", nR_err_sym)
 
 tree.Branch("decay_constant", decay_constant_val)
-tree.Branch("decay_constant_error_high", decay_constant_err_high)
-tree.Branch("decay_constant_error_low", decay_constant_err_low)
 tree.Branch("decay_constant_error_sym", decay_constant_err_sym)
 
 tree.Branch("chi2", chi2_val)
@@ -448,6 +427,7 @@ tree.Fill()
 # Write the tree to the file
 tree.Write()
 run_tree.Write()
+fit_result.Write("fit_result")
 
 fit_initial_guess_tree.Write()
 
