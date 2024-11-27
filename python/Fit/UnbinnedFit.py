@@ -498,6 +498,6 @@ for i, (name, output) in enumerate(output_dict.items()):
         print(f"{name} ({output}) is equal to the minimum ({mins[i]}).")
     elif output == maxes[i]:
         print(f"{name} ({output}) is equal to the maximum ({maxes[i]}).")
-    else:
-        print(f"{name} ({output}) does not match guess, min, or max.")
+    # else:
+        # print(f"{name} ({output}) does not match guess, min, or max.")
 
