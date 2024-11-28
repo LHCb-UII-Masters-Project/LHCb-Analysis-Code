@@ -78,8 +78,7 @@ root_file.Close()
 rdf = ROOT.RDataFrame(outputs) 
 # Convert the bs_mass branch to a Numpy array
 unbinned_data = rdf.AsNumpy(columns=["bs_mass"])["bs_mass"]
-
-
+total_entries = outputs.GetEntries()
 
 
 # Create a variable to hold the value
@@ -88,9 +87,7 @@ PID_pion = array('f', [0])
 PID_kaon= array('f', [0])
 
 # Set branch address
-run_tree.SetBranchAddress("rich_window_timing", timing)
-#un_tree.SetBranchAddress("timing_res", timing)
-
+run_tree.SetBranchAddress("velo_timing", timing)
 run_tree.SetBranchAddress("PID_pion", PID_pion)
 run_tree.SetBranchAddress("PID_kaon", PID_kaon)
 run_tree.GetEntry(0)
@@ -136,14 +133,18 @@ alphaR = ROOT.RooRealVar("alphaR", "cut off gauss right", variables['alphaR']['v
 nL = ROOT.RooRealVar("n1", "nleft of DCB", variables['nL']['value'], variables['nL']['min'], variables['nL']['max'])  # First power law exponent estimate
 nR = ROOT.RooRealVar("n2", "nright of DCB", variables['nR']['value'], variables['nR']['min'], variables['nR']['max'])  # Second power law exponent estimate
 
+#alphaL.setConstant(True)
+#alphaR.setConstant(True)
+#nL.setConstant(True)
+nR.setConstant(True)
 sig = ROOT.RooCrystalBall("sig", "double crystal ball", x, mu, sigma, alphaL, nL, alphaR, nR)
-
 decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", variables['decay_constant']['value'], variables['decay_constant']['min'], variables['decay_constant']['max'])
 bkg = ROOT.RooExponential("bkg", "Exponential Background", x, decay_constant)
-
 nsig = ROOT.RooRealVar("nsig", "number of signal events", variables['nsig']['value'], variables['nsig']['min'], variables['nsig']['max'])
 nbkg = ROOT.RooRealVar("nbkg", "number of background events", variables['nbkg']['value'], variables['nbkg']['min'], variables['nbkg']['max'])
 
+sig_frac = ROOT.RooFormulaVar("sig_frac", "signal fraction", "nsig/(nbkg+nsig)", ROOT.RooArgList(nsig, nbkg))
+bkg_frac = ROOT.RooFormulaVar("bkg_frac", "background fraction", "nbkg/(nbkg+nsig)", ROOT.RooArgList(nsig, nbkg))
 
 model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),ROOT.RooArgList(nbkg, nsig))
 #endregion DefPDF
@@ -161,16 +162,13 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.MaxCalls(5000000))
 
 
-
-
-
-number_of_bins = 30
+number_of_bins = 50
 
 frame1 = x.frame()
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins))
 model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
-model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kGreen),ROOT.RooFit.LineStyle(ROOT.kDashed))
+model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kMagenta),ROOT.RooFit.LineStyle(ROOT.kDashed))
 model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
 
 chi2 = frame1.chiSquare("sig+bkg", "data",9)
@@ -196,9 +194,10 @@ with LHCbStyle() as lbs:
     c.cd(1)
     latex = ROOT.TLatex() 
     latex.SetNDC() 
-    latex.SetTextSize(0.05)     
+    latex.SetTextSize(0.050)     
     ROOT.gPad.SetLeftMargin(0.15)
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
+    ROOT.gStyle.SetLineScalePS(1.2)
     frame1.GetYaxis().SetTitle("Entries")
     frame1.GetXaxis().SetTitle("m_{B0} [GeV/c^{2}]")
     frame1.GetYaxis().SetTitleOffset(1)
@@ -210,14 +209,14 @@ with LHCbStyle() as lbs:
 
 
     # Add the legend with LaTeX formatting, without a legend box, and matching LaTeX font
-    legend = ROOT.TLegend(0.175, 0.6, 0.5, 0.80)
+    legend = ROOT.TLegend(0.70, 0.70, 0.975, 0.920) 
     legend.SetLineColor(0)  # Remove the legend border
     legend.SetLineStyle(0)  # Ensure no border line style
     legend.SetLineWidth(0)  # Set line width to 0
     legend.SetFillColor(0)  # Remove any fill color
     legend.SetFillStyle(0)  # Ensure no fill style
     legend.SetTextFont(42)  # Helvetica, normal
-    legend.SetTextSize(0.03)  # Adjust text size as needed
+    legend.SetTextSize(0.045)  # Adjust text size as needed
 
 
     legend.AddEntry("data", "Data", "lep")  # Points with error bars
@@ -225,7 +224,7 @@ with LHCbStyle() as lbs:
 
     # Dummy lines for correct styles in the legend
     dummy_bkg_line = ROOT.TLine()
-    dummy_bkg_line.SetLineColor(ROOT.kGreen)
+    dummy_bkg_line.SetLineColor(ROOT.kMagenta)
     dummy_bkg_line.SetLineStyle(ROOT.kDashed)
     legend.AddEntry(dummy_bkg_line, "Background", "l")  # Green dashed line
 
@@ -235,10 +234,13 @@ with LHCbStyle() as lbs:
     legend.AddEntry(dummy_sig_line, "Signal", "l")  # Red dotted line
 
     latex.DrawText(0.2,0.875,"LHCb Simulation")
-    latex.DrawLatex(0.2, 0.820, "\\sqrt{s}  = 14 TeV") 
+    latex.DrawLatex(0.2, 0.820, "#sqrt{s} = 14 TeV") 
+    timing_int = int(timing_value)
+    latex.DrawLatex(0.2, 0.765, (f"VELO {timing_int}ps")) 
+
     latex2 = ROOT.TLatex() 
     latex2.SetNDC() 
-    latex2.SetTextSize(0.03)  
+    latex2.SetTextSize(0.04)  
     plot_time = time.strftime("%d %m %y", time.localtime())
 
     latex2.DrawLatex(0.1, 0.09, f"J.McQueen({plot_time})")
@@ -262,7 +264,7 @@ with LHCbStyle() as lbs:
     c.cd()
     c.Update()
     c.Draw()
-    c.SaveAs(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.png")
+    c.SaveAs(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.pdf","pdf 800")
     # Create a ROOT file
 output_file = ROOT.TFile(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.root", "RECREATE")
 
@@ -424,9 +426,49 @@ tree.Branch("pid_pion_flag", pid_pion_flag)
 # Fill the tree with values
 tree.Fill()
 
+summary = ROOT.TTree("summary", "summary")
+
+sig_frac_value = ROOT.std.vector('float')()
+sig_frac_err_sym = ROOT.std.vector('float')()
+
+bkg_frac_value = ROOT.std.vector('float')()
+bkg_frac_err_sym = ROOT.std.vector('float')()
+
+sig_yield = ROOT.std.vector('float')()
+sig_yield_err_sym = ROOT.std.vector('float')()
+sig_yield_err_high =ROOT.std.vector('float')()
+sig_yield_err_low = ROOT.std.vector('float')()
+
+
+sig_frac_value.push_back(sig_frac.getVal())
+sig_frac_err_sym.push_back(sig_frac.getPropagatedError(fit_result))
+
+bkg_frac_value.push_back(bkg_frac.getVal())
+bkg_frac_err_sym.push_back(bkg_frac.getPropagatedError(fit_result))
+
+sig_yield.push_back(nsig.getVal()/total_entries)
+sig_yield_err_sym.push_back(nsig.getError()/total_entries)
+sig_yield_err_high.push_back(nsig.getAsymErrorHi()/total_entries)
+sig_yield_err_low.push_back(nsig.getAsymErrorLo()/total_entries)
+
+summary.Branch("sig_frac_value", sig_frac_value)
+summary.Branch("sig_frac_error_sym", sig_frac_err_sym)
+
+summary.Branch("bkg_frac_value", bkg_frac_value)
+summary.Branch("bkg_frac_error_sym", bkg_frac_err_sym)
+
+summary.Branch("sig_yield", sig_yield)
+summary.Branch("sig_yield_error_high", sig_yield_err_high)
+summary.Branch("sig_yield_error_low", sig_yield_err_low)
+summary.Branch("sig_yield_error_sym", sig_yield_err_sym)
+
+summary.Fill()
+
+
 # Write the tree to the file
 tree.Write()
 run_tree.Write()
+summary.Write()
 fit_result.Write("fit_result")
 
 fit_initial_guess_tree.Write()
@@ -435,49 +477,16 @@ fit_initial_guess_tree.Write()
 output_file.Close()
 
 ascii_art = """
-.%%%%%%..%%..%%...%%%%...%%..%%..........%%%%%...%%.......%%%%...%%%%%%.
-.%%......%%..%%..%%..%%..%%%.%%..........%%..%%..%%......%%..%%....%%...
-.%%%%....%%..%%..%%%%%%..%%.%%%..........%%%%%...%%......%%..%%....%%...
-.%%......%%..%%..%%..%%..%%..%%..........%%......%%......%%..%%....%%...
-.%%%%%%...%%%%...%%..%%..%%..%%..........%%......%%%%%%...%%%%.....%%...
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    ___  ________  ________  ___  __    ________  ___       ________  _________   @
+@   |\  \|\   __  \|\   ____\|\  \|\  \ |\   __  \|\  \     |\   __  \|\___   ___\ @
+@   \ \  \ \  \|\  \ \  \___|\ \  \/  /|\ \  \|\  \ \  \    \ \  \|\  \|___ \  \_| @
+@ __ \ \  \ \   __  \ \  \    \ \   ___  \ \   ____\ \  \    \ \  \\\  \   \ \  \  @
+@|\  \\_\  \ \  \ \  \ \  \____\ \  \\ \  \ \  \___|\ \  \____\ \  \\\  \   \ \  \ @
+@\ \________\ \__\ \__\ \_______\ \__\\ \__\ \__\    \ \_______\ \_______\   \ \__\@
+@ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
 print(ascii_art)
 
-inputs = [
-    mean_guess, sigma_guess, alphaL_guess, alphaR_guess, nL_guess,
-    nR_guess, decay_constant_guess, nbkg_guess, nsig_guess,
-    mean_min, sigma_min, alphaL_min, alphaR_min, nL_min,
-    nR_min, decay_constant_min, nbkg_min, nsig_min,
-    mean_max, sigma_max, alphaL_max, alphaR_max, nL_max,
-    nR_max, decay_constant_max, nbkg_max, nsig_max
-]
-
-# Associate output names with their values
-output_dict = {
-    "mean_val": mean_val,
-    "sigma_val": sigma_val,
-    "alphaL_val": alphaL_val,
-    "alphaR_val": alphaR_val,
-    "nL_val": nL_val,
-    "nR_val": nR_val,
-    "decay_constant_val": decay_constant_val,
-    "nsig_val": nsig_val,
-    "nbkg_val": nbkg_val,
-}
-
-# Group inputs into guesses, mins, and maxes
-guesses = inputs[:9]
-mins = inputs[9:18]
-maxes = inputs[18:]
-
-# Iterate over output names and values, and check conditions
-for i, (name, output) in enumerate(output_dict.items()):
-    if output == guesses[i]:
-        print(f"{name} ({output}) is equal to the guess ({guesses[i]}).")
-    elif output == mins[i]:
-        print(f"{name} ({output}) is equal to the minimum ({mins[i]}).")
-    elif output == maxes[i]:
-        print(f"{name} ({output}) is equal to the maximum ({maxes[i]}).")
-    # else:
-        # print(f"{name} ({output}) does not match guess, min, or max.")
 
