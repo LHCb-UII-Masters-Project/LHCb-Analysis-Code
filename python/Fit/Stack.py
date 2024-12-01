@@ -150,8 +150,9 @@ with LHCbStyle() as lbs:
     latex2.SetNDC() 
     latex2.SetTextSize(0.03)  
     plot_time = time.strftime("%d %m %y", time.localtime())
+    signature = "E.Walsh" if particle == "D" else "J.McQueen"
 
-    latex2.DrawLatex(0.1, 0.06, f"E.Walsh ({plot_time})")
+    latex2.DrawLatex(0.1, 0.06, f"{signature} ({plot_time})")
     
     legend.Draw()
 
