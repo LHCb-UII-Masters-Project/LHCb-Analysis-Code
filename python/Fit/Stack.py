@@ -23,6 +23,8 @@ latex.SetNDC()
 import argparse
 import ROOT
 
+particle = "B"
+
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_files',nargs="+", type=str, help='Path to the input ROOT file') 
 args = parser.parse_args()
@@ -45,7 +47,7 @@ hatch_styles = [3345,3354,3345,3354]
 for index,file_name in enumerate(args.input_files):
 # Open the ROOT files and get the histograms
     root_file = ROOT.TFile.Open(file_name, "READ")
-    file_hist = root_file.Get("B_Histogram")
+    file_hist = root_file.Get(f"{particle}_Histogram")
     file_tree = root_file.Get("RunParams")
     file_tree.SetDirectory(0)
     file_hist.SetDirectory(0)
@@ -87,10 +89,10 @@ with LHCbStyle() as lbs:
 
     if all(int(status) == 0 for status in pid_status):
         pid_string = "off"
-        x1 = 0.67
-        y1 = 0.8
-        x2 = 0.87
-        y2 = 0.890
+        x1 = 0.66
+        y1 = 0.79
+        x2 = 0.86
+        y2 = 0.88
     else:
         pid_string ="on"
         x1 = 0.2
@@ -104,6 +106,7 @@ with LHCbStyle() as lbs:
 
     for i in range(len(histograms)):
         histogram = histograms[i]
+        print(histogram.GetNbinsX())
         if i>0:
             histogram.SetMarkerSize(0.5)  # Decrease marker size
             #histogram.SetFillColor(set_colours[i])
@@ -120,11 +123,16 @@ with LHCbStyle() as lbs:
             legend.AddEntry(histogram, f"VELO {int(velo_timings[i])}ps, RICH {int(rich_window_timings[i])}ps")
 
     hs.Draw("nostack L p")
-    hs.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
-    hs.GetYaxis().SetTitle("Entries/ (5 MeV/c^{2})")
+    if particle == "B":
+        hs.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
+        hs.GetYaxis().SetTitle("Entries/ (5 MeV/c^{2})")
+        hs.GetYaxis().SetTitleOffset(1.25)
+    else:
+        hs.GetXaxis().SetTitle("m(D_{s}^{#pm}) [GeV/c^{2}]")
+        hs.GetYaxis().SetTitle("Entries/ (3 MeV/c^{2})")
+        hs.GetYaxis().SetTitleOffset(1.43)
     hs.GetXaxis().SetTitleSize(0.05)
     hs.GetYaxis().SetTitleSize(0.05)
-    hs.GetYaxis().SetTitleOffset(1.25)
     hs.GetXaxis().SetTitleOffset(1.15)
 
     legend.SetLineColor(0)  # Remove the legend border
@@ -135,7 +143,7 @@ with LHCbStyle() as lbs:
     legend.SetTextFont(42)  # Helvetica, normal
     legend.SetTextSize(0.045)  # Adjust text size as needed
 
-    latex.DrawLatex(0.2, 0.80, "\\sqrt{s}  = 14 TeV") 
+    latex.DrawLatex(0.2, 0.80, "#sqrt{s}  = 14 TeV") 
     latex.DrawText(0.2,0.855,"LHCb Simulation")
 
     latex2 = ROOT.TLatex() 
@@ -143,12 +151,16 @@ with LHCbStyle() as lbs:
     latex2.SetTextSize(0.03)  
     plot_time = time.strftime("%d %m %y", time.localtime())
 
-    latex2.DrawLatex(0.1, 0.06, f"J.McQueen({plot_time})")
+    latex2.DrawLatex(0.1, 0.06, f"E.Walsh ({plot_time})")
     
     legend.Draw()
 
-    zoom_x1, zoom_x2 = 5.2, 5.3
-    zoom_y1, zoom_y2 = 0, 40
+    if particle == "B":
+        zoom_x1, zoom_x2 = 5.2, 5.3
+        zoom_y1, zoom_y2 = 0, 40
+    else:
+        zoom_x1, zoom_x2 = 1.86, 1.92
+        zoom_y1, zoom_y2 = 0, 400
     box = ROOT.TBox(zoom_x1, zoom_y1, zoom_x2, zoom_y2)
     box.SetLineColor(ROOT.kBlack)
     box.SetLineWidth(1)
@@ -185,11 +197,6 @@ with LHCbStyle() as lbs:
 
     ROOT.gPad.Update()
 
-
-
-
-  
-
     rich_window_timings_strings = [str(timing) for timing in rich_window_timings]
     rich_window_timings_string = "_".join(rich_window_timings_strings)
 
@@ -200,7 +207,7 @@ with LHCbStyle() as lbs:
     pid_status_string = "_".join(pid_strings)
     
     current_time = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
-    hist_canvas.SaveAs(f"ComparisonPlots/B_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.pdf")
+    hist_canvas.SaveAs(f"ComparisonPlots/{particle}_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.pdf", "pdf 800")
 
 ascii_art = """
 .%%%%%%..%%..%%...%%%%...%%..%%..........%%%%%...%%.......%%%%...%%%%%%.
