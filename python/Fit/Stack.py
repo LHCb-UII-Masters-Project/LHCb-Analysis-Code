@@ -17,6 +17,8 @@ import ctypes
 
 import lhcbstyle
 from lhcbstyle import LHCbStyle
+latex = ROOT.TLatex() 
+latex.SetNDC() 
 
 import argparse
 import ROOT
@@ -85,10 +87,10 @@ with LHCbStyle() as lbs:
 
     if all(int(status) == 0 for status in pid_status):
         pid_string = "off"
-        x1 = 0.20
-        y1 = 0.70
-        x2 = 0.40
-        y2 = 0.790
+        x1 = 0.67
+        y1 = 0.8
+        x2 = 0.87
+        y2 = 0.890
     else:
         pid_string ="on"
         x1 = 0.2
@@ -113,11 +115,17 @@ with LHCbStyle() as lbs:
 
         hs.Add(histogram)
         if pid_string == "off":
-            legend.AddEntry(histogram, f"VELO {int(velo_timings[i])}ps")
+            legend.AddEntry(histogram, f"VELO {int(velo_timings[i])} ps")
         if pid_string == "on":
             legend.AddEntry(histogram, f"VELO {int(velo_timings[i])}ps, RICH {int(rich_window_timings[i])}ps")
-    
+
     hs.Draw("nostack L p")
+    hs.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
+    hs.GetYaxis().SetTitle("Entries/ (5 MeV/c^{2})")
+    hs.GetXaxis().SetTitleSize(0.05)
+    hs.GetYaxis().SetTitleSize(0.05)
+    hs.GetYaxis().SetTitleOffset(1.25)
+    hs.GetXaxis().SetTitleOffset(1.15)
 
     legend.SetLineColor(0)  # Remove the legend border
     legend.SetLineStyle(0)  # Ensure no border line style
@@ -127,19 +135,17 @@ with LHCbStyle() as lbs:
     legend.SetTextFont(42)  # Helvetica, normal
     legend.SetTextSize(0.045)  # Adjust text size as needed
 
-    latex.DrawLatex(0.2, 0.820, "\\sqrt{s}  = 14 TeV") 
-    latex.DrawText(0.2,0.875,"LHCb Simulation")
+    latex.DrawLatex(0.2, 0.80, "\\sqrt{s}  = 14 TeV") 
+    latex.DrawText(0.2,0.855,"LHCb Simulation")
 
     latex2 = ROOT.TLatex() 
     latex2.SetNDC() 
     latex2.SetTextSize(0.03)  
     plot_time = time.strftime("%d %m %y", time.localtime())
 
-    latex2.DrawLatex(0.1, 0.09, f"J.McQueen({plot_time})")
-
+    latex2.DrawLatex(0.1, 0.06, f"J.McQueen({plot_time})")
     
     legend.Draw()
-
 
     zoom_x1, zoom_x2 = 5.2, 5.3
     zoom_y1, zoom_y2 = 0, 40
@@ -148,8 +154,6 @@ with LHCbStyle() as lbs:
     box.SetLineWidth(1)
     box.SetFillStyle(0)  # Transparent fill
     box.Draw()
-
-
 
     hs_zoomed = hs.Clone("hs_zoomed")
 
@@ -173,6 +177,8 @@ with LHCbStyle() as lbs:
     hs_zoomed.GetYaxis().SetLabelSize(0)
     hs_zoomed.GetXaxis().SetTickLength(0)
     hs_zoomed.GetYaxis().SetTickLength(0)
+    hs_zoomed.GetXaxis().SetTitle()
+    hs_zoomed.GetYaxis().SetTitle()
 
     # Reduce the border thickness of the pad
     pad.GetFrame().SetLineWidth(1)  # Adjust the line width as needed
@@ -194,17 +200,13 @@ with LHCbStyle() as lbs:
     pid_status_string = "_".join(pid_strings)
     
     current_time = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
-    hist_canvas.SaveAs(f"ComparisonPlots/B_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.png")
+    hist_canvas.SaveAs(f"ComparisonPlots/B_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.pdf")
 
 ascii_art = """
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@    ___  ________  ________  ___  __    ________  ___       ________  _________   @
-@   |\  \|\   __  \|\   ____\|\  \|\  \ |\   __  \|\  \     |\   __  \|\___   ___\ @
-@   \ \  \ \  \|\  \ \  \___|\ \  \/  /|\ \  \|\  \ \  \    \ \  \|\  \|___ \  \_| @
-@ __ \ \  \ \   __  \ \  \    \ \   ___  \ \   ____\ \  \    \ \  \\\  \   \ \  \  @
-@|\  \\_\  \ \  \ \  \ \  \____\ \  \\ \  \ \  \___|\ \  \____\ \  \\\  \   \ \  \ @
-@\ \________\ \__\ \__\ \_______\ \__\\ \__\ \__\    \ \_______\ \_______\   \ \__\@
-@ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+.%%%%%%..%%..%%...%%%%...%%..%%..........%%%%%...%%.......%%%%...%%%%%%.
+.%%......%%..%%..%%..%%..%%%.%%..........%%..%%..%%......%%..%%....%%...
+.%%%%....%%..%%..%%%%%%..%%.%%%..........%%%%%...%%......%%..%%....%%...
+.%%......%%..%%..%%..%%..%%..%%..........%%......%%......%%..%%....%%...
+.%%%%%%...%%%%...%%..%%..%%..%%..........%%......%%%%%%...%%%%.....%%...
 """
 print(ascii_art)
