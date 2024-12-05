@@ -136,7 +136,7 @@ nR = ROOT.RooRealVar("n2", "nright of DCB", variables['nR']['value'], variables[
 #alphaL.setConstant(True)
 #alphaR.setConstant(True)
 #nL.setConstant(True)
-nR.setConstant(True)
+#nR.setConstant(True)
 sig = ROOT.RooCrystalBall("sig", "double crystal ball", x, mu, sigma, alphaL, nL, alphaR, nR)
 decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", variables['decay_constant']['value'], variables['decay_constant']['min'], variables['decay_constant']['max'])
 bkg = ROOT.RooExponential("bkg", "Exponential Background", x, decay_constant)
@@ -198,7 +198,7 @@ with LHCbStyle() as lbs:
     ROOT.gPad.SetLeftMargin(0.15)
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
     ROOT.gStyle.SetLineScalePS(1.2)
-    frame1.GetYaxis().SetTitle("Entries")
+    frame1.GetYaxis().SetTitle("Entries/ (10 MeV/c^{2})")
     frame1.GetXaxis().SetTitle("m_{B0} [GeV/c^{2}]")
     frame1.GetYaxis().SetTitleOffset(1)
     frame1.GetXaxis().SetTitleOffset(1)
@@ -243,7 +243,7 @@ with LHCbStyle() as lbs:
     latex2.SetTextSize(0.04)  
     plot_time = time.strftime("%d %m %y", time.localtime())
 
-    latex2.DrawLatex(0.1, 0.09, f"J.McQueen({plot_time})")
+    latex2.DrawLatex(0.1, 0.09, f"J.McQueen ({plot_time})")
 
 
 
@@ -253,7 +253,7 @@ with LHCbStyle() as lbs:
     c.cd(2)
     ROOT.gPad.SetLeftMargin(0.15)
     frame2.GetYaxis().SetTitle("Pulls")
-    frame2.GetXaxis().SetTitle("m_{B0} [GeV/c^{2}]")
+    frame2.GetXaxis().SetTitle("m({B0}) [GeV/c^{2}]")
     frame2.GetYaxis().SetTitleOffset(1)
     frame2.GetXaxis().SetTitleOffset(1)
     frame2.GetYaxis().SetTitleSize(0.05) # Increase this value to make the font size larger
