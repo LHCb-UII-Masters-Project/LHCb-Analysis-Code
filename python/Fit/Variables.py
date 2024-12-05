@@ -4,28 +4,28 @@ variables = {
     'mu': {'value': 5.366744099, 
            'min': 5.35, 'max': 5.38},
     
-    'sigma': {'value': 0.01517, 
-              'min': 0.015, 'max': 0.0152},
+    'sigma': {'value': 0.01477, 
+              'min': 0.01430, 'max': 0.0170},
     
-    'alphaL': {'value': 1.834, 
-               'min': 1.7, 'max': 1.9},
+    'alphaL': {'value': 2.08, 
+               'min': 1.6, 'max': 2.7},
     
-    'alphaR': {'value': 3.305, 
-               'min': 2, 'max': 4},
+    'alphaR': {'value': 3.13, 
+               'min': 2.0, 'max': 4.0},
     
-    'nL': {'value': 2.534, 
-           'min': 2.0, 'max': 3.0},
+    'nL': {'value': 1.32, 
+           'min': 0.7, 'max': 2},
     
-    'nR': {'value': 5, 
-           'min': 4, 'max': 8},
+    'nR': {'value': 0.595, 
+           'min': 0.1, 'max': 1},
     
-    'decay_constant': {'value': 
-                       -2.568, 'min': -3, 'max': -2},
+    'decay_constant': {'value':-0.6613 
+                       , 'min': -0.680, 'max': -0.65},
     
-    'nbkg': {'value': 2350.003773, 
-             'min': 2000, 'max': 2700},
+    'nbkg': {'value': 17832, 
+             'min': 16500, 'max': 19000},
     
-    'nsig': {'value': 44732, 'min': 40000, 'max': 50000}
+    'nsig': {'value': 28700, 'min': 26000, 'max': 30000}
 }
 
 # Create the ROOT TTree
