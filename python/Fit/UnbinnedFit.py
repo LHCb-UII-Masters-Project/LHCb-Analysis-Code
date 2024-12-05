@@ -1,6 +1,6 @@
 # region IMPORTS
 import ROOT
-from Variables import *
+from Unfixedtwohundread import *
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
 from math import * 
 import sys
@@ -133,10 +133,11 @@ alphaR = ROOT.RooRealVar("alphaR", "cut off gauss right", variables['alphaR']['v
 nL = ROOT.RooRealVar("n1", "nleft of DCB", variables['nL']['value'], variables['nL']['min'], variables['nL']['max'])  # First power law exponent estimate
 nR = ROOT.RooRealVar("n2", "nright of DCB", variables['nR']['value'], variables['nR']['min'], variables['nR']['max'])  # Second power law exponent estimate
 
-#alphaL.setConstant(True)
-#alphaR.setConstant(True)
-#nL.setConstant(True)
-#nR.setConstant(True)
+alphaL.setConstant(True)
+alphaR.setConstant(True)
+nL.setConstant(True)
+nR.setConstant(True)
+
 sig = ROOT.RooCrystalBall("sig", "double crystal ball", x, mu, sigma, alphaL, nL, alphaR, nR)
 decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", variables['decay_constant']['value'], variables['decay_constant']['min'], variables['decay_constant']['max'])
 bkg = ROOT.RooExponential("bkg", "Exponential Background", x, decay_constant)
@@ -168,7 +169,7 @@ frame1 = x.frame()
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins))
 model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
-model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kMagenta),ROOT.RooFit.LineStyle(ROOT.kDashed))
+model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kCyan),ROOT.RooFit.LineStyle(ROOT.kDashed))
 model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
 
 chi2 = frame1.chiSquare("sig+bkg", "data",9)
@@ -199,7 +200,7 @@ with LHCbStyle() as lbs:
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
     ROOT.gStyle.SetLineScalePS(1.2)
     frame1.GetYaxis().SetTitle("Entries/ (10 MeV/c^{2})")
-    frame1.GetXaxis().SetTitle("m_{B0} [GeV/c^{2}]")
+    frame1.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
     frame1.GetYaxis().SetTitleOffset(1)
     frame1.GetXaxis().SetTitleOffset(1)
 
@@ -236,14 +237,14 @@ with LHCbStyle() as lbs:
     latex.DrawText(0.2,0.875,"LHCb Simulation")
     latex.DrawLatex(0.2, 0.820, "#sqrt{s} = 14 TeV") 
     timing_int = int(timing_value)
-    latex.DrawLatex(0.2, 0.765, (f"VELO {timing_int}ps")) 
+    latex.DrawLatex(0.2, 0.765, (f"VELO {timing_int} ps")) 
 
     latex2 = ROOT.TLatex() 
     latex2.SetNDC() 
     latex2.SetTextSize(0.04)  
     plot_time = time.strftime("%d %m %y", time.localtime())
 
-    latex2.DrawLatex(0.1, 0.09, f"J.McQueen ({plot_time})")
+    latex2.DrawLatex(0.1, 0.09, f"E.Walsh ({plot_time})")
 
 
 
@@ -445,6 +446,9 @@ sig_frac_err_sym.push_back(sig_frac.getPropagatedError(fit_result))
 
 bkg_frac_value.push_back(bkg_frac.getVal())
 bkg_frac_err_sym.push_back(bkg_frac.getPropagatedError(fit_result))
+
+print(total_entries)
+print(nsig.getVal() + nbkg.getVal())
 
 sig_yield.push_back(nsig.getVal()/total_entries)
 sig_yield_err_sym.push_back(nsig.getError()/total_entries)

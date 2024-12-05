@@ -23,7 +23,7 @@ latex.SetNDC()
 import argparse
 import ROOT
 
-particle = "B"
+particle = "D"
 
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_files',nargs="+", type=str, help='Path to the input ROOT file') 
@@ -118,11 +118,15 @@ with LHCbStyle() as lbs:
 
         hs.Add(histogram)
         if pid_string == "off":
-            legend.AddEntry(histogram, f"VELO {int(velo_timings[i])} ps")
+            legend.AddEntry(histogram, f"VELO {int(velo_timings[i])} ps", "lep")
         if pid_string == "on":
-            legend.AddEntry(histogram, f"VELO {int(velo_timings[i])}ps, RICH {int(rich_window_timings[i])}ps")
+            legend.AddEntry(histogram, f"VELO {int(velo_timings[i])}ps, RICH {int(rich_window_timings[i])}ps", "lep")
+    plot_style1 = "nostack L P"
+    plot_syle2 = "SAME nostack E"
 
-    hs.Draw("nostack L p")
+    hs.Draw(plot_style1)
+    hs.Draw(plot_syle2)
+    
     if particle == "B":
         hs.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
         hs.GetYaxis().SetTitle("Entries/ (5 MeV/c^{2})")
@@ -183,7 +187,8 @@ with LHCbStyle() as lbs:
     #hs_zoomed.GetYaxis().SetRangeUser(zoom_y1, zoom_y2)
 
     # Draw the zoomed-in THStack
-    hs_zoomed.Draw("nostack L p")
+    hs_zoomed.Draw(plot_style1)
+    hs_zoomed.Draw(plot_syle2)
     hs_zoomed.GetXaxis().SetRangeUser(zoom_x1, zoom_x2)
     hs_zoomed.GetYaxis().SetRangeUser(zoom_y1, zoom_y2)
     hs_zoomed.GetXaxis().SetLabelSize(0)
