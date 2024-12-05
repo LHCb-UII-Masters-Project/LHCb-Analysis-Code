@@ -253,7 +253,7 @@ with LHCbStyle() as lbs:
     c.cd(2)
     ROOT.gPad.SetLeftMargin(0.15)
     frame2.GetYaxis().SetTitle("Pulls")
-    frame2.GetXaxis().SetTitle("m({B0}) [GeV/c^{2}]")
+    frame2.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
     frame2.GetYaxis().SetTitleOffset(1)
     frame2.GetXaxis().SetTitleOffset(1)
     frame2.GetYaxis().SetTitleSize(0.05) # Increase this value to make the font size larger
