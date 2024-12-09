@@ -23,7 +23,7 @@ latex.SetNDC()
 import argparse
 import ROOT
 
-particle = "D"
+particle = "B"
 
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_files',nargs="+", type=str, help='Path to the input ROOT file') 
@@ -86,6 +86,7 @@ with LHCbStyle() as lbs:
     latex = ROOT.TLatex() 
     latex.SetNDC() 
     latex.SetTextSize(0.05)  
+    latex.SetTextFont(62)
 
     if all(int(status) == 0 for status in pid_status):
         pid_string = "off"
@@ -130,13 +131,21 @@ with LHCbStyle() as lbs:
     if particle == "B":
         hs.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
         hs.GetYaxis().SetTitle("Entries/ (5 MeV/c^{2})")
-        hs.GetYaxis().SetTitleOffset(1.25)
+        hs.GetYaxis().SetTitleOffset(1.15)
     else:
         hs.GetXaxis().SetTitle("m(D_{s}^{#pm}) [GeV/c^{2}]")
         hs.GetYaxis().SetTitle("Entries/ (3 MeV/c^{2})")
-        hs.GetYaxis().SetTitleOffset(1.43)
+        hs.GetYaxis().SetTitleOffset(1.33)
+
+    hs.GetXaxis().SetTitleOffset(1)
+    hs.GetYaxis().SetTitleFont(62) 
+    hs.GetXaxis().SetTitleFont(62)
     hs.GetXaxis().SetTitleSize(0.05)
     hs.GetYaxis().SetTitleSize(0.05)
+    hs.GetXaxis().SetLabelSize(0.05)
+    hs.GetYaxis().SetLabelSize(0.05)
+    hs.GetXaxis().SetLabelFont(62)
+    hs.GetYaxis().SetLabelFont(62)
     hs.GetXaxis().SetTitleOffset(1.15)
 
     legend.SetLineColor(0)  # Remove the legend border
@@ -144,7 +153,7 @@ with LHCbStyle() as lbs:
     legend.SetLineWidth(0)  # Set line width to 0
     legend.SetFillColor(0)  # Remove any fill color
     legend.SetFillStyle(0)  # Ensure no fill style
-    legend.SetTextFont(42)  # Helvetica, normal
+    legend.SetTextFont(62)  # Helvetica, normal
     legend.SetTextSize(0.045)  # Adjust text size as needed
 
     latex.DrawLatex(0.2, 0.80, "#sqrt{s}  = 14 TeV") 
@@ -156,7 +165,7 @@ with LHCbStyle() as lbs:
     plot_time = time.strftime("%d %m %y", time.localtime())
     signature = "E.Walsh" if particle == "D" else "J.McQueen"
 
-    latex2.DrawLatex(0.1, 0.06, f"{signature} ({plot_time})")
+    # latex2.DrawLatex(0.1, 0.06, f"{signature} ({plot_time})")
     
     legend.Draw()
 

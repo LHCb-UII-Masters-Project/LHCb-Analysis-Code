@@ -1,6 +1,6 @@
 # region IMPORTS
 import ROOT
-from Variables50psPrelim import *
+from Variables import *
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
 from math import * 
 import sys
@@ -133,10 +133,10 @@ alphaR = ROOT.RooRealVar("alphaR", "cut off gauss right", variables['alphaR']['v
 nL = ROOT.RooRealVar("n1", "nleft of DCB", variables['nL']['value'], variables['nL']['min'], variables['nL']['max'])  # First power law exponent estimate
 nR = ROOT.RooRealVar("n2", "nright of DCB", variables['nR']['value'], variables['nR']['min'], variables['nR']['max'])  # Second power law exponent estimate
 
-#alphaL.setConstant(True)
-#alphaR.setConstant(True)
-#nL.setConstant(True)
-#nR.setConstant(True)
+alphaL.setConstant(True)
+alphaR.setConstant(True)
+nL.setConstant(True)
+nR.setConstant(True)
 
 sig = ROOT.RooCrystalBall("sig", "double crystal ball", x, mu, sigma, alphaL, nL, alphaR, nR)
 decay_constant = ROOT.RooRealVar("decay_constant", "decay_constant", variables['decay_constant']['value'], variables['decay_constant']['min'], variables['decay_constant']['max'])
@@ -252,18 +252,14 @@ with LHCbStyle() as lbs:
     latex2.SetTextFont(62)
     plot_time = time.strftime("%d %m %y", time.localtime())
 
-    latex2.DrawLatex(0.1, 0.077, f"J.McQueen ({plot_time})")
-
-
-
-
+    # latex2.DrawLatex(0.1, 0.077, f"J.McQueen ({plot_time})")
     legend.Draw()
 
     c.cd(2)
     ROOT.gPad.SetLeftMargin(0.15)
     frame2.GetYaxis().SetTitle("Pulls")
     frame2.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
-    frame2.GetYaxis().SetTitleOffset(0.8)
+    frame2.GetYaxis().SetTitleOffset(0.65)
     frame2.GetXaxis().SetTitleOffset(1)
     frame2.GetYaxis().SetTitleSize(0.06) # Increase this value to make the font size larger
     frame2.GetXaxis().SetTitleSize(0.06) # Increase this value to make the font size larger
