@@ -303,26 +303,19 @@ gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the 
 
 events = TChain("Events") # connects all the events into a single data set
 
-# If using the large directory, have to filter to just the files we're interested in
 dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc+/sym/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
-
-pattern = r"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc+/sym/tuple_200\d+.root"
-# All relevant files contain this string
-
-# Process the filenames
-onlyfileslive = []  # ;)
-for filename in onlyfiles:
-  if re.match(pattern, filename):
-    onlyfileslive.append(filename)
-onlyfiles = onlyfileslive
 
 onlyfiles = onlyfiles[int(lower):int(upper)]
 # Since list is formed in order for every run, this selects the relevant files to be run
 
+
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
 entry=0
+
+"""
+
 # plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 b_plot = ROOT.TH1D("m_bs","",100,5.1,5.6)
@@ -601,3 +594,5 @@ file.WriteObject(RunDiagnostics, "RunDiagnostics")
 file.WriteObject(b_plot, "B_Histogram")
 file.WriteObject(d_plot, "D_Histogram")
 file.Close()
+
+"""
