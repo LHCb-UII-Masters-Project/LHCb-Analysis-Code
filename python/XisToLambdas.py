@@ -46,18 +46,18 @@ com_energy[0] = 14
 
 #region RunLimts
 RunLimits = ROOT.TTree("RunLimits", "RunLimits")
-Lamda_chi2_limit = array('f', [0]) # Formerly Chi2_ndf_limit
-RunLimits.Branch('Lamda_chi2_limit', Lamda_chi2_limit, 'Lamda_chi2_limit/F')
-Lambda_Pcomposite_limit = array('f', [0])
-RunLimits.Branch('Lambda_Pcomposite_limit', Lambda_Pcomposite_limit, 'Lambda_Pcomposite_limit/F')
-Lambda_mass_upper_limit = array('f', [0])
-RunLimits.Branch('Lambda_mass_upper_limit', Lambda_mass_upper_limit, 'Lambda_mass_upper_limit/F')
-Lambda_mass_lower_limit = array('f', [0])
-RunLimits.Branch('Lambda_mass_lower_limit', Lambda_mass_lower_limit, 'Lambda_mass_lower_limit/F')
-Lambda_chi2_distance_limit = array('f', [0])
-RunLimits.Branch('Lambda_chi2_distance_limit', Lambda_chi2_distance_limit, 'Lambda_chi2_distance_limit/F')
-Lambda_dira_limit = array('f', [0])
-RunLimits.Branch('Lambda_dira_limit', Lambda_dira_limit, 'Lambda_dira_limit/F')
+Lambda_chi2_limit = array('f', [0]) # Formerly Chi2_ndf_limit
+RunLimits.Branch('Lambda_chi2_limit', Lambda_chi2_limit, 'Lambda_chi2_limit/F')
+Lambdac_Pcomposite_limit = array('f', [0])
+RunLimits.Branch('Lambdac_Pcomposite_limit', Lambdac_Pcomposite_limit, 'Lambdac_Pcomposite_limit/F')
+Lambdac_mass_upper_limit = array('f', [0])
+RunLimits.Branch('Lambdac_mass_upper_limit', Lambdac_mass_upper_limit, 'Lambdac_mass_upper_limit/F')
+Lambdac_mass_lower_limit = array('f', [0])
+RunLimits.Branch('Lambdac_mass_lower_limit', Lambdac_mass_lower_limit, 'Lambdac_mass_lower_limit/F')
+Lambdac_chi2_distance_limit = array('f', [0])
+RunLimits.Branch('Lambdac_chi2_distance_limit', Lambdac_chi2_distance_limit, 'Lambdac_chi2_distance_limit/F')
+Lambdac_dira_limit = array('f', [0])
+RunLimits.Branch('Lambdac_dira_limit', Lambdac_dira_limit, 'Lambdac_dira_limit/F')
 Xi_chi2_limit = array('f', [0])
 RunLimits.Branch('Xi_chi2_limit', Xi_chi2_limit, 'Xi_chi2_limit/F')
 Xi_Pcomposite_limit = array('f', [0])
@@ -74,30 +74,30 @@ RunLimits.Branch('xis_mass', xis_mass, 'xis_mass/F')
 
 #region RunDiagnostics
 RunDiagnostics = TTree("RunDiagnostics","RunDiagnostics")
-Lambda_Pcomposite_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambda_Pcomposite_sig_kills', Lambda_Pcomposite_sig_kills, 'Lambda_Pcomposite_sig_kills/F')
-Lambda_Pcomposite_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambda_Pcomposite_bac_kills', Lambda_Pcomposite_bac_kills, 'Lambda_Pcomposite_bac_kills/F')
-Lambda_mass_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambda_mass_sig_kills', Lambda_mass_sig_kills, 'Lambda_mass_sig_kills/F')
-Lambda_mass_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambda_mass_bac_kills', Lambda_mass_bac_kills, 'Lambda_mass_bac_kills/F')
-Lambda_mass2_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambda_mass2_sig_kills', Lambda_mass2_sig_kills, 'Lambda_mass2_sig_kills/F')
-Lambda_mass2_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambda_mass2_bac_kills', Lambda_mass2_bac_kills, 'Lambda_mass2_bac_kills/F')
-Lambda_chi2_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Lambda_chi2_sig_kills', Lambda_chi2_sig_kills, 'Lambda_chi2_sig_kills/F')
-Lambda_chi2_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Lambda_chi2_bac_kills', Lambda_chi2_bac_kills, 'Lambda_chi2_bac_kills/F')
-Lambda_chi2_distance_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Lambda_chi2_distance_sig_kills', Lambda_chi2_distance_sig_kills, 'Lambda_chi2_distance_sig_kills/F')
-Lamda_chi2_distance_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Lamda_chi2_distance_bac_kills', Lamda_chi2_distance_bac_kills, 'Lamda_chi2_distance_bac_kills/F')
-Lamda_dira_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Lamda_dira_sig_kills', Lamda_dira_sig_kills, 'Lamda_dira_sig_kills/F')
-Lamda_dira_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Lamda_dira_bac_kills', Lamda_dira_bac_kills, 'Lamda_dira_bac_kills/F')
+Lambdac_Pcomposite_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('Lambdac_Pcomposite_sig_kills', Lambdac_Pcomposite_sig_kills, 'Lambdac_Pcomposite_sig_kills/F')
+Lambdac_Pcomposite_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('Lambdac_Pcomposite_bac_kills', Lambdac_Pcomposite_bac_kills, 'Lambdac_Pcomposite_bac_kills/F')
+Lambdac_mass_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('Lambdac_mass_sig_kills', Lambdac_mass_sig_kills, 'Lambdac_mass_sig_kills/F')
+Lambdac_mass_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('Lambdac_mass_bac_kills', Lambdac_mass_bac_kills, 'Lambdac_mass_bac_kills/F')
+Lambdac_mass2_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('Lambdac_mass2_sig_kills', Lambdac_mass2_sig_kills, 'Lambdac_mass2_sig_kills/F')
+Lambdac_mass2_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('Lambdac_mass2_bac_kills', Lambdac_mass2_bac_kills, 'Lambdac_mass2_bac_kills/F')
+Lambdac_chi2_sig_kills = array('f', [0])
+RunDiagnostics.Branch('Lambdac_chi2_sig_kills', Lambdac_chi2_sig_kills, 'Lambdac_chi2_sig_kills/F')
+Lambdac_chi2_bac_kills = array('f', [0])
+RunDiagnostics.Branch('Lambdac_chi2_bac_kills', Lambdac_chi2_bac_kills, 'Lambdac_chi2_bac_kills/F')
+Lambdac_chi2_distance_sig_kills = array('f', [0])
+RunDiagnostics.Branch('Lambdac_chi2_distance_sig_kills', Lambdac_chi2_distance_sig_kills, 'Lambdac_chi2_distance_sig_kills/F')
+Lambda_chi2_distance_bac_kills = array('f', [0])
+RunDiagnostics.Branch('Lambda_chi2_distance_bac_kills', Lambda_chi2_distance_bac_kills, 'Lambda_chi2_distance_bac_kills/F')
+Lambda_dira_sig_kills = array('f', [0])
+RunDiagnostics.Branch('Lambda_dira_sig_kills', Lambda_dira_sig_kills, 'Lambda_dira_sig_kills/F')
+Lambda_dira_bac_kills = array('f', [0])
+RunDiagnostics.Branch('Lambda_dira_bac_kills', Lambda_dira_bac_kills, 'Lambda_dira_bac_kills/F')
 
 Xi_sign_sig_kills = array('f', [0])
 RunDiagnostics.Branch('Xi_sign_sig_kills', Xi_sign_sig_kills, 'Xi_sign_sig_kills/F')
@@ -139,12 +139,22 @@ Num_pions_detected = array('f', [0])
 Outputs.Branch('Num_pions_detected', Num_pions_detected, 'Num_pions_detected/F')
 Num_kaons_detected = array('f', [0])
 Outputs.Branch('Num_kaons_detected', Num_kaons_detected, 'Num_kaons_detected/F')
-Num_phi_candidates = array('f', [0])
-Outputs.Branch('Num_Phi_candidates', Num_phi_candidates, 'Num_Phi_candidates/F')
+Num_protons = array('f', [0])
+Outputs.Branch('Num_protons', Num_protons, 'Num_protons/F')
+Num_pions_detected = array('f', [0])
+Outputs.Branch('Num_pions_detected', Num_pions_detected, 'Num_pions_detected/F')
+Num_protons_detected = array('f', [0])
+Outputs.Branch('Num_protons_detected', Num_protons_detected, 'Num_protons_detected/F')
+Num_lambda0_candidates = array('f', [0])
+Outputs.Branch('Num_lambda0_candidates', Num_lambda0_candidates, 'Num_lambda0_candidates/F')
 Num_pv = array('f', [0])
 Outputs.Branch('Num_pv', Num_pv, 'Num_pv/F')
-Lamda_chi2 = array('f', [0])
-Outputs.Branch('Lamda_chi2', Lamda_chi2, 'Lamda_chi2/F')
+Lambda_chi2 = array('f', [0])
+Outputs.Branch('Lambda_chi2', Lambda_chi2, 'Lambda_chi2/F')
+p_pt = array('f', [0])
+Outputs.Branch('p_pt', p_pt, 'p_pt/F')
+p_eta = array('f', [0])
+Outputs.Branch('p_eta', p_eta, 'p_eta/F')
 k1_pt = array('f', [0])
 Outputs.Branch('k1_pt', k1_pt, 'k1_pt/F')
 k1_eta = array('f', [0])
@@ -159,16 +169,16 @@ pi1_eta = array('f', [0])
 Outputs.Branch('pi1_eta', pi1_eta, 'pi1_eta/F')
 pi1_ID = array('f', [0])
 Outputs.Branch('pi1_ID', pi1_ID, 'pi1_ID/F')
-Lamdas_mass = array('f', [0])
-Outputs.Branch('Lamdas_mass', Lamdas_mass, 'Lamdas_mass/F')
-Lamda_chi2_distance = array('f', [0])
-Outputs.Branch('Lamda_chi2_distance', Lamda_chi2_distance, 'Lamda_chi2_distance/F')
-Lamda_dira= array('f', [0])
-Outputs.Branch('Lamda_dira', Lamda_dira, 'D_dira/F')
+Lambdas_mass = array('f', [0])
+Outputs.Branch('Lambdas_mass', Lambdas_mass, 'Lambdas_mass/F')
+Lambda_chi2_distance = array('f', [0])
+Outputs.Branch('Lambda_chi2_distance', Lambda_chi2_distance, 'Lambda_chi2_distance/F')
+Lambda_dira= array('f', [0])
+Outputs.Branch('Lambda_dira', Lambda_dira, 'Lambda_dira/F')
 Xi_chi2 = array('f', [0])
 Outputs.Branch('Xi_chi2', Xi_chi2, 'Xi_chi2/F')
-lambdas_pt= array('f', [0])
-Outputs.Branch('lambdas_pt', lambdas_pt, 'lmabdas_pt/F')
+lambdac_pt= array('f', [0])
+Outputs.Branch('lambdac_pt', lambdac_pt, 'lmabdas_pt/F')
 ds_eta = array('f', [0])
 Outputs.Branch('ds_eta', ds_eta, 'ds_eta/F')
 pi2_pt= array('f', [0])
@@ -179,8 +189,8 @@ Xi_chi2_distance= array('f', [0])
 Outputs.Branch('Xi_chi2_distance', Xi_chi2_distance, 'Xi_chi2_distance/F')
 Xi_dira= array('f', [0])
 Outputs.Branch('Xi_dira', Xi_dira, 'Xi_dira/F')
-num_lambdas= array('f', [0])
-Outputs.Branch('num_lambdas', num_lambdas, 'num_lambdas/F')
+num_lambdac= array('f', [0])
+Outputs.Branch('num_lambdac', num_lambdac, 'num_lambdac/F')
 Outputs.Branch('xis_mass', xis_mass, 'xis_mass/F')
 #endregion Outputs
 
@@ -309,38 +319,36 @@ onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(lower):int(upper)]
 # Since list is formed in order for every run, this selects the relevant files to be run
 
-
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
-entry=0
-
-"""
 
 # plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
-b_plot = ROOT.TH1D("m_bs","",100,5.1,5.6)
-b_plot.SetTitle("Reconstructed B^s Mass Plot t = " + str(rich_timing)) 
-b_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
-b_plot.GetYaxis().SetTitle("Frequency")
+lambdac_plot = ROOT.TH1D("m_lambdac","",100,5.1,5.6)
+lambdac_plot.SetTitle("Reconstructed Lambdac Mass Plot t = " + str(rich_timing)) 
+lambdac_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
+lambdac_plot.GetYaxis().SetTitle("Frequency")
 
-d_plot = ROOT.TH1D("m_ds","",100,1.8,2.1)
-d_plot.SetTitle("Reconstructed D^s Mass Plot t = " + str(rich_timing)) 
-d_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
-d_plot.GetYaxis().SetTitle("Frequency")
-b_vtx_chi2 = SigVsBkg("b_vtx_chi2",100,2,3)
+xi_plot = ROOT.TH1D("m_xis","",100,1.8,2.1)
+xi_plot.SetTitle("Reconstructed Xi Mass Plot t = " + str(rich_timing)) 
+xi_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
+xi_plot.GetYaxis().SetTitle("Frequency")
+xi_vtx_chi2 = SigVsBkg("xi_vtx_chi2",100,2,3)
 
+entry=0
 n_signal=0
 
 #endregion FILE READING
 
 #region DETECTOR EFFICIENCY
+# Switched off as per Dan'd instructions
 
-eff_directory = os.path.join(basedir, f'Inputs/PEff Kaons_{rich_timing}')
+# eff_directory = os.path.join(basedir, f'Inputs/PEff Kaons_{rich_timing}')
 # List all file paths
-eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
-boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
+# eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
+# boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
 
-models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if rich_timing == 300 else None]
+# models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if rich_timing == 300 else None]
 
 #endregion DETECTOR EFFICIENCY
 
@@ -355,98 +363,102 @@ for event in events: # loop through all events
     current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
     # print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
-
-  # scaled_tracks = []
-  # for track in event.Particles : 
-  #   track.scale_uncertainty(1, 5)   
-  #   scaled_tracks.append( track ) 
   
   displaced_tracks = ROOT.select( event.Particles, event.Vertices, 250, 1500, 6 ) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis
 
-  # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
-  total_pions = [track for track in displaced_tracks if abs( track.trueID ) == 211]
+  total_pions = [track for track in displaced_tracks if abs( track.trueID ) == 211]  # all pi
   # Uses proccess ID inefficiency if turned on, else keep all displaced pions and doesn't add misconstructs
-  if pid_switch == 1:
-    good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
-    bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
-    pions = good_pions + bad_pions
-  elif pid_switch == 0: 
-    pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # 100% detection
+  # if pid_switch == 1:
+  #  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
+  #  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
+  #  pions = good_pions + bad_pions
+  # elif pid_switch == 0: 
+  pions = [ track for track in displaced_tracks if abs(track.trueID) == 211 and track.charge() > 0] # all pi+
 
   Num_pions[0] = len(total_pions)
   Num_pions_detected[0] = len(pions)
   
   all_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == 321] # all kaons
   good_kaons = [] # initialised list to be filled with good kaons
-  if kaon_switch == 1:
-    for kaon in all_kaons:
-      k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
-      for i in range(len(boundaries)):
+  # if kaon_switch == 1:
+  #  for kaon in all_kaons:
+  #    k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
+  #    for i in range(len(boundaries)):
         # Finds appropriate model and uses rand number to apply efficiency  in that region
-        if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and (rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
-          good_kaons.append(kaon)
-          break
-  else: 
-    good_kaons = all_kaons
+  #      if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and (rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
+  #        good_kaons.append(kaon)
+  #        break
+  # else: 
+  good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == 321 and track.charge() < 0] # all k^-
 
   Num_kaons[0] = len(all_kaons)
   Num_kaons_detected[0] = len(good_kaons)
 
-  kp = [track for track in good_kaons if track.charge() > 0 ] # positively charged kaons
-  km = [track for track in good_kaons if track.charge() < 0 ] # positively charged kaons
+  total_protons = [track for track in displaced_tracks if abs( track.trueID ) == 2212]  # all p
+  # Uses proccess ID inefficiency if turned on, else keep all displaced pions and doesn't add misconstructs
+  # if pid_switch == 1:
+  #  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
+  #  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
+  #  pions = good_pions + bad_pions
+  # elif pid_switch == 0: 
+  protons = [ track for track in displaced_tracks if abs(track.trueID) == 2212 and track.charge() > 0] # all p^+
+
+  Num_protons[0] = len(total_protons)
+  Num_protons_detected[0] = len(protons)
+
   doca_cut = 0.10 # distance of closest approach cutoff, maximum allowed closest approach for consideration
   Doca_cut[0] = doca_cut
 
   nPVs = npvs( event ) # the number of primary verticies in an event
   Num_pv[0] = nPVs
   found_signal = False # placeholder for when a signal is found, default of no signal found
-  found_b_signal = False
-  #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)}") # prints event information
-  phi_candidates = ROOT.combine( kp, km, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
+  found_lambdac_signal = False
+  #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)} {len(protons)}") # prints event information
+  lambda0_candidates = ROOT.combine( protons, good_kaons, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
-  Num_phi_candidates[0] = len(phi_candidates)
+  Num_lambda0_candidates[0] = len(lambda0_candidates)
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
 
-  Bs_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if abs( track.trueID ) == 211]
+  Xi_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == 211]
 
 
   for pion in pions :
-    for k1,k2,phi,phi_vtx in phi_candidates: 
+    for p,k1,lambda0,lambda0_vtx in lambda0_candidates: 
       # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
       # created by the kaons, and phi_vtx is the vertex in which the combination occurs
 
-      ds_vtx = ROOT.uVertex( [k1,k2,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
+      lambdac_vtx = ROOT.uVertex( [p,k1,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # these recombine to create a B0 (see diagram)
 
-      ds = ROOT.uParticle( [k1,k2,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
+      lambdac = ROOT.uParticle( [p,k1,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
       # and a pion
 
-      is_signal = is_from(k1, event, 431) and is_from(k2, event, 431) and is_from(pion, event,431)
+      is_signal = is_from(p, event, 4122) and is_from(k1, event, 4122) and is_from(pion, event, 4122)
       # particle id 431 is for the D+, checks if the positive kaon is from an event with a D+ present, checks if the negative 
       # kaon is from an event with a D+ present, checks if the pions are from events with D+ present. (See diagram)
       
-      vtx_chi2.Fill( ds_vtx.chi2 / ds_vtx.ndof, is_signal) # Fills the chi2 graph for the candiate signal
+      vtx_chi2.Fill( lambdac_vtx.chi2 / lambdac_vtx.ndof, is_signal) # Fills the chi2 graph for the candiate signal
       
-      D_chi2[0] = ds_vtx.chi2 / ds_vtx.ndof
-      k1_pt[0] = k1.pt()
-      k1_eta[0] = k1.eta()
-      k2_pt[0] = k2.pt()
-      k2_eta[0] = k2.eta()
+      Lambda_chi2[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
+      p_pt[0] = k1.pt()
+      p_eta[0] = k1.eta()
+      k1_pt[0] = k2.pt()
+      k1_eta[0] = k2.eta()
       pi1_pt[0] = pion.pt()
       pi1_eta[0] = pion.eta()
       pi1_ID[0] = abs(pion.trueID)
-      D_chi2_limit[0] = 5 # Formerly Chi2_ndf_limit
+      Lambda_chi2_limit[0] = 5 # Formerly Chi2_ndf_limit
     
-      if ds_vtx.chi2 / ds_vtx.ndof > 5 : 
+      if lambdac_vtx.chi2 / lambdac_vtx.ndof > 5 : 
         if is_signal:
-          D_chi2_sig_kills[0] += 1
+          Lambdac_chi2_sig_kills[0] += 1
         else:
-          D_chi2_bac_kills[0] += 1
+          Lambdac_chi2_bac_kills[0] += 1
         continue # if the chi2/ndf is not acceptable, disgard possible particle
-      D_Pcomposite_limit[0] = 1800
-      if k1.pt() + k2.pt() + pion.pt() < 1800 :
+      Lambdac_Pcomposite_limit[0] = 1800
+      if p.pt() + k1.pt() + pion.pt() < 1800 :
         if is_signal:
           D_Pcomposite_sig_kills[0] += 1
         else:
@@ -594,5 +606,3 @@ file.WriteObject(RunDiagnostics, "RunDiagnostics")
 file.WriteObject(b_plot, "B_Histogram")
 file.WriteObject(d_plot, "D_Histogram")
 file.Close()
-
-"""
