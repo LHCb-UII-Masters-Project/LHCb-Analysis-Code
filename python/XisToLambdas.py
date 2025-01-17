@@ -92,12 +92,12 @@ Lambdac_chi2_bac_kills = array('f', [0])
 RunDiagnostics.Branch('Lambdac_chi2_bac_kills', Lambdac_chi2_bac_kills, 'Lambdac_chi2_bac_kills/F')
 Lambdac_chi2_distance_sig_kills = array('f', [0])
 RunDiagnostics.Branch('Lambdac_chi2_distance_sig_kills', Lambdac_chi2_distance_sig_kills, 'Lambdac_chi2_distance_sig_kills/F')
-Lambda_chi2_distance_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Lambda_chi2_distance_bac_kills', Lambda_chi2_distance_bac_kills, 'Lambda_chi2_distance_bac_kills/F')
-Lambda_dira_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Lambda_dira_sig_kills', Lambda_dira_sig_kills, 'Lambda_dira_sig_kills/F')
-Lambda_dira_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Lambda_dira_bac_kills', Lambda_dira_bac_kills, 'Lambda_dira_bac_kills/F')
+Lambdac_chi2_distance_bac_kills = array('f', [0])
+RunDiagnostics.Branch('Lambdac_chi2_distance_bac_kills', Lambdac_chi2_distance_bac_kills, 'Lambdac_chi2_distance_bac_kills/F')
+Lambdac_dira_sig_kills = array('f', [0])
+RunDiagnostics.Branch('Lambdac_dira_sig_kills', Lambdac_dira_sig_kills, 'Lambdac_dira_sig_kills/F')
+Lambdac_dira_bac_kills = array('f', [0])
+RunDiagnostics.Branch('Lambdac_dira_bac_kills', Lambdac_dira_bac_kills, 'Lambdac_dira_bac_kills/F')
 
 Xi_sign_sig_kills = array('f', [0])
 RunDiagnostics.Branch('Xi_sign_sig_kills', Xi_sign_sig_kills, 'Xi_sign_sig_kills/F')
@@ -169,18 +169,18 @@ pi1_eta = array('f', [0])
 Outputs.Branch('pi1_eta', pi1_eta, 'pi1_eta/F')
 pi1_ID = array('f', [0])
 Outputs.Branch('pi1_ID', pi1_ID, 'pi1_ID/F')
-Lambdas_mass = array('f', [0])
-Outputs.Branch('Lambdas_mass', Lambdas_mass, 'Lambdas_mass/F')
-Lambda_chi2_distance = array('f', [0])
-Outputs.Branch('Lambda_chi2_distance', Lambda_chi2_distance, 'Lambda_chi2_distance/F')
-Lambda_dira= array('f', [0])
-Outputs.Branch('Lambda_dira', Lambda_dira, 'Lambda_dira/F')
+Lambdac_mass = array('f', [0])
+Outputs.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
+Lambdac_chi2_distance = array('f', [0])
+Outputs.Branch('Lambdac_chi2_distance', Lambdac_chi2_distance, 'Lambdac_chi2_distance/F')
+Lambdac_dira= array('f', [0])
+Outputs.Branch('Lambdac_dira', Lambdac_dira, 'Lambdac_dira/F')
 Xi_chi2 = array('f', [0])
 Outputs.Branch('Xi_chi2', Xi_chi2, 'Xi_chi2/F')
 lambdac_pt= array('f', [0])
 Outputs.Branch('lambdac_pt', lambdac_pt, 'lmabdas_pt/F')
-ds_eta = array('f', [0])
-Outputs.Branch('ds_eta', ds_eta, 'ds_eta/F')
+Lambdac_eta = array('f', [0])
+Outputs.Branch('Lambdac_eta', Lambdac_eta, 'Lambdac_eta/F')
 pi2_pt= array('f', [0])
 Outputs.Branch('pi2_pt', pi2_pt, 'pi2_pt/F')
 pi2_eta = array('f', [0])
@@ -442,10 +442,10 @@ for event in events: # loop through all events
       vtx_chi2.Fill( lambdac_vtx.chi2 / lambdac_vtx.ndof, is_signal) # Fills the chi2 graph for the candiate signal
       
       Lambda_chi2[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
-      p_pt[0] = k1.pt()
-      p_eta[0] = k1.eta()
-      k1_pt[0] = k2.pt()
-      k1_eta[0] = k2.eta()
+      p_pt[0] = p.pt()
+      p_eta[0] = p.eta()
+      k1_pt[0] = k1.pt()
+      k1_eta[0] = k1.eta()
       pi1_pt[0] = pion.pt()
       pi1_eta[0] = pion.eta()
       pi1_ID[0] = abs(pion.trueID)
@@ -460,46 +460,47 @@ for event in events: # loop through all events
       Lambdac_Pcomposite_limit[0] = 1800
       if p.pt() + k1.pt() + pion.pt() < 1800 :
         if is_signal:
-          D_Pcomposite_sig_kills[0] += 1
+          Lambdac_Pcomposite_sig_kills[0] += 1
         else:
-          D_Pcomposite_bac_kills[0] += 1
+          Lambdac_Pcomposite_bac_kills[0] += 1
         continue # insufficient momentum to create a phi, discard
-      D_mass_lower_limit[0] = 1800
-      D_mass_upper_limit[0] = 2100
-      if ds.mass < 1800 or ds.mass  > 2100 :
+      Lambdac_mass_lower_limit[0] = 1800
+      Lambdac_mass_upper_limit[0] = 2100
+      if lambdac.mass < 1800 or lambdac.mass  > 2100 :
         if is_signal:
-          D_mass_sig_kills[0] += 1
+          Lambdac_mass_sig_kills[0] += 1
         else:
-          D_mass_bac_kills[0] += 1
+          Lambdac_mass_bac_kills[0] += 1
         continue # insufficient mass to create D particle, discard
 
-      pv  = ds.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
+      pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
       # particle (minimum Chi squared) 
 
-      D_chi2_distance[0] = ds_vtx.chi2_distance(pv)
-      D_dira[0] = dira_bpv(ds,event.Vertices,max_timing)
+      Lambdac_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
+      Lambdac_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
 
 #     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
-      D_chi2_distance_limit[0] = 50
-      if ds_vtx.chi2_distance(pv) < 50 : 
+      Lambdac_chi2_distance_limit[0] = 50
+      if lambdac_vtx.chi2_distance(pv) < 50 : 
         if is_signal:
-          D_chi2_distance_sig_kills[0] += 1
+          Lambdac_chi2_distance_sig_kills[0] += 1
         else:
-          D_chi2_distance_bac_kills[0] += 1
+          Lambdac_chi2_distance_bac_kills[0] += 1
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
-      B_dira_limit[0] = 0.9
+      Lambdac_dira_limit[0] = 0.9
       if dira_bpv(ds,event.Vertices,max_timing)  < 0.9 : 
         if is_signal:
-          D_dira_sig_kills[0] += 1
+          Lambdac_dira_sig_kills[0] += 1
         else:
-          D_dira_bac_kills[0] += 1
+          Lambdac_dira_bac_kills[0] += 1
         continue # if the cos of the angle between momenta is less than 0.9 discard
       
-      ds_mass[0] = ds.mass
-      ds_pt[0] = ds.pt()
-      ds_eta[0] = ds.eta()
-      d_plot.Fill(ds.mass*0.001)
+      Lambdac_mass[0] = lambdac.mass
+      lambdac_pt[0] = lambdac.pt()
+      Lambdac_eta[0] = lambdac.eta()
+      lambdac_plot.Fill(lambdac.mass*0.001)
+      """
       if (ds.mass<dsMass-30) or (ds.mass>dsMass+30):
         if is_signal:
           D_mass2_sig_kills[0] += 1
@@ -584,7 +585,7 @@ for event in events: # loop through all events
         # print_mc_particle( pion, event.MCParticles) 
 
   n_signal = n_signal + found_signal 
-  
+"""
   RunParams.Fill()
   RunLimits.Fill()
   RunDiagnostics.Fill()
