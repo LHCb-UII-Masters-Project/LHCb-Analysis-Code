@@ -288,7 +288,7 @@ def dira_bpv( particle, vertices, max_dt):
 def get_file_number(file_name):
   """Takes the full file name and returns the number (what changes between each files)"""
   # Use regex to find the number after "4d-"
-  match = re.search(r"4d-(\d+)", file_name)
+  match = re.search(r"tuple_(\d+)", file_name)
   if match:
       # Return the matched number as an integer
       return int(match.group(1))
@@ -415,9 +415,11 @@ for event in events: # loop through all events
   found_signal = False # placeholder for when a signal is found, default of no signal found
   found_lambdac_signal = False
   #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)} {len(protons)}") # prints event information
-  lambda0_candidates = ROOT.combine( protons, good_kaons, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
+  lambda0_candidates = ROOT.combine( total_protons, all_kaons, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
   Num_lambda0_candidates[0] = len(lambda0_candidates)
+  Num_real_lambda0 = 0
+  Num_other = 0
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
 
@@ -426,6 +428,11 @@ for event in events: # loop through all events
 
   for pion in pions :
     for p,k1,lambda0,lambda0_vtx in lambda0_candidates: 
+
+      if is_from(p, event, 3122) and is_from(k1, event, 3122):
+        Num_real_lambda0 += 1
+      else:
+        Num_other += 1
       # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
       # created by the kaons, and phi_vtx is the vertex in which the combination occurs
 
@@ -436,6 +443,9 @@ for event in events: # loop through all events
       # and a pion
 
       is_signal = is_from(p, event, 4122) and is_from(k1, event, 4122) and is_from(pion, event, 4122)
+      if is_signal:
+        for i in range(50):
+          print(is_signal)
       # particle id 431 is for the D+, checks if the positive kaon is from an event with a D+ present, checks if the negative 
       # kaon is from an event with a D+ present, checks if the pions are from events with D+ present. (See diagram)
       
@@ -489,7 +499,7 @@ for event in events: # loop through all events
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
       Lambdac_dira_limit[0] = 0.9
-      if dira_bpv(ds,event.Vertices,max_timing)  < 0.9 : 
+      if dira_bpv(lambdac,event.Vertices,max_timing)  < 0.9 : 
         if is_signal:
           Lambdac_dira_sig_kills[0] += 1
         else:
