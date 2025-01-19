@@ -34,7 +34,7 @@ for event in events: # loop through all events
   
   lambdac_tracks = ROOT.select( event.Particles, event.Vertices, 250, 1500, 3 ) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis min_pt, min_p, min_ipchi2_4d
-  full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 2 )
+  full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 4 )
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
 
@@ -57,27 +57,37 @@ for event in events: # loop through all events
     num_lambdac_pions = 0
     num_lambdac_kaons = 0
     num_lambdac_protons = 0
-    num_Xicdouble_pions = 0
-    num_Xicdouble_kaons = 0
-    num_Xicdouble_protons = 0
+    num_Xiccdouble_pions = 0
+    num_Xiccdouble_kaons = 0
+    num_Xiccdouble_protons = 0
+    num_Xiccsingle_pions = 0
+    num_Xiccsingle_kaons = 0
+    num_Xiccsingle_protons = 0
+    
   
   for pion in pions:
     if is_from(pion, event, 4122):
       num_lambdac_pions += 1
+    if is_from(pion, event, 4422):
+      num_Xiccdouble_pions += 1
     if is_from(pion, event, 4412):
-      num_Xicdouble_pions += 1
+      num_Xiccsingle_pions += 1
   
   for kaon in all_kaons:
     if is_from(kaon, event, 4122):
       num_lambdac_kaons += 1
+    if is_from(kaon, event, 4422):
+      num_Xiccdouble_kaons += 1
     if is_from(kaon, event, 4412):
-      num_Xicdouble_kaons += 1
+      num_Xiccsingle_kaons += 1
           
   for proton in total_protons:
     if is_from(proton, event, 4122):
       num_lambdac_protons += 1
+    if is_from(proton, event, 4422):
+      num_Xiccdouble_protons += 1
     if is_from(proton, event, 4412):
-      num_Xicdouble_protons += 1
+      num_Xiccsingle_protons += 1
                 
 max_num_lambdac = min(num_lambdac_kaons, num_lambdac_pions, num_lambdac_protons)
 
@@ -88,14 +98,20 @@ for number, count in zip(unique_numbers, counts):
     if number == 211.0: 
       print(f"{count} occurrences of Pion")
       print(f"{num_lambdac_pions} occurrences of LambdacPion")
+      print(f"{num_Xiccdouble_pions} occurrences of Xicc++Pion")
+      print(f"{num_Xiccsingle_pions} occurrences of Xicc+Pion")
       num_pions = count
     elif number == 321.0: 
       print(f"{count} occurrences of Kaon")
       print(f"{num_lambdac_kaons} occurrences of LambdacKaon")
+      print(f"{num_Xiccdouble_kaons} occurrences of Xicc++Kaon")
+      print(f"{num_Xiccsingle_kaons} occurrences of Xicc+Kaon")
       num_kaon = count
     elif number == 2212.0: 
       print(f"{count} occurrences of Proton")
       print(f"{num_lambdac_protons} occurrences of LambdacProton")
+      print(f"{num_Xiccdouble_protons} occurrences of Xicc++Proton")
+      print(f"{num_Xiccsingle_protons} occurrences of Xicc+Proton")
       num_proton = count
 
 max_num_bad_lambdac = min(num_pions, num_kaon, num_proton)
