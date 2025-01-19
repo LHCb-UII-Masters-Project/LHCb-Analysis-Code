@@ -1,4 +1,4 @@
-# region IMPORTS
+#-----------------------------Imports------------------------------------
 import ROOT
 from Variables import *
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
@@ -14,7 +14,7 @@ from lhcbstyle import LHCbStyle
 from datetime import datetime
 import time
 import argparse
-
+#-----------------------------MODE SELECTION AND INPUTS------------------------------------
 mode = input("Enter the mode (calc or refit): ").strip()
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
@@ -28,11 +28,11 @@ timing = array('f', [0])
 run_tree.SetBranchAddress("velo_timing", timing)
 timing_value = (timing[0])
 
-
 x = w["x"]
 data = w["data"]
 model = w["model"]
 
+#------------------------------------Area for offline calculations--------------------------------------
 if mode == "calc":
   sig_frac = ROOT.RooFormulaVar("sig_frac", "signal fraction", "nsig/(nbkg+nsig)", ROOT.RooArgList(w["nsig"], w["nbkg"]))
   bkg_frac = ROOT.RooFormulaVar("bkg_frac", "background fraction", "nbkg/(nbkg+nsig)", ROOT.RooArgList(w["nsig"], w["nbkg"]))
@@ -40,11 +40,12 @@ if mode == "calc":
   bkg_frac.Print()
   model.Print("t")
 
-
+#--------------------------------------Area for refitting the data---------------------------
 if mode == "refit":
   number_of_bins = 50
   xmin =5.2
   xmax =5.5
+#--------------------------------------------------------------------------------------------
   range = ROOT.RooFit.Range(xmin, xmax)
   minos_params = ROOT.RooArgSet(w["x"],w["sigma1"],w["nsig"],w["nbkg"])
   fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), 
@@ -56,7 +57,7 @@ if mode == "refit":
                             ROOT.RooFit.Optimize(True),
                             ROOT.RooFit.MaxCalls(5000000),
                             range)
-
+#--------------------------------------------------------------------------------------------
   frame1 = x.frame(range)
   frame1.SetTitle("")
   data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins))
@@ -79,7 +80,7 @@ if mode == "refit":
   origin_file_name = os.path.basename(origin_file_path)
   origin_file_name_reduced = origin_file_name.replace("WSPACE", "REFIT")
   current_time = time.strftime("%H-%M-%S_%d-%m-%Y", time.localtime())
-
+#--------------------------------------------------------------------------------------------
   with LHCbStyle() as lbs:
       c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
       c.Divide(2)
@@ -170,4 +171,5 @@ if mode == "refit":
       c.Draw()
       c.SaveAs(f"{input_directory}/REFIT_{current_time}_{origin_file_name_reduced}.pdf","pdf 800")
 
+#------------------------Print output parameters------------------------------------------
   model.Print("t")
