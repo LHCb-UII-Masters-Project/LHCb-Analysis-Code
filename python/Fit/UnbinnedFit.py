@@ -490,6 +490,16 @@ fit_initial_guess_tree.Write()
 # Close the ROOT file
 output_file.Close()
 
+w = ROOT.RooWorkspace("w", "workspace")
+w.Import(model)
+w.Import(data)
+w.Import(run_tree)
+w.Import(outputs)
+w.Import(fit_result)
+w.Import(timing_int)
+w.writeToFile(f"{input_directory}/WSPACE_{current_time}_{origin_file_name_reduced}")
+w.Print()
+
 ascii_art = """
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @    ___  ________  ________  ___  __    ________  ___       ________  _________   @
@@ -502,5 +512,3 @@ ascii_art = """
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 """
 print(ascii_art)
-
-
