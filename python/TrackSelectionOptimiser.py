@@ -19,11 +19,21 @@ gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the 
 events = TChain("Events") # connects all the events into a single data set
 
 # can be changed to look at different timing resolutions and detector geometries
-dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc+/sym/"
+dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 events.AddFile( path.join(dir, onlyfiles[1]) )  # Look at a file in the target directory for analysis
 
 tracks = np.array([])
+
+num_lambdac_pions = 0
+num_lambdac_kaons = 0
+num_lambdac_protons = 0
+num_Xiccdouble_pions = 0
+num_Xiccdouble_kaons = 0
+num_Xiccdouble_protons = 0
+num_Xiccsingle_pions = 0
+num_Xiccsingle_kaons = 0
+num_Xiccsingle_protons = 0
 
 for event in events: # loop through all events
   
@@ -32,7 +42,7 @@ for event in events: # loop through all events
   #   track.scale_uncertainty(1, 5)   
   #   scaled_tracks.append( track ) 
   
-  lambdac_tracks = ROOT.select( event.Particles, event.Vertices, 250, 1500, 3 ) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
+  lambdac_tracks = ROOT.select( event.Particles, event.Vertices, 250, 1500, 6 ) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis min_pt, min_p, min_ipchi2_4d
   full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 4 )
 
@@ -41,7 +51,7 @@ for event in events: # loop through all events
   #good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # narrows particels to only good pions or
   #good_ds = [ track for track in displaced_tracks if abs( track.trueID ) == 431] #  good Ds
 
-  for track in full_tracks:
+  for track in lambdac_tracks:
     tracks = np.append(tracks, abs(track.trueID))
 
 
@@ -54,16 +64,6 @@ for event in events: # loop through all events
 
     total_protons = [track for track in lambdac_tracks if abs( track.trueID ) == 2212]  # all p
     protons = [ track for track in lambdac_tracks if abs(track.trueID) == 2212 and track.charge() > 0] # all p^+
-    num_lambdac_pions = 0
-    num_lambdac_kaons = 0
-    num_lambdac_protons = 0
-    num_Xiccdouble_pions = 0
-    num_Xiccdouble_kaons = 0
-    num_Xiccdouble_protons = 0
-    num_Xiccsingle_pions = 0
-    num_Xiccsingle_kaons = 0
-    num_Xiccsingle_protons = 0
-    
   
   for pion in pions:
     if is_from(pion, event, 4122):
@@ -95,19 +95,19 @@ tracks = tracks[tracks != 0]
 unique_numbers, counts = np.unique(tracks, return_counts=True)
 
 for number, count in zip(unique_numbers, counts):
-    if number == 211.0: 
+    if abs(number) == 211.0: 
       print(f"{count} occurrences of Pion")
       print(f"{num_lambdac_pions} occurrences of LambdacPion")
       print(f"{num_Xiccdouble_pions} occurrences of Xicc++Pion")
       print(f"{num_Xiccsingle_pions} occurrences of Xicc+Pion")
       num_pions = count
-    elif number == 321.0: 
+    elif abs(number) == 321.0: 
       print(f"{count} occurrences of Kaon")
       print(f"{num_lambdac_kaons} occurrences of LambdacKaon")
       print(f"{num_Xiccdouble_kaons} occurrences of Xicc++Kaon")
       print(f"{num_Xiccsingle_kaons} occurrences of Xicc+Kaon")
       num_kaon = count
-    elif number == 2212.0: 
+    elif abs(number) == 2212.0: 
       print(f"{count} occurrences of Proton")
       print(f"{num_lambdac_protons} occurrences of LambdacProton")
       print(f"{num_Xiccdouble_protons} occurrences of Xicc++Proton")
@@ -120,3 +120,4 @@ if max_num_lambdac != 0:
   print(f"Approx SNR of {max_num_lambdac/(max_num_lambdac)}")
 else:
   print("There are no good Lambdac candidates")
+print("Updated")
