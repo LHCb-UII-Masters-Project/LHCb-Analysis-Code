@@ -32,6 +32,9 @@ num_Xiccdouble_pions = 0
 num_Xiccdouble_kaons = 0
 num_Xiccdouble_protons = 0
 
+max_num_lambdac = 0
+max_num_Xiccdouble = 0
+
 for event in events: # loop through all events
   
   # scaled_tracks = []
@@ -45,11 +48,17 @@ for event in events: # loop through all events
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
 
+  num_event_lambdac_pions = 0
+  num_event_lambdac_kaons = 0
+  num_event_lambdac_protons = 0
+  num_event_Xiccdouble_pions = 0
+  num_event_Xiccdouble_kaons = 0
+  num_event_Xiccdouble_protons = 0
+
   #good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # narrows particels to only good pions or
   #good_ds = [ track for track in displaced_tracks if abs( track.trueID ) == 431] #  good Ds
 
   for track in lambdac_tracks:
-
     tracks = np.append(tracks, abs(track.trueID))
     total_pions = [track for track in lambdac_tracks if abs( track.trueID ) == 211]  # all pi
     pions = [ track for track in lambdac_tracks if abs(track.trueID) == 211 and track.charge() > 0] # all pi+
@@ -63,21 +72,34 @@ for event in events: # loop through all events
 
   for pion in pions:
     if is_from(pion, event, 4122):
-      num_lambdac_pions += 1
+      num_event_lambdac_pions += 1
     if is_from(pion, event, 4222):
-      num_Xiccdouble_pions += 1
+      num_event_Xiccdouble_pions += 1
 
   for kaon in all_kaons:
     if is_from(kaon, event, 4122):
-      num_lambdac_kaons += 1
+      num_event_lambdac_kaons += 1
     if is_from(kaon, event, 4222):
-      num_Xiccdouble_kaons += 1
+      num_event_Xiccdouble_kaons += 1
 
   for proton in total_protons:
     if is_from(proton, event, 4122):
-      num_lambdac_protons += 1
+      num_event_lambdac_protons += 1
     if is_from(proton, event, 4222):
-      num_Xiccdouble_protons += 1
+      num_event_Xiccdouble_protons += 1
+  
+  if num_event_lambdac_protons > 0 and num_event_lambdac_kaons > 0 and num_event_lambdac_protons > 0:
+    max_num_lambdac += 1
+  if num_event_Xiccdouble_protons > 0 and num_event_Xiccdouble_kaons > 0 and num_event_Xiccdouble_pions > 0:
+    max_num_Xiccdouble += 1
+
+  num_lambdac_kaons += num_event_lambdac_kaons
+  num_lambdac_pions += num_event_lambdac_pions
+  num_lambdac_protons += num_event_lambdac_protons
+
+  num_Xiccdouble_protons += num_event_Xiccdouble_protons
+  num_Xiccdouble_kaons += num_event_Xiccdouble_kaons
+  num_Xiccdouble_pions += num_event_Xiccdouble_pions
                 
 max_num_lambdac = min(num_lambdac_kaons, num_lambdac_pions, num_lambdac_protons)
 max_num_Xiccdouble = min(num_Xiccdouble_kaons, num_Xiccdouble_pions, num_Xiccdouble_protons)
@@ -90,22 +112,18 @@ for number, count in zip(unique_numbers, counts):
       print(f"{count} occurrences of Pion")
       print(f"{num_lambdac_pions} occurrences of LambdacPion")
       print(f"{num_Xiccdouble_pions} occurrences of Xicc++Pion")
-      num_pions = count
     elif abs(number) == 321.0: 
       print(f"{count} occurrences of Kaon")
       print(f"{num_lambdac_kaons} occurrences of LambdacKaon")
       print(f"{num_Xiccdouble_kaons} occurrences of Xicc++Kaon")
-      num_kaon = count
     elif abs(number) == 2212.0: 
       print(f"{count} occurrences of Proton")
       print(f"{num_lambdac_protons} occurrences of LambdacProton")
       print(f"{num_Xiccdouble_protons} occurrences of Xicc++Proton")
-      num_proton = count
 
-max_num_bad_lambdac = min(num_pions, num_kaon, num_proton)
 print(f"{max_num_lambdac} Lambdac made")
 print(f"{max_num_Xiccdouble} Xicc++ possible")
 if max_num_lambdac != 0:
-  print(f"Approx SNR of {max_num_lambdac/(max_num_lambdac)}")
+  print(f"Approx SNR of {max_num_lambdac/(num_lambdac_kaons+num_lambdac_pions+num_lambdac_protons)}")
 else:
   print("There are no good Lambdac candidates")
