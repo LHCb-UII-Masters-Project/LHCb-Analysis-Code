@@ -1,4 +1,4 @@
-# region IMPORTS
+#---------------------------------Imports---------------------------------------------------
 import ROOT
 from Variables import *
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
@@ -15,11 +15,13 @@ from datetime import datetime
 import time
 import argparse
 
+#--------------------------------File Inputs---------------------------------------------------
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
 args = parser.parse_args()
 input_directory = os.path.dirname(args.input_file)
 
+#---------------------------------LHCB STYLE CLASS--------------------------------------------
 class LHCbStyle:
     def __init__(self, print_msg=False):
         """
@@ -64,10 +66,7 @@ class LHCbStyle:
 
         return ROOT
 
-
-# endregion IMPORTS
-
-# region READ
+#-------------------------------Tree Reading---------------------------------------
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("RunParams")
 outputs = root_file.Get("Outputs")
@@ -96,11 +95,8 @@ run_tree.GetEntry(0)
 timing_value = (timing[0])
 PID_pion_value = (PID_pion[0])
 PID_kaon_value = (PID_kaon[0])
-# endregion READ
 
-
-#region DefPDF
-# Define the variable x
+#-------------------------Data Filtering (currently unused)--------------------------------
 x = ROOT.RooRealVar("x", "x", min(unbinned_data), max(unbinned_data))
 
 rice_bins = int(np.ceil(2 * np.cbrt(len(unbinned_data))))
@@ -123,8 +119,7 @@ for dp in unbinned_data: # change to filtered data for filtering
     x.setVal(dp)
     data.add(ROOT.RooArgSet(x))
 
-
-# Define variables using the updated dictionary
+#-----------------------------Variables and PDF definitions-------------------------------------
 mu = ROOT.RooRealVar("mu1", "mean of CB1", variables['mu']['value'], variables['mu']['min'], variables['mu']['max'])  # Gaussian core mean estimate
 #mu.setConstant(True)
 sigma = ROOT.RooRealVar("sigma1", "std of core gaussian 1", variables['sigma']['value'], variables['sigma']['min'], variables['sigma']['max'])  # Gaussian core std estimate
@@ -150,7 +145,7 @@ bkg_frac = ROOT.RooFormulaVar("bkg_frac", "background fraction", "nbkg/(nbkg+nsi
 model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),ROOT.RooArgList(nbkg, nsig))
 #endregion DefPDF
 
-# region FIT
+#-------------------------------------PDF Fitting-------------------------------------------------------------
 minos_params = ROOT.RooArgSet(mu,sigma,nsig,nbkg)
 
 fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), 
@@ -162,7 +157,7 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.Optimize(True),
                            ROOT.RooFit.MaxCalls(5000000))
 
-
+#-----------------------------------Plotting----------------------------------------------------------------
 number_of_bins = 50
 
 frame1 = x.frame()
@@ -281,6 +276,7 @@ output_file = ROOT.TFile(f"{input_directory}/F_{current_time}_{origin_file_name_
 
 # Write the canvas to the file
 c.Write()
+#-------------------------------------------Tree Writing----------------------------------------------
 
 # Create a tree to store the fit parameters and their errors
 tree = ROOT.TTree("fit_parameters", "Fit Parameters Tree")
@@ -450,7 +446,7 @@ sig_yield_err_sym = ROOT.std.vector('float')()
 sig_yield_err_high =ROOT.std.vector('float')()
 sig_yield_err_low = ROOT.std.vector('float')()
 
-
+#------------------------Yield calcuations----------------------------------------
 sig_frac_value.push_back(sig_frac.getVal())
 sig_frac_err_sym.push_back(sig_frac.getPropagatedError(fit_result))
 
@@ -478,7 +474,7 @@ summary.Branch("sig_yield_error_sym", sig_yield_err_sym)
 
 summary.Fill()
 
-
+# --------------------------- File Writing -----------------------------------
 # Write the tree to the file
 tree.Write()
 run_tree.Write()
@@ -490,17 +486,13 @@ fit_initial_guess_tree.Write()
 # Close the ROOT file
 output_file.Close()
 
-ascii_art = """
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@    ___  ________  ________  ___  __    ________  ___       ________  _________   @
-@   |\  \|\   __  \|\   ____\|\  \|\  \ |\   __  \|\  \     |\   __  \|\___   ___\ @
-@   \ \  \ \  \|\  \ \  \___|\ \  \/  /|\ \  \|\  \ \  \    \ \  \|\  \|___ \  \_| @
-@ __ \ \  \ \   __  \ \  \    \ \   ___  \ \   ____\ \  \    \ \  \\\  \   \ \  \  @
-@|\  \\_\  \ \  \ \  \ \  \____\ \  \\ \  \ \  \___|\ \  \____\ \  \\\  \   \ \  \ @
-@\ \________\ \__\ \__\ \_______\ \__\\ \__\ \__\    \ \_______\ \_______\   \ \__\@
-@ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-"""
-print(ascii_art)
-
-
+# -------------------------- Workspace Writing-----------------------------------
+w = ROOT.RooWorkspace("w", "workspace")
+w.Import(model)
+w.Import(data)
+w.Import(run_tree)
+w.Import(outputs)
+w.Import(fit_result)
+w.Import(timing_int)
+w.writeToFile(f"{input_directory}/WSPACE_{current_time}_{origin_file_name_reduced}")
+w.Print()
