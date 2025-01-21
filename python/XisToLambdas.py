@@ -374,7 +374,7 @@ for event in events: # loop through all events
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
     # print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
   
-  displaced_tracks = ROOT.select( event.Particles, event.Vertices, 250, 1500, 4 ) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
+  displaced_tracks = ROOT.select( event.Particles, event.Vertices, 200, 1000,6) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis
 
   total_pions = [track for track in displaced_tracks if abs( track.trueID ) == p_dict['Pion']]  # all pi
@@ -417,7 +417,7 @@ for event in events: # loop through all events
   Num_protons[0] = len(total_protons)
   Num_protons_detected[0] = len(protons)
 
-  doca_cut = 0.1 # distance of closest approach cutoff, maximum allowed closest approach for consideration
+  doca_cut = 0.5 # distance of closest approach cutoff, maximum allowed closest approach for consideration
   Doca_cut[0] = doca_cut
 
   nPVs = npvs( event ) # the number of primary verticies in an event
@@ -426,7 +426,7 @@ for event in events: # loop through all events
   found_signal = False # placeholder for when a signal is found, default of no signal found
   found_lambdac_signal = False
   #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)} {len(protons)}") # prints event information
-  lambda_container = ROOT.combine( total_protons, all_kaons, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
+  lambda_container = ROOT.combine( protons, good_kaons, doca_cut, 3, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
   Num_lambda_container[0] = len(lambda_container)
   print(f'total number of lambda containers per event {len(lambda_container)}')
@@ -465,7 +465,7 @@ for event in events: # loop through all events
       pi1_ID[0] = abs(pion.trueID)
       Lambda_chi2_limit[0] = 5 # Formerly Chi2_ndf_limit
 
-      if lambdac_vtx.chi2 / lambdac_vtx.ndof > 5 : 
+      if lambdac_vtx.chi2 / lambdac_vtx.ndof > 10 : 
         if is_signal:
           Lambdac_chi2_sig_kills[0] += 1
         else:
@@ -499,7 +499,7 @@ for event in events: # loop through all events
 
 #     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
       Lambdac_chi2_distance_limit[0] = 50
-      if lambdac_vtx.chi2_distance(pv) < 50 : 
+      if lambdac_vtx.chi2_distance(pv) < 16 : 
         if is_signal:
           Lambdac_chi2_distance_sig_kills[0] += 1
         else:
@@ -507,7 +507,7 @@ for event in events: # loop through all events
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
       Lambdac_dira_limit[0] = 0.9
-      if dira_bpv(lambdac,event.Vertices,max_timing)  < 0.9 : 
+      if dira_bpv(lambdac,event.Vertices,max_timing)  < 0.99995 : 
         if is_signal:
           Lambdac_dira_sig_kills[0] += 1
         else:
