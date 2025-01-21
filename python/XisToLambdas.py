@@ -303,12 +303,12 @@ def eff_model(df):
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
 
 p_dict = {
-  "Kaon": 321,
-  "Pion": 211,
-  "Proton": 2212,
-  "Lambdac": 4122,
-  "Xicc++": 4222,
-  "Xicc+": 4212,
+  "Kaon":321,
+  "Pion":211,
+  "Proton":2212,
+  "Lambdac":4122,
+  "Xicc++":4222,
+  "Xicc+":4212,
   "Xic+": 4232
 }
 
@@ -417,10 +417,11 @@ for event in events: # loop through all events
   Num_protons[0] = len(total_protons)
   Num_protons_detected[0] = len(protons)
 
-  doca_cut = 0.10 # distance of closest approach cutoff, maximum allowed closest approach for consideration
+  doca_cut = 0.1 # distance of closest approach cutoff, maximum allowed closest approach for consideration
   Doca_cut[0] = doca_cut
 
   nPVs = npvs( event ) # the number of primary verticies in an event
+  print(f'the total number of primary verticies per event{nPVs}')
   Num_pv[0] = nPVs
   found_signal = False # placeholder for when a signal is found, default of no signal found
   found_lambdac_signal = False
@@ -428,6 +429,7 @@ for event in events: # loop through all events
   lambda_container = ROOT.combine( total_protons, all_kaons, doca_cut, 15, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
   Num_lambda_container[0] = len(lambda_container)
+  print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
 
@@ -444,7 +446,6 @@ for event in events: # loop through all events
 
       lambdac = ROOT.uParticle( [p,k1,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
       # and a pion
-
       is_signal = is_from(p, event, p_dict['Xicc++']) and is_from(k1, event, p_dict['Xicc++']) and is_from(pion, event, p_dict['Xicc++'])
       if is_signal:
         for i in range(50):
@@ -470,8 +471,9 @@ for event in events: # loop through all events
         else:
           Lambdac_chi2_bac_kills[0] += 1
         continue # if the chi2/ndf is not acceptable, disgard possible particle
+      Lambdac_pdg = 2286.46
       Lambdac_Pcomposite_limit[0] = 1800
-      if p.pt() + k1.pt() + pion.pt() < 1800 :
+      if p.pt() + k1.pt() + pion.pt() < Lambdac_pdg - 100 :
         if is_signal:
           Lambdac_Pcomposite_sig_kills[0] += 1
         else:
@@ -479,18 +481,18 @@ for event in events: # loop through all events
         continue # insufficient momentum to create a phi, discard
       Lambdac_mass_lower_limit[0] = 1800
       Lambdac_mass_upper_limit[0] = 2100
-      if lambdac.mass < 1800 or lambdac.mass  > 2100 :
+      if lambdac.mass < Lambdac_pdg - 100 or lambdac.mass  > Lambdac_pdg + 100 :
         if is_signal:
           Lambdac_mass_sig_kills[0] += 1
         else:
           Lambdac_mass_bac_kills[0] += 1
         continue # insufficient mass to create D particle, discard
-
-      print("Line Before things fail")
-      time.sleep(2)
+      print(event.Vertices)
+      print("Line Before things fail, ive commented out the sleeps")
+      #time.sleep(2)
       pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
       print("Line after where things fail")
-      time.sleep(3)
+      #time.sleep(3)
       # particle (minimum Chi squared) 
       Lambdac_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
       Lambdac_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
