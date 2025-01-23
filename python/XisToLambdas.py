@@ -424,7 +424,7 @@ for event in events: # loop through all events
   Doca_cut[0] = doca_cut
 
   nPVs = npvs( event ) # the number of primary verticies in an event
-  print(f'the total number of primary verticies per event{nPVs}')
+  #print(f'the total number of primary verticies per event{nPVs}')
   Num_pv[0] = nPVs
   found_signal = False # placeholder for when a signal is found, default of no signal found
   found_lambdac_signal = False
@@ -432,28 +432,14 @@ for event in events: # loop through all events
   lambda_container = ROOT.combine( protons, good_kaons, doca_cut, 3, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
   Num_lambda_container[0] = len(lambda_container)
-  print(f'total number of lambda containers per event {len(lambda_container)}')
+  # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
 
   # Xi_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == 211]
 
-  pion_x_values = np.array([pion.firstState.x0 for pion in pions])
-  pion_y_values = np.array([pion.firstState.y0 for pion in pions])
-  pion_t_values = np.array([pion.firstState.t for pion in pions])
-  
-  p_x_values = np.array([proton.firstState.x0 for proton in protons])
-  p_y_values = np.array([proton.firstState.y0 for proton in protons])
-  p_t_values = np.array([proton.firstState.t for proton in protons])
-
-  k_x_values = np.array([kaon.firstState.x0 for kaon in good_kaons])
-  k_y_values = np.array([kaon.firstState.y0 for kaon in good_kaons])
-  k_t_values = np.array([kaon.firstState.t for kaon in good_kaons])
-
   for pion in pions :
     for p,k1,lambda0,lambda0_vtx in lambda_container: 
-      if (str(pion.firstState.t) == str(p.firstState.t) == str(k1.firstState.t) == "0") == False:
-        non_t0 += 1
 
       # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
       # created by the kaons, and phi_vtx is the vertex in which the combination occurs
@@ -463,12 +449,8 @@ for event in events: # loop through all events
       # Should make reverse case as well
 
       lambdac = ROOT.uParticle( [p,k1,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
-      # and a pion
-      if (str(lambdac.firstState.x0) == str(lambdac.firstState.y0) == str(lambdac.firstState.t) == "nan") == False :
-        print(lambdac.firstState.x0)
-        non_nans += 1
-        print("___________")
-        time.sleep(3)
+ 
+
       is_signal = is_from(p, event, p_dict['Xicc++']) and is_from(k1, event, p_dict['Xicc++']) and is_from(pion, event, p_dict['Xicc++'])
       # if is_signal:
         # for i in range(50):
@@ -488,7 +470,7 @@ for event in events: # loop through all events
       pi1_ID[0] = abs(pion.trueID)
       Lambda_chi2_limit[0] = 5 # Formerly Chi2_ndf_limit
 
-      if lambdac_vtx.chi2 / lambdac_vtx.ndof > 0.1 : # kills nothing
+      if lambdac_vtx.chi2 / lambdac_vtx.ndof > 5 : # kills nothing
         if is_signal:
           Lambdac_chi2_sig_kills[0] += 1
         else:
@@ -512,16 +494,15 @@ for event in events: # loop through all events
         continue # insufficient mass to create D particle, discard
 
 
-      print("Line Before things fail, ive commented out the sleeps")
+      #print("Line Before things fail, ive commented out the sleeps")
       #time.sleep(2)
       pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
-      print("Line after where things fail")
+      #print("Line after where things fail")
       # particle (minimum Chi squared) 
 
 
       Lambdac_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
       Lambdac_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
-
 #     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
       Lambdac_chi2_distance_limit[0] = 50
       if lambdac_vtx.chi2_distance(pv) < 16 : 
@@ -543,6 +524,7 @@ for event in events: # loop through all events
       lambdac_pt[0] = lambdac.pt()
       Lambdac_eta[0] = lambdac.eta()
       lambdac_plot.Fill(lambdac.mass*0.001)
+      print(lambdac.mass)
       """
       if (ds.mass<dsMass-30) or (ds.mass>dsMass+30):
         if is_signal:
@@ -627,12 +609,12 @@ for event in events: # loop through all events
 
 #endregion EVENT LOOP
 
-file = TFile(f"{basedir}/Outputs/Rich" + str(rich_timing) + "/PID" + str(pid_switch) + "/Velo" + str(velo_time) +  f"/Tree{lower}:{upper}" + ".root", "RECREATE")
+file = TFile(f"{basedir}/Outputs/File1.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
 file.WriteObject(Outputs, "Outputs")
 file.WriteObject(RunParams, "RunParams")
 file.WriteObject(RunLimits, "RunLimits")
 file.WriteObject(RunDiagnostics, "RunDiagnostics")
 file.WriteObject(lambdac_plot, "Lambdac_Histogram")
-file.WriteObject(xi_plot, "Xicc++_Histogram")
+#file.WriteObject(xi_plot, "Xicc++_Histogram")
 file.Close()
