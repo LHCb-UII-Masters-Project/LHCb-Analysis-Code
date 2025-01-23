@@ -196,6 +196,9 @@ Outputs.Branch('xis_mass', xis_mass, 'xis_mass/F')
 
 #region USERINPUTS
 
+non_nans = 0
+non_t0 = 0
+
 def get_arg(index, default, args):  # Arg function that returns relevant arguments and deals with missing args
     try:
         return int(args[index])
@@ -435,10 +438,23 @@ for event in events: # loop through all events
 
   # Xi_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == 211]
 
-  non_nans = 0
+  pion_x_values = np.array([pion.firstState.x0 for pion in pions])
+  pion_y_values = np.array([pion.firstState.y0 for pion in pions])
+  pion_t_values = np.array([pion.firstState.t for pion in pions])
+  
+  p_x_values = np.array([proton.firstState.x0 for proton in protons])
+  p_y_values = np.array([proton.firstState.y0 for proton in protons])
+  p_t_values = np.array([proton.firstState.t for proton in protons])
+
+  k_x_values = np.array([kaon.firstState.x0 for kaon in good_kaons])
+  k_y_values = np.array([kaon.firstState.y0 for kaon in good_kaons])
+  k_t_values = np.array([kaon.firstState.t for kaon in good_kaons])
 
   for pion in pions :
     for p,k1,lambda0,lambda0_vtx in lambda_container: 
+      if (str(pion.firstState.t) == str(p.firstState.t) == str(k1.firstState.t) == "0") == False:
+        non_t0 += 1
+
       # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
       # created by the kaons, and phi_vtx is the vertex in which the combination occurs
 
