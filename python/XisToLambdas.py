@@ -37,8 +37,8 @@ RunParams.Branch('spacial_resolution', spacial_resolution, 'spacial_resolution/F
 spacial_resolution[0] = 10
 com_energy = array('f', [0])
 RunParams.Branch('com_energy', com_energy, 'com_energy/F')
-xis_mass= array('f', [0])
-RunParams.Branch('xis_mass', xis_mass, 'xis_mass/F')
+Lambdac_mass= array('f', [0])
+RunParams.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
 com_energy[0] = 14
 #endregion RunParams
 
@@ -67,7 +67,7 @@ RunLimits.Branch('Xi_mass_lower_limit', Xi_mass_lower_limit, 'Xi_mass_lower_limi
 Xi_chi2_distance_limit = array('f', [0])
 Xi_dira_limit = array('f', [0])
 RunLimits.Branch('Xi_dira_limit', Xi_dira_limit, 'Xi_dira_limit/F')
-RunLimits.Branch('xis_mass', xis_mass, 'xis_mass/F')
+RunLimits.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
 #endregion RunLimts
 
 #region RunDiagnostics
@@ -122,7 +122,7 @@ RunDiagnostics.Branch('Xi_mass_sig_kills', Xi_mass_sig_kills, 'Xi_mass_sig_kills
 Xi_mass_bac_kills = array('f', [0])
 RunDiagnostics.Branch('Xi_mass_bac_kills', Xi_mass_bac_kills, 'Xi_mass_bac_kills/F')
 
-RunDiagnostics.Branch('xis_mass', xis_mass, 'xis_mass/F')
+RunDiagnostics.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
 #endregion RunDiagnostics
 
 #region Outputs
@@ -189,7 +189,7 @@ Xi_dira= array('f', [0])
 Outputs.Branch('Xi_dira', Xi_dira, 'Xi_dira/F')
 num_lambdac= array('f', [0])
 Outputs.Branch('num_lambdac', num_lambdac, 'num_lambdac/F')
-Outputs.Branch('xis_mass', xis_mass, 'xis_mass/F')
+Outputs.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
 #endregion Outputs
 
 #region USERINPUTS
@@ -209,9 +209,9 @@ rand_seed_arg = get_arg(3, int(time.time() * os.getpid()), args)  # Default rand
 
 rand_seed[0] = rand_seed_arg
 
-#max_timing = 0.050
-dsMass = 1968.35
-bsMass = 5.36692*1000
+max_timing = 0.050
+lambdacMass = 2286.46
+XiccMass = 3621.6
 
 
 
@@ -366,45 +366,23 @@ for event in events: # loop through all events
   displaced_tracks = ROOT.select( event.Particles, event.Vertices, 200, 1000,6) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis
 
-  total_pions = [track for track in displaced_tracks if abs( track.trueID ) == p_dict['Pion']]  # all pi
-  # Uses proccess ID inefficiency if turned on, else keep all displaced pions and doesn't add misconstructs
-  # if pid_switch == 1:
-  #  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
-  #  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
-  #  pions = good_pions + bad_pions
-  # elif pid_switch == 0: 
-  pions = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Pion'] and track.charge() > 0] # all pi+
+  all_pions = [track for track in displaced_tracks if abs( track.trueID ) == p_dict['Pion']]  # all pi
+  good_pions = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Pion'] and track.charge() > 0] # all pi+
 
-  Num_pions[0] = len(total_pions)
-  Num_pions_detected[0] = len(pions)
+  Num_pions[0] = len(all_pions)
+  Num_pions_detected[0] = len(good_pions)
   
   all_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == p_dict['Kaon']] # all kaons
-  good_kaons = [] # initialised list to be filled with good kaons
-  # if kaon_switch == 1:
-  #  for kaon in all_kaons:
-  #    k_p = np.sqrt((kaon.p4().Px())**2 + (kaon.p4().Py())**2 + (kaon.p4().Pz())**2) # calculate the kaon momentum
-  #    for i in range(len(boundaries)):
-  # Finds appropriate model and uses rand number to apply efficiency  in that region
-  #      if (boundaries[i-1] if i > 0 else 0) <= k_p < (boundaries[i] if i != len(boundaries) else np.inf) and (rand.Rndm()) <= (models[i][1] * k_p + models[i][0]):
-  #        good_kaons.append(kaon)
-  #        break
-  # else: 
   good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Kaon'] and track.charge() < 0] # all k^-
 
   Num_kaons[0] = len(all_kaons)
   Num_kaons_detected[0] = len(good_kaons)
 
-  total_protons = [track for track in displaced_tracks if abs( track.trueID ) == p_dict['Proton']]  # all p
-  # Uses proccess ID inefficiency if turned on, else keep all displaced pions and doesn't add misconstructs
-  # if pid_switch == 1:
-  #  good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211 and int(rand.Integer(100))!=12 ] # 99/100 dertection chance
-  #  bad_pions = [ track for track in displaced_tracks if abs( track.trueID ) != 211 and int(rand.Integer(100))==23 ] # 1/100 chance of a misconstructed "pion"
-  #  pions = good_pions + bad_pions
-  # elif pid_switch == 0: 
-  protons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Proton'] and track.charge() > 0] # all p^+
+  all_protons = [track for track in displaced_tracks if abs( track.trueID ) == p_dict['Proton']]  # all p
+  good_protons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Proton'] and track.charge() > 0] # all p^+
 
-  Num_protons[0] = len(total_protons)
-  Num_protons_detected[0] = len(protons)
+  Num_protons[0] = len(all_protons)
+  Num_protons_detected[0] = len(good_protons)
 
   doca_cut = 0.5 # distance of closest approach cutoff, maximum allowed closest approach for consideration
   Doca_cut[0] = doca_cut
@@ -414,17 +392,19 @@ for event in events: # loop through all events
   Num_pv[0] = nPVs
   found_signal = False # placeholder for when a signal is found, default of no signal found
   found_lambdac_signal = False
-  #print( f"{entry} {nPVs} {len(pions)} {len(good_kaons)} {len(protons)}") # prints event information
-  lambda_container = ROOT.combine( protons, good_kaons, doca_cut, 3, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
+  #print( f"{entry} {nPVs} {len(good_pions)} {len(good_kaons)} {len(good_protons)}") # prints event information
+  lambda_container = ROOT.combine( good_protons, good_kaons, doca_cut, 3, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
   Num_lambda_container[0] = len(lambda_container)
   # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
 
-  # Xi_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == 211]
+  Xi_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Pion'] ]
+  Xi_good_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Kaon'] ]
 
-  for pion in pions :
+
+  for pion in good_pions :
     for p,k1,lambda0,lambda0_vtx in lambda_container: 
 
       # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
@@ -436,15 +416,9 @@ for event in events: # loop through all events
 
       lambdac = ROOT.uParticle( [p,k1,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
  
-
-      is_signal = is_from(p, event, p_dict['Xicc++']) and is_from(k1, event, p_dict['Xicc++']) and is_from(pion, event, p_dict['Xicc++'])
-      # if is_signal:
-        # for i in range(50):
-          # print("is_signal")
-      # particle id 431 is for the D+, checks if the positive kaon is from an event with a D+ present, checks if the negative 
-      # kaon is from an event with a D+ present, checks if the pions are from events with D+ present. (See diagram)
+      is_lambdac_signal = is_from(p, event, p_dict['Xicc++']) and is_from(k1, event, p_dict['Xicc++']) and is_from(pion, event, p_dict['Xicc++'])
       
-      vtx_chi2.Fill( lambdac_vtx.chi2 / lambdac_vtx.ndof, is_signal) # Fills the chi2 graph for the candiate signal
+      vtx_chi2.Fill( lambdac_vtx.chi2 / lambdac_vtx.ndof, is_lambdac_signal) # Fills the chi2 graph for the candiate signal
 
       Lambda_chi2[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
       p_pt[0] = p.pt()
@@ -457,7 +431,7 @@ for event in events: # loop through all events
       Lambda_chi2_limit[0] = 5 # Formerly Chi2_ndf_limit
 
       if lambdac_vtx.chi2 / lambdac_vtx.ndof > 5 : # kills nothing
-        if is_signal:
+        if is_lambdac_signal:
           Lambdac_chi2_sig_kills[0] += 1
         else:
           Lambdac_chi2_bac_kills[0] += 1
@@ -465,7 +439,7 @@ for event in events: # loop through all events
       Lambdac_pdg = 2286.46
       Lambdac_Pcomposite_limit[0] = 1800
       if p.pt() + k1.pt() + pion.pt() < Lambdac_pdg - 150 :
-        if is_signal:
+        if is_lambdac_signal:
           Lambdac_Pcomposite_sig_kills[0] += 1
         else:
           Lambdac_Pcomposite_bac_kills[0] += 1
@@ -473,34 +447,27 @@ for event in events: # loop through all events
       Lambdac_mass_lower_limit[0] = 1800
       Lambdac_mass_upper_limit[0] = 2100
       if lambdac.mass < Lambdac_pdg - 150 or lambdac.mass  > Lambdac_pdg + 150 :
-        if is_signal:
+        if is_lambdac_signal:
           Lambdac_mass_sig_kills[0] += 1
         else:
           Lambdac_mass_bac_kills[0] += 1
         continue # insufficient mass to create D particle, discard
-
-
-      #print("Line Before things fail, ive commented out the sleeps")
-      #time.sleep(2)
+      
       pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
-      #print("Line after where things fail")
-      # particle (minimum Chi squared) 
-
-
       Lambdac_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
       Lambdac_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
-#     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_signal )
+#     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_lambdac_signal )
       Lambdac_chi2_distance_limit[0] = 50
       if lambdac_vtx.chi2_distance(pv) < 16 : 
-        if is_signal:
+        if is_lambdac_signal:
           Lambdac_chi2_distance_sig_kills[0] += 1
         else:
           Lambdac_chi2_distance_bac_kills[0] += 1
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
       Lambdac_dira_limit[0] = 0.9
-      if dira_bpv(lambdac,event.Vertices,max_timing)  < 0.99995 : 
-        if is_signal:
+      if dira_bpv(lambdac,event.Vertices,max_timing)  < 0.9 : 
+        if is_lambdac_signal:
           Lambdac_dira_sig_kills[0] += 1
         else:
           Lambdac_dira_bac_kills[0] += 1
@@ -510,15 +477,19 @@ for event in events: # loop through all events
       lambdac_pt[0] = lambdac.pt()
       Lambdac_eta[0] = lambdac.eta()
       lambdac_plot.Fill(lambdac.mass*0.001)
-      print(lambdac.mass)
+      # print(lambdac.mass)
       """
-      if (ds.mass<dsMass-30) or (ds.mass>dsMass+30):
-        if is_signal:
+      if (Lambdac.mass<LambdacMass-30) or (Lambdac.mass>LambdacMass+30):
+        if is_lambdac_signal:
           D_mass2_sig_kills[0] += 1
         else:
           D_mass2_bac_kills[0] += 1
         continue
-      for pion2 in Bs_good_pions:
+
+      lambda_container = ROOT.combine( Xis_good_pions, Xis_good_kaons, doca_cut, 3, 0)
+
+      for pion2 in Xis_good_pions:
+        
             is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
             if pion2.charge() + ds.charge() !=0: 
               if is_b_signal:

@@ -240,7 +240,7 @@ def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, t
 
         # Define arguments for RunThisScript
         scriptPath = f"{basedir}/XisToLambdas.py"
-        batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
+        batchJobName = "BatchRun_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
         # PID included as batched jobs start at same time
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
         run_args = f"{size} {rand_seed}"
@@ -283,17 +283,18 @@ def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, t
         for numbers in num_range:
             file_path = f"{base_path}{numbers}.root"  # Full path of one relevant file
             counter = 0
-            while os.path.exists(file_path) == False and counter < 1:
+            # Temporariliy comented out for while it works
+            # while os.path.exists(file_path) == False and counter < 1:
                 # Trys to repaeat tree creation twice if can't find it
-                before_colon, after_colon = numbers.split(":")
-                upper = int(after_colon)
-                lower = int(before_colon)
-                print(f"Redoing {lower}:{upper} redo {counter}")
-                redo_id = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
-                                          extraArgs=f"{lower} {upper} {run_args}", is_local=local)
-                subprocess.run(['condor_wait', f'{redo_id}.log'])
-                counter += 1
-                time.sleep(3)
+                #before_colon, after_colon = numbers.split(":")
+                #upper = int(after_colon)
+                #lower = int(before_colon)
+                #print(f"Redoing {lower}:{upper} redo {counter}")
+                #redo_id = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
+                #                          extraArgs=f"{lower} {upper} {run_args}", is_local=local)
+                #subprocess.run(['condor_wait', f'{redo_id}.log'])
+                #counter += 1
+                #time.sleep(3)
 
             if os.path.exists(file_path):
                 # If repeats are successful or it existed to begin with:
@@ -305,19 +306,21 @@ def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, t
 
                 # Open each file separately to retrieve the histogram
                 f = ROOT.TFile.Open(file_path, "READ")
-                b_hist = f.Get("Lambdac_Histogram")
-                b_hist.SetDirectory(0)
+                lambdac_hist = f.Get("Lambdac_Histogram")
+                lambdac_hist.SetDirectory(0)
                 f.Close()
 
-                if b_hist_sum is None:
-                    b_hist_sum = b_hist.Clone("hist")
-                    b_hist_sum.SetDirectory(0)
+                if lambdac_hist_sum is None:
+                    lambdac_hist_sum = lambdac_hist.Clone("hist")
+                    lambdac_hist_sum.SetDirectory(0)
                 else:
-                    b_hist_sum.Add(b_hist)
-                    b_hist_sum.SetDirectory(0)
+                    lambdac_hist_sum.Add(lambdac_hist)
+                    lambdac_hist_sum.SetDirectory(0)
 
         ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
 
+        print("Made it this far")
+        time.sleep(10)
         OutTree = OutChain.CopyTree("Lambdac_mass!=0")
         RunPTree = RunPChain.CopyTree("Lambdac_mass!=0")
         RunLTree = RunLChain.CopyTree("Lambdac_mass!=0")
@@ -335,7 +338,7 @@ def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, t
         RunPTree.Write("RunParams")
         RunLTree.Write("RunLimits")
         RunDTree.Write("RunDiagnostics")
-        b_hist_sum.Write("Lambdac_Histogram")
+        lambdac_hist_sum.Write("Lambdac_Histogram")
 
         # Close the output file
         output_file.Write()
@@ -371,8 +374,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "XisRun"
     comp = "NonLocal"
     size = "Small"
-    files_per_run = 5
-    tot_num_files = 50
+    files_per_run = 8
+    tot_num_files = 496
     rand_seed = None
 
     #rich_options = [150, 300]
@@ -381,8 +384,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
    # PID_switch = [0,1]
     PID_switch = [0]
     
-    velo_options = [50, 200]
-    # velo_options = [50]
+    # velo_options = [50, 200]
+    velo_options = [50]
 
     # Makes proccesses for all combinations of arguments
     process_store = []
