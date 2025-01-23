@@ -24,8 +24,6 @@ file_number = array('f', [0])
 RunParams.Branch('file_number', file_number, 'file_number/F')
 rand_seed = array('f', [0])
 RunParams.Branch('rand_seed', rand_seed, 'rand_seed/F')
-rich_window_timing = array('f', [0])
-RunParams.Branch('rich_window_timing', rich_window_timing, 'rich_window_timing/F')
 velo_timing = array('f', [0])
 RunParams.Branch('velo_timing', velo_timing, 'velo_timing/F')
 PID_pion = array('f', [0])
@@ -196,9 +194,6 @@ Outputs.Branch('xis_mass', xis_mass, 'xis_mass/F')
 
 #region USERINPUTS
 
-non_nans = 0
-non_t0 = 0
-
 def get_arg(index, default, args):  # Arg function that returns relevant arguments and deals with missing args
     try:
         return int(args[index])
@@ -208,21 +203,12 @@ def get_arg(index, default, args):  # Arg function that returns relevant argumen
 args = sys.argv
 lower = get_arg(1, 0, args)  # Default timing argument if not provided
 upper = get_arg(2, 2, args)  # Default timing argument if not provided
-rich_timing = get_arg(3, 300, args)  # Default timing argument if not provided
-velo_time = get_arg(4, 200, args)  # Default velo time argument if not provided
-pid_switch = get_arg(5, 1, args)  # Default PID switch argument if not provided
-kaon_switch = get_arg(6, 1, args)  # Default Kaon switch argument if not provided
-run_size = args[7]  # Run size determines which event directory is read from
-rand_seed_arg = get_arg(8, int(time.time() * os.getpid()), args)  # Default random seed if not provided
+rand_seed_arg = get_arg(3, int(time.time() * os.getpid()), args)  # Default random seed if not provided
 
 # Set tree values from user inputs
-rich_window_timing[0] = rich_timing
-velo_timing[0] = velo_time
-rand_seed[0] = rand_seed_arg
-PID_pion[0] = pid_switch
-PID_kaon[0] = kaon_switch
 
-max_timing = velo_time*0.001
+rand_seed[0] = rand_seed_arg
+
 #max_timing = 0.050
 dsMass = 1968.35
 bsMass = 5.36692*1000
@@ -338,12 +324,12 @@ for file in onlyfiles:
 # plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
 vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
 lambdac_plot = ROOT.TH1D("m_lambdac","",100,5.1,5.6)
-lambdac_plot.SetTitle("Reconstructed Lambdac Mass Plot t = " + str(rich_timing)) 
+lambdac_plot.SetTitle("Reconstructed Lambdac Mass Plot") 
 lambdac_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 lambdac_plot.GetYaxis().SetTitle("Frequency")
 
 xi_plot = ROOT.TH1D("m_xis","",100,1.8,2.1)
-xi_plot.SetTitle("Reconstructed Xi Mass Plot t = " + str(rich_timing)) 
+xi_plot.SetTitle("Reconstructed Xi Mass Plot") 
 xi_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
 xi_plot.GetYaxis().SetTitle("Frequency")
 xi_vtx_chi2 = SigVsBkg("xi_vtx_chi2",100,2,3)
@@ -478,7 +464,7 @@ for event in events: # loop through all events
         continue # if the chi2/ndf is not acceptable, disgard possible particle
       Lambdac_pdg = 2286.46
       Lambdac_Pcomposite_limit[0] = 1800
-      if p.pt() + k1.pt() + pion.pt() < Lambdac_pdg - 100 :
+      if p.pt() + k1.pt() + pion.pt() < Lambdac_pdg - 150 :
         if is_signal:
           Lambdac_Pcomposite_sig_kills[0] += 1
         else:
@@ -486,7 +472,7 @@ for event in events: # loop through all events
         continue # insufficient momentum to create a phi, discard
       Lambdac_mass_lower_limit[0] = 1800
       Lambdac_mass_upper_limit[0] = 2100
-      if lambdac.mass < Lambdac_pdg - 100 or lambdac.mass  > Lambdac_pdg + 100 :
+      if lambdac.mass < Lambdac_pdg - 150 or lambdac.mass  > Lambdac_pdg + 150 :
         if is_signal:
           Lambdac_mass_sig_kills[0] += 1
         else:
@@ -609,7 +595,7 @@ for event in events: # loop through all events
 
 #endregion EVENT LOOP
 
-file = TFile(f"{basedir}/Outputs/File1.root", "RECREATE")
+file = TFile(f"{basedir}/Outputs/XisToLambdas/Tree{lower}:{upper}.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
 file.WriteObject(Outputs, "Outputs")
 file.WriteObject(RunParams, "RunParams")

@@ -35,7 +35,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
     '''
     
     #will create a general condor out folder that stores all the results and details
-    jobDir = f"/home/user294/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
+    jobDir = f"/home/user293/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
 
     os.makedirs(jobDir,exist_ok=True,)
     #now empty dir if there is anything in there!
@@ -83,7 +83,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
     
-def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_num_files=4, rich_timing=300, 
+def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, tot_num_files=4, rich_timing=300, 
                 velo_time=50, pid_switch=1, kaon_switch=1, rand_seed=None):
     """
     Function that can be called by a procces in order to run multiple combinations of arguments simultaneously
@@ -103,7 +103,7 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
     local = comp == "Local"  # True if Local, False if other
 
 
-    if program == "Run":
+    if program == "BsRun":
         #region RUN SCRIPT
 
         # Define arguments for RunThisScript
@@ -235,10 +235,129 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
         
         #endregion MERGE TREES
 
+    elif program == "XisRun":
+        #region RUN SCRIPT
+
+        # Define arguments for RunThisScript
+        scriptPath = f"{basedir}/XisToLambdas.py"
+        batchJobName = "BatchRun_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
+        # PID included as batched jobs start at same time
+        pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+        run_args = f"{size} {rand_seed}"
+
+        wait_id = []  # Holds the return that can be used to make program wait for completion
+        num_range = []  # List of strings [0:5, 5:10 ,...]
+        for i in range(0,tot_num_files, files_per_run):
+            # print(f"{i}:{i+files_per_run}")
+
+            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {run_args}", is_local=local))
+            # Runs with all arguments passed, inlcuding if to run local or on Condor
+            num_range.append(f"{i}:{i+files_per_run}")
+
+        if local is True:
+            # Uses ret to wait if local
+            for index, ret in enumerate(wait_id):
+                print(f"Waiting for files {num_range[index]} to be processed...")
+                ret.wait()
+                time.sleep(1)
+        else:
+            # Uses condor_wait to wait if on condor
+            for index, numbers in enumerate(num_range):
+                print(f"Waiting for files {numbers} to be processed...")
+                subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
+                time.sleep(1)
+
+        #endregion RUN SCRIPT
+
+        #region MERGE TREES
+        base_path = f"{basedir}/Outputs/XisToLambdas/Tree"
+        # Sets base path to where trees are expected
+        OutChain = ROOT.TChain("Outputs")
+        RunPChain = ROOT.TChain("RunParams")
+        RunLChain = ROOT.TChain("RunLimits")
+        RunDChain = ROOT.TChain("RunDiagnostics")
+        str_chain = []  # List of filepaths for os.removing later
+        lambdac_hist_sum = None
+        # Initialises chain for tree, chain for tree names and hist for combining
+
+        for numbers in num_range:
+            file_path = f"{base_path}{numbers}.root"  # Full path of one relevant file
+            counter = 0
+            while os.path.exists(file_path) == False and counter < 1:
+                # Trys to repaeat tree creation twice if can't find it
+                before_colon, after_colon = numbers.split(":")
+                upper = int(after_colon)
+                lower = int(before_colon)
+                print(f"Redoing {lower}:{upper} redo {counter}")
+                redo_id = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
+                                          extraArgs=f"{lower} {upper} {run_args}", is_local=local)
+                subprocess.run(['condor_wait', f'{redo_id}.log'])
+                counter += 1
+                time.sleep(3)
+
+            if os.path.exists(file_path):
+                # If repeats are successful or it existed to begin with:
+                str_chain.append(file_path)
+                OutChain.Add(file_path)
+                RunPChain.Add(file_path)
+                RunLChain.Add(file_path)
+                RunDChain.Add(file_path)
+
+                # Open each file separately to retrieve the histogram
+                f = ROOT.TFile.Open(file_path, "READ")
+                b_hist = f.Get("Lambdac_Histogram")
+                b_hist.SetDirectory(0)
+                f.Close()
+
+                if b_hist_sum is None:
+                    b_hist_sum = b_hist.Clone("hist")
+                    b_hist_sum.SetDirectory(0)
+                else:
+                    b_hist_sum.Add(b_hist)
+                    b_hist_sum.SetDirectory(0)
+
+        ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
+
+        OutTree = OutChain.CopyTree("Lambdac_mass!=0")
+        RunPTree = RunPChain.CopyTree("Lambdac_mass!=0")
+        RunLTree = RunLChain.CopyTree("Lambdac_mass!=0")
+        RunDTree = RunDChain.CopyTree("Lambdac_mass!=0")
+        OutTree.SetName("Outputs")
+        RunPTree.SetName("RunParams")
+        RunLTree.SetName("RunLimits")
+        RunDTree.SetName("RunDiagnostics")
+
+        # Full output file name given here
+        output_file = ROOT.TFile(f"{basedir}/Outputs/XisToLambdas/{str(OutTree.GetEntries())}.root", "RECREATE")
+        # Writes to the output file
+        output_file.cd()
+        OutTree.Write("Outputs")
+        RunPTree.Write("RunParams")
+        RunLTree.Write("RunLimits")
+        RunDTree.Write("RunDiagnostics")
+        b_hist_sum.Write("Lambdac_Histogram")
+
+        # Close the output file
+        output_file.Write()
+        output_file.Close()
+
+        # Deletes the trees that made up the now combined tree
+        for file_path in str_chain:
+            os.remove(file_path)
+        
+        print(f"Made Tree")
+
+        end_time = time.time()
+        
+        #endregion MERGE TREES
+
     elif program == "Test":
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
         runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run, is_local=local)
         end_time = time.time()
+    
+    elif program == "TrackOptimiser":
+        print("A")
 
     # Timer output for interest
     time_taken = end_time - start_time
@@ -249,7 +368,7 @@ def macro_batch(program="Run", comp="Local", size="Small", files_per_run=2, tot_
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
-    program = "Run"
+    program = "XisRun"
     comp = "NonLocal"
     size = "Small"
     files_per_run = 5
@@ -288,6 +407,6 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
         try: 
             for p in process_store:
                 p.kill()
-            subprocess.run(["condor_rm", "user294"], check=True)
+            subprocess.run(["condor_rm", "user293"], check=True)
         except NameError:
             print("No Processes to Kill")
