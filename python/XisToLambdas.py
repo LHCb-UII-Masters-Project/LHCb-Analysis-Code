@@ -435,6 +435,7 @@ for event in events: # loop through all events
 
   # Xi_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == 211]
 
+  non_nans = 0
 
   for pion in pions :
     for p,k1,lambda0,lambda0_vtx in lambda_container: 
@@ -443,18 +444,24 @@ for event in events: # loop through all events
 
       lambdac_vtx = ROOT.uVertex( [p,k1,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # these recombine to create a B0 (see diagram)
+      # Should make reverse case as well
 
       lambdac = ROOT.uParticle( [p,k1,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
       # and a pion
+      if (str(lambdac.firstState.x0) == str(lambdac.firstState.y0) == str(lambdac.firstState.t) == "nan") == False :
+        print(lambdac.firstState.x0)
+        non_nans += 1
+        print("___________")
+        time.sleep(3)
       is_signal = is_from(p, event, p_dict['Xicc++']) and is_from(k1, event, p_dict['Xicc++']) and is_from(pion, event, p_dict['Xicc++'])
-      if is_signal:
-        for i in range(50):
-          print("is_signal")
+      # if is_signal:
+        # for i in range(50):
+          # print("is_signal")
       # particle id 431 is for the D+, checks if the positive kaon is from an event with a D+ present, checks if the negative 
       # kaon is from an event with a D+ present, checks if the pions are from events with D+ present. (See diagram)
       
       vtx_chi2.Fill( lambdac_vtx.chi2 / lambdac_vtx.ndof, is_signal) # Fills the chi2 graph for the candiate signal
-      
+
       Lambda_chi2[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
       p_pt[0] = p.pt()
       p_eta[0] = p.eta()
@@ -465,7 +472,7 @@ for event in events: # loop through all events
       pi1_ID[0] = abs(pion.trueID)
       Lambda_chi2_limit[0] = 5 # Formerly Chi2_ndf_limit
 
-      if lambdac_vtx.chi2 / lambdac_vtx.ndof > 10 : 
+      if lambdac_vtx.chi2 / lambdac_vtx.ndof > 0.1 : # kills nothing
         if is_signal:
           Lambdac_chi2_sig_kills[0] += 1
         else:
@@ -487,13 +494,15 @@ for event in events: # loop through all events
         else:
           Lambdac_mass_bac_kills[0] += 1
         continue # insufficient mass to create D particle, discard
-      print(event.Vertices)
+
+
       print("Line Before things fail, ive commented out the sleeps")
       #time.sleep(2)
       pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
       print("Line after where things fail")
-      #time.sleep(3)
       # particle (minimum Chi squared) 
+
+
       Lambdac_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
       Lambdac_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
 
