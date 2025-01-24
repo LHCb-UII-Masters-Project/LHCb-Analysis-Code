@@ -248,7 +248,7 @@ def kill_counter(condition,tree_branch1,tree_branch2):
   else:
     tree_branch2[0] += 1 
 # ------------------- Dictionaries -------------------
-p_dict = {
+particle_dict = {
   "Kaon":321,
   "Pion":211,
   "Proton":2212,
@@ -310,9 +310,9 @@ for event in events: # loop through all events
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
 # ------------------- ParticleLists -------------------
   displaced_tracks = ROOT.select( event.Particles, event.Vertices, 200, 1000,6) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
-  good_pions = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Pion'] and track.charge() > 0] # all pi+
-  good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Kaon'] and track.charge() < 0] # all k^-
-  good_protons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Proton'] and track.charge() > 0] # all proton^+
+  good_pions = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Pion'] and track.charge() > 0] # all pi+
+  good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Kaon'] and track.charge() < 0] # all k^-
+  good_protons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Proton'] and track.charge() > 0] # all proton^+
   doca_cut = Doca_cut[0] = 0.5 # distance of closest approach cutoff, maximum allowed closest approach for consideration
   nPVs = Num_pv[0] = npvs( event ) # the number of primary verticies in an event
   #print(f'the total number of primary verticies per event{nPVs}')
@@ -325,8 +325,8 @@ for event in events: # loop through all events
   # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
-  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Pion'] and track.charge()>0]
-  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Kaon'] and track.charge()<0] # needs changing from bs to xi limits
+  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == particle_dict['Pion'] and track.charge()>0]
+  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == particle_dict['Kaon'] and track.charge()<0] # needs changing from bs to xi limits
   Num_protons_detected[0] = len(good_protons)
   Num_pions_detected[0] = len(good_pions)
   Num_kaons_detected[0] = len(good_kaons)
@@ -345,7 +345,7 @@ for event in events: # loop through all events
       lambdac_vtx = ROOT.uVertex( [proton,lambdac_kaon,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # Should make reverse case as well
       lambdac = ROOT.uParticle( [proton,lambdac_kaon,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
-      is_lambdac_signal = is_from(proton, event, p_dict['xicc++']) and is_from(lambdac_kaon, event, p_dict['xicc++']) and is_from(pion, event, p_dict['xicc++'])
+      is_lambdac_signal = is_from(proton, event, particle_dict['xicc++']) and is_from(lambdac_kaon, event, particle_dict['xicc++']) and is_from(pion, event, particle_dict['xicc++'])
       lambdac_vtx_chi2_ndof_v[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
       if lambdac_vtx.chi2 / lambdac_vtx.ndof > limits_dict["lambdac_vtx_chi2_ndof"] :
         kill_counter(is_lambdac_signal,lambdac_vtx_chi2_ndof_signal_kills,lambdac_vtx_chi2_ndof_bkg_kills)
@@ -385,7 +385,7 @@ for event in events: # loop through all events
               xiccpp_kaon_pt[0] = xiccpp_kaon.pt()
               xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
               #endregion xiccppTreeFill
-              is_xiccpp_signal = is_from(proton, event, p_dict['xicc++']) and is_from(lambdac_kaon, event, p_dict['xicc++']) and is_from(pion, event,p_dict['xicc++']) and is_from(xiccpp_pion1, event,p_dict['xicc++']) and is_from(xiccpp_pion2, event,p_dict['xicc++']) and is_from(xiccpp_kaon, event,p_dict['xicc++'])
+              is_xiccpp_signal = is_from(proton, event, particle_dict['xicc++']) and is_from(lambdac_kaon, event, particle_dict['xicc++']) and is_from(pion, event,particle_dict['xicc++']) and is_from(xiccpp_pion1, event,particle_dict['xicc++']) and is_from(xiccpp_pion2, event,particle_dict['xicc++']) and is_from(xiccpp_kaon, event,particle_dict['xicc++'])
               if xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2: 
                 kill_counter(lambdac_final_mass_cut_signal_kills,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
                 continue
