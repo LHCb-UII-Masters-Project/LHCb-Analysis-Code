@@ -190,6 +190,11 @@ Outputs.Branch('Xi_dira', Xi_dira, 'Xi_dira/F')
 num_lambdac= array('f', [0])
 Outputs.Branch('num_lambdac', num_lambdac, 'num_lambdac/F')
 Outputs.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
+num_xiccpp= array('f', [0])
+xiccpp_mass= array('f', [0])
+Outputs.Branch('num_xiccpp', num_xiccpp, 'num_xiccpp/F')
+Outputs.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
+#endregion Outputs
 #endregion Outputs
 
 #region USERINPUTS
@@ -395,13 +400,13 @@ for event in events: # loop through all events
   #print( f"{entry} {nPVs} {len(good_pions)} {len(good_kaons)} {len(good_protons)}") # prints event information
   lambda_container = ROOT.combine( good_protons, good_kaons, doca_cut, 3, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
-  Num_lambda_container[0] = len(lambda_container)
+  #Num_lambda_container[0] = len(lambda_container)
   # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
 
-  Xi_good_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Pion'] ]
-  Xi_good_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Kaon'] ]
+  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Pion'] and track.charge()>0]
+  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Kaon'] and track.charge()<0] # needs changing from bs to Xi limits
 
 
   for pion in good_pions :
@@ -477,83 +482,81 @@ for event in events: # loop through all events
       lambdac_pt[0] = lambdac.pt()
       Lambdac_eta[0] = lambdac.eta()
       lambdac_plot.Fill(lambdac.mass*0.001)
-      # print(lambdac.mass)
-      """
-      if (Lambdac.mass<LambdacMass-30) or (Lambdac.mass>LambdacMass+30):
+      print(lambdac.mass)
+      
+      if (lambdac.mass<Lambdac_pdg-30) or (lambdac.mass>Lambdac_pdg+30):
         if is_lambdac_signal:
-          D_mass2_sig_kills[0] += 1
+          Lambdac_mass2_sig_kills[0] += 1
         else:
-          D_mass2_bac_kills[0] += 1
+          Lambdac_mass2_bac_kills[0] += 1
         continue
-
-      lambda_container = ROOT.combine( Xis_good_pions, Xis_good_kaons, doca_cut, 3, 0)
-
-      for pion2 in Xis_good_pions:
-        
-            is_b_signal = is_from(k1, event, 531) and is_from(k2, event, 531) and is_from(pion, event,531) and is_from(pion2, event,531)
-            if pion2.charge() + ds.charge() !=0: 
-              if is_b_signal:
-                B_sign_sig_kills[0] += 1
-              else:
-                B_sign_bac_kills[0] += 1
-              continue
-            bs_vtx = ROOT.uVertex( [pion, k1, k2, pion2] )
-            bs = ROOT.uParticle( [pion, k1, k2, pion2] )
-
-            B_chi2[0] = bs_vtx.chi2 / bs_vtx.ndof
-            pi2_pt[0] = pion2.pt()
-            pi2_eta[0] = pion2.eta()
-
-            b_vtx_chi2.Fill( bs_vtx.chi2 / bs_vtx.ndof, is_b_signal)
-            B_chi2_limit[0] = 15
-            if bs_vtx.chi2 / bs_vtx.ndof > 15 : 
-              if is_b_signal:
-                B_chi2_sig_kills[0] += 1
-              else:
-                B_chi2_bac_kills[0] += 1
-              continue # if the chi2/ndf is not acceptable, disgard possible particle
-            B_Pcomposite_limit[0] = 5000
-            if ds.pt() + pion2.pt() < 5000 :
-              if is_b_signal:
-                B_Pcomposite_sig_kills[0] += 1
-              else:
-                B_Pcomposite_bac_kills[0] += 1
-              continue # insufficient momentum to create a phi, discard
-            B_mass_lower_limit[0] = 5100
-            B_mass_upper_limit[0] = 5600
-            b_pv  = bs.bpv_4d( event.Vertices )
-
-            B_chi2_distance[0] = bs_vtx.chi2_distance(b_pv) 
-            B_dira[0] = dira_bpv(bs,event.Vertices,max_timing)
-
-            B_chi2_distance_limit[0] = 50
-            if bs_vtx.chi2_distance(b_pv) < 50 : 
-              if is_b_signal:
-                B_chi2_distance_sig_kills[0] += 1
-              else:
-                B_chi2_disatance_bac_kills[0] += 1
-              continue 
-            B_dira_limit[0] = 0.9
-            if dira_bpv(bs,event.Vertices,max_timing)  < 0.90 :
-              if is_b_signal:
-                B_dira_sig_kills[0] += 1
-              else:
-                B_dira_bac_kills[0] += 1
-              continue
-            if (bs.mass<bsMass-300) or (bs.mass>bsMass+300):
-              if is_b_signal:
-                B_mass_sig_kills[0] += 1
-              else:
-                B_mass_bac_kills[0] += 1
-              continue
+      for xiccpp_pion1,xiccpp_pion2 in xiccpp_pions:
+            for xiccpp_kaon in xiccpp_kaons:
             
-            b_sig[0] = 1 if is_b_signal is True else 0
-            b_plot.Fill(bs.mass * 0.001)
-            bs_mass[0] = bs.mass * 0.001
-            entry += 1 # entry is the event being examined
-            num_bs[0] = entry
-            found_b_signal |= is_b_signal
-"""
+              is_xiccpp_signal = is_from(p, event, p_dict['Xicc++']) and is_from(k1, event, p_dict['Xicc++']) and is_from(pion, event,p_dict['Xicc++']) and is_from(xiccpp_pion1, event,p_dict['Xicc++']) and is_from(xiccpp_pion2, event,p_dict['Xicc++']) and is_from(xiccpp_kaon, event,p_dict['Xicc++'])
+              if xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2: 
+                if is_xiccpp_signal:
+                  Xi_sign_sig_kills[0] += 1
+                else:
+                  Xi_sign_bac_kills[0] += 1
+                continue
+              xiccpp_vtx = ROOT.uVertex( [p, k1, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
+              xiccpp = ROOT.uParticle( [p, k1, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
+
+              Xi_chi2[0] = xiccpp_vtx.chi2 / xiccpp_vtx.ndof
+              pi2_pt[0] = pion.pt()
+              pi2_eta[0] = pion.eta()
+
+              xi_vtx_chi2.Fill( xiccpp_vtx.chi2 / xiccpp_vtx.ndof, is_xiccpp_signal)
+              Xi_chi2_limit[0] = 15
+              if xiccpp_vtx.chi2 / xiccpp_vtx.ndof > 15 : 
+                if is_xiccpp_signal:
+                  Xi_chi2_sig_kills[0] += 1
+                else:
+                  Xi_chi2_bac_kills[0] += 1
+                continue # if the chi2/ndf is not acceptable, disgard possible particle
+              Xi_Pcomposite_limit[0] = 5000
+              if lambdac.pt() + xiccpp_kaon.pt() + xiccpp_pion1 + xiccpp_pion2 < 5000 :
+                if is_xiccpp_signal:
+                  Xi_Pcomposite_sig_kills[0] += 1
+                else:
+                  Xi_Pcomposite_bac_kills[0] += 1
+                continue # insufficient momentum to create a phi, discard
+              Xi_mass_lower_limit[0] = 5100
+              Xi_mass_upper_limit[0] = 5600
+              xiccpp_pv  = xiccpp.bpv_4d( event.Vertices )
+
+              Xi_chi2_distance[0] = xiccpp_vtx.chi2_distance(xiccpp_pv) 
+              Xi_dira[0] = dira_bpv(xiccpp,event.Vertices,max_timing)
+
+              Xi_chi2_distance_limit[0] = 50
+              if xiccpp_vtx.chi2_distance(xiccpp_pv) < 50 : 
+                if is_xiccpp_signal:
+                  Xi_chi2_distance_sig_kills[0] += 1
+                else:
+                  Xi_chi2_disatance_bac_kills[0] += 1
+                continue 
+              Xi_dira_limit[0] = 0.9
+              if dira_bpv(xiccpp,event.Vertices,max_timing)  < 0.90 :
+                if is_xiccpp_signal:
+                  Xi_dira_sig_kills[0] += 1
+                else:
+                  Xi_dira_bac_kills[0] += 1
+                continue
+              if (xiccpp.mass<XiccMass-100) or (xiccpp.mass>XiccMass+100):
+                if is_xiccpp_signal:
+                  Xi_mass_sig_kills[0] += 1
+                else:
+                  Xi_mass_bac_kills[0] += 1
+                continue
+              
+              xi_sig[0] = 1 if is_xiccpp_signal is True else 0
+              xi_plot.Fill(xiccpp.mass * 0.001)
+              xiccpp_mass[0] = xiccpp.mass * 0.001
+              entry += 1 # entry is the event being examined
+              num_xiccpp[0] = entry
+              found_signal |= is_xiccpp_signal
+
   RunParams.Fill()
   RunLimits.Fill()
   RunDiagnostics.Fill()
@@ -573,5 +576,5 @@ file.WriteObject(RunParams, "RunParams")
 file.WriteObject(RunLimits, "RunLimits")
 file.WriteObject(RunDiagnostics, "RunDiagnostics")
 file.WriteObject(lambdac_plot, "Lambdac_Histogram")
-#file.WriteObject(xi_plot, "Xicc++_Histogram")
+file.WriteObject(xi_plot, "Xicc++_Histogram")
 file.Close()
