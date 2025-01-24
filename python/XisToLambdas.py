@@ -129,16 +129,10 @@ RunDiagnostics.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
 Outputs = TTree("Run Diagnostics","Run Diagnostics")
 xi_sig = array('f', [0])
 Outputs.Branch('xi_sig', xi_sig, 'xi_sig/F')
-Num_pions = array('f', [0])
-Outputs.Branch('Num_pions', Num_pions, 'Num_pions/F')  # Need to add relevant counters for Xicc++
-Num_kaons = array('f', [0])
-Outputs.Branch('Num_kaons', Num_kaons, 'Num_kaons/F')
 Num_pions_detected = array('f', [0])
 Outputs.Branch('Num_pions_detected', Num_pions_detected, 'Num_pions_detected/F')
 Num_kaons_detected = array('f', [0])
 Outputs.Branch('Num_kaons_detected', Num_kaons_detected, 'Num_kaons_detected/F')
-Num_protons = array('f', [0])
-Outputs.Branch('Num_protons', Num_protons, 'Num_protons/F')
 Num_pions_detected = array('f', [0])
 Outputs.Branch('Num_pions_detected', Num_pions_detected, 'Num_pions_detected/F')
 Num_protons_detected = array('f', [0])
@@ -369,32 +363,12 @@ for event in events: # loop through all events
     # print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
   
   displaced_tracks = ROOT.select( event.Particles, event.Vertices, 200, 1000,6) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
-  # selects acceptable particles for analysis
-
-  all_pions = [track for track in displaced_tracks if abs( track.trueID ) == p_dict['Pion']]  # all pi
   good_pions = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Pion'] and track.charge() > 0] # all pi+
-
-  Num_pions[0] = len(all_pions)
-  Num_pions_detected[0] = len(good_pions)
-  
-  all_kaons = [ track for track in displaced_tracks if abs( track.trueID ) == p_dict['Kaon']] # all kaons
   good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Kaon'] and track.charge() < 0] # all k^-
-
-  Num_kaons[0] = len(all_kaons)
-  Num_kaons_detected[0] = len(good_kaons)
-
-  all_protons = [track for track in displaced_tracks if abs( track.trueID ) == p_dict['Proton']]  # all p
   good_protons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Proton'] and track.charge() > 0] # all p^+
-
-  Num_protons[0] = len(all_protons)
-  Num_protons_detected[0] = len(good_protons)
-
   doca_cut = 0.5 # distance of closest approach cutoff, maximum allowed closest approach for consideration
-  Doca_cut[0] = doca_cut
-
   nPVs = npvs( event ) # the number of primary verticies in an event
   #print(f'the total number of primary verticies per event{nPVs}')
-  Num_pv[0] = nPVs
   found_signal = False # placeholder for when a signal is found, default of no signal found
   found_lambdac_signal = False
   #print( f"{entry} {nPVs} {len(good_pions)} {len(good_kaons)} {len(good_protons)}") # prints event information
@@ -404,10 +378,13 @@ for event in events: # loop through all events
   # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
-
   xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Pion'] and track.charge()>0]
   xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Kaon'] and track.charge()<0] # needs changing from bs to Xi limits
-
+  Num_protons_detected[0] = len(good_protons)
+  Num_pions_detected[0] = len(good_pions)
+  Num_kaons_detected[0] = len(good_kaons)
+  Doca_cut[0] = doca_cut
+  Num_pv[0] = nPVs
 
   for pion in good_pions :
     for p,k1,lambda0,lambda0_vtx in lambda_container: 
