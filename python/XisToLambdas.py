@@ -1,4 +1,4 @@
-#region IMPORTS
+# ------------------- Imports -------------------
 import ROOT
 from Selections import load_event_library
 load_event_library()
@@ -15,10 +15,7 @@ import os
 from array import array
 import re
 import sys
-
-# endregion IMPORTS
-
-#region RunParams
+# ------------------- RunParamsTree -------------------
 RunParams = ROOT.TTree("RunParams", "RunParams")
 file_number = array('f', [0])
 RunParams.Branch('file_number', file_number, 'file_number/F')
@@ -37,98 +34,79 @@ RunParams.Branch('spacial_resolution', spacial_resolution, 'spacial_resolution/F
 spacial_resolution[0] = 10
 com_energy = array('f', [0])
 RunParams.Branch('com_energy', com_energy, 'com_energy/F')
-Lambdac_mass= array('f', [0])
-RunParams.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
 com_energy[0] = 14
-#endregion RunParams
-
-#region RunLimts
+# ------------------- RunLimitsTree -------------------
 RunLimits = ROOT.TTree("RunLimits", "RunLimits")
-Lambda_chi2_limit = array('f', [0]) # Formerly Chi2_ndf_limit
-RunLimits.Branch('Lambda_chi2_limit', Lambda_chi2_limit, 'Lambda_chi2_limit/F')
-Lambdac_Pcomposite_limit = array('f', [0])
-RunLimits.Branch('Lambdac_Pcomposite_limit', Lambdac_Pcomposite_limit, 'Lambdac_Pcomposite_limit/F')
-Lambdac_mass_upper_limit = array('f', [0])
-RunLimits.Branch('Lambdac_mass_upper_limit', Lambdac_mass_upper_limit, 'Lambdac_mass_upper_limit/F')
-Lambdac_mass_lower_limit = array('f', [0])
-RunLimits.Branch('Lambdac_mass_lower_limit', Lambdac_mass_lower_limit, 'Lambdac_mass_lower_limit/F')
-Lambdac_chi2_distance_limit = array('f', [0])
-RunLimits.Branch('Lambdac_chi2_distance_limit', Lambdac_chi2_distance_limit, 'Lambdac_chi2_distance_limit/F')
-Lambdac_dira_limit = array('f', [0])
-RunLimits.Branch('Lambdac_dira_limit', Lambdac_dira_limit, 'Lambdac_dira_limit/F')
-Xi_chi2_limit = array('f', [0])
-RunLimits.Branch('Xi_chi2_limit', Xi_chi2_limit, 'Xi_chi2_limit/F')
-Xi_Pcomposite_limit = array('f', [0])
-RunLimits.Branch('Xi_Pcomposite_limit', Xi_Pcomposite_limit, 'Xi_Pcomposite_limit/F')
-Xi_mass_upper_limit = array('f', [0])
-RunLimits.Branch('Xi_mass_upper_limit', Xi_mass_upper_limit, 'Xi_mass_upper_limit/F')
-Xi_mass_lower_limit = array('f', [0])
-RunLimits.Branch('Xi_mass_lower_limit', Xi_mass_lower_limit, 'Xi_mass_lower_limit/F')
-Xi_chi2_distance_limit = array('f', [0])
-Xi_dira_limit = array('f', [0])
-RunLimits.Branch('Xi_dira_limit', Xi_dira_limit, 'Xi_dira_limit/F')
-RunLimits.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
-#endregion RunLimts
-
-#region RunDiagnostics
+lambdac_vtx_chi2_ndof_limit = array('f', [0]) # Formerly Chi2_ndf_limit
+RunLimits.Branch('lambdac_vtx_chi2_ndof_limit', lambdac_vtx_chi2_ndof_limit, 'lambdac_vtx_chi2_ndof_limit/F')
+lambdac_combined_momentum_lower_limit = array('f', [0])
+RunLimits.Branch('lambdac_combined_momentum_lower_limit', lambdac_combined_momentum_lower_limit, 'lambdac_combined_momentum_lower_limit/F')
+lambdac_vtx_chi2_distance_limit = array('f', [0])
+RunLimits.Branch('lambdac_vtx_chi2_distance_limit', lambdac_vtx_chi2_distance_limit, 'lambdac_vtx_chi2_distance_limit/F')
+lambdac_vtx_dira_limit = array('f', [0])
+RunLimits.Branch('lambdac_vtx_dira_limit', lambdac_vtx_dira_limit, 'lambdac_vtx_dira_limit/F')
+xiccpp_vtx_chi2_ndof_limit = array('f', [0])
+RunLimits.Branch('xiccpp_vtx_chi2_ndof_limit', xiccpp_vtx_chi2_ndof_limit, 'xiccpp_vtx_chi2_ndof_limit/F')
+xiccpp_combined_momentum_lower_limit = array('f', [0])
+RunLimits.Branch('xiccpp_combined_momentum_lower_limit', xiccpp_combined_momentum_lower_limit, 'xiccpp_combined_momentum_lower_limit/F')
+xiccpp_vtx_chi2_distance_limit = array('f', [0])
+RunLimits.Branch('xiccpp_vtx_chi2_distance_limit', xiccpp_vtx_chi2_distance_limit, 'xiccpp_vtx_chi2_distance_limit/F')
+xiccpp_vtx_dira_limit = array('f', [0])
+RunLimits.Branch('xiccpp_vtx_dira_limit', xiccpp_vtx_dira_limit, 'xiccpp_vtx_dira_limit/F')
+# ------------------- RunDiagnosticsTree -------------------
 RunDiagnostics = TTree("RunDiagnostics","RunDiagnostics")
-Lambdac_Pcomposite_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambdac_Pcomposite_sig_kills', Lambdac_Pcomposite_sig_kills, 'Lambdac_Pcomposite_sig_kills/F')
-Lambdac_Pcomposite_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambdac_Pcomposite_bac_kills', Lambdac_Pcomposite_bac_kills, 'Lambdac_Pcomposite_bac_kills/F')
-Lambdac_mass_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambdac_mass_sig_kills', Lambdac_mass_sig_kills, 'Lambdac_mass_sig_kills/F')
-Lambdac_mass_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambdac_mass_bac_kills', Lambdac_mass_bac_kills, 'Lambdac_mass_bac_kills/F')
-Lambdac_mass2_sig_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambdac_mass2_sig_kills', Lambdac_mass2_sig_kills, 'Lambdac_mass2_sig_kills/F')
-Lambdac_mass2_bac_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('Lambdac_mass2_bac_kills', Lambdac_mass2_bac_kills, 'Lambdac_mass2_bac_kills/F')
-Lambdac_chi2_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Lambdac_chi2_sig_kills', Lambdac_chi2_sig_kills, 'Lambdac_chi2_sig_kills/F')
-Lambdac_chi2_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Lambdac_chi2_bac_kills', Lambdac_chi2_bac_kills, 'Lambdac_chi2_bac_kills/F')
-Lambdac_chi2_distance_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Lambdac_chi2_distance_sig_kills', Lambdac_chi2_distance_sig_kills, 'Lambdac_chi2_distance_sig_kills/F')
-Lambdac_chi2_distance_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Lambdac_chi2_distance_bac_kills', Lambdac_chi2_distance_bac_kills, 'Lambdac_chi2_distance_bac_kills/F')
-Lambdac_dira_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Lambdac_dira_sig_kills', Lambdac_dira_sig_kills, 'Lambdac_dira_sig_kills/F')
-Lambdac_dira_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Lambdac_dira_bac_kills', Lambdac_dira_bac_kills, 'Lambdac_dira_bac_kills/F')
-
-Xi_sign_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_sign_sig_kills', Xi_sign_sig_kills, 'Xi_sign_sig_kills/F')
-Xi_sign_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_sign_bac_kills', Xi_sign_bac_kills, 'Xi_sign_bac_kills/F')
-Xi_chi2_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_chi2_sig_kills', Xi_chi2_sig_kills, 'Xi_chi2_sig_kills/F')
-Xi_chi2_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_chi2_bac_kills', Xi_chi2_bac_kills, 'Xi_chi2_bac_kills/F')
-Xi_Pcomposite_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_Pcomposite_sig_kills', Xi_Pcomposite_sig_kills, 'Xi_Pcomposite_sig_kills/F')
-Xi_Pcomposite_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_Pcomposite_bac_kills', Xi_Pcomposite_bac_kills, 'Xi_Pcomposite_bac_kills/F')
-Xi_chi2_distance_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_chi2_distance_sig_kills', Xi_chi2_distance_sig_kills, 'Xi_chi2_distance_sig_kills/F')
-Xi_chi2_disatance_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_chi2_disatance_bac_kills', Xi_chi2_disatance_bac_kills, 'Xi_chi2_disatance_bac_kills/F')
-Xi_dira_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_dira_sig_kills', Xi_dira_sig_kills, 'Xi_dira_sig_kills/F')
-Xi_dira_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_dira_bac_kills', Xi_dira_bac_kills, 'Xi_dira_bac_kills/F')
-Xi_mass_sig_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_mass_sig_kills', Xi_mass_sig_kills, 'Xi_mass_sig_kills/F')
-Xi_mass_bac_kills = array('f', [0])
-RunDiagnostics.Branch('Xi_mass_bac_kills', Xi_mass_bac_kills, 'Xi_mass_bac_kills/F')
-
-RunDiagnostics.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
-#endregion RunDiagnostics
-
-#region Outputs
+lambdac_signal_combined_momentum_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_signal_combined_momentum_kills', lambdac_signal_combined_momentum_kills, 'lambdac_signal_combined_momentum_kills/F')
+lambdac_bkg_combined_momentum_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_bkg_combined_momentum_kills', lambdac_bkg_combined_momentum_kills, 'lambdac_bkg_combined_momentum_kills/F')
+lambdac_mass_limit_signal_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_mass_limit_signal_kills', lambdac_mass_limit_signal_kills, 'lambdac_mass_limit_signal_kills/F')
+lambdac_mass_limit_bkg_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_mass_limit_bkg_kills', lambdac_mass_limit_bkg_kills, 'lambdac_mass_limit_bkg_kills/F')
+lambdac_final_mass_cut_signal_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_final_mass_cut_signal_kills', lambdac_final_mass_cut_signal_kills, 'lambdac_final_mass_cut_signal_kills/F')
+lambdac_final_mass_cut_bkg_kills = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_final_mass_cut_bkg_kills', lambdac_final_mass_cut_bkg_kills, 'lambdac_final_mass_cut_bkg_kills/F')
+lambdac_vtx_chi2_ndof_signal_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_ndof_signal_kills', lambdac_vtx_chi2_ndof_signal_kills, 'lambdac_vtx_chi2_ndof_signal_kills/F')
+lambdac_vtx_chi2_ndof_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_ndof_bkg_kills',lambdac_vtx_chi2_ndof_bkg_kills , 'lambdac_vtx_chi2_ndof_bkg_kills/F')
+lambdac_vtx_chi2_distance_sig_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_distance_sig_kills', lambdac_vtx_chi2_distance_sig_kills, 'lambdac_vtx_chi2_distance_sig_kills/F')
+lambdac_vtx_chi2_distance_bac_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_distance_bac_kills', lambdac_vtx_chi2_distance_bac_kills, 'lambdac_vtx_chi2_distance_bac_kills/F')
+lambdac_vtx_dira_sig_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_dira_sig_kills', lambdac_vtx_dira_sig_kills, 'lambdac_vtx_dira_sig_kills/F')
+lambdac_vtx_dira_bac_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_dira_bac_kills', lambdac_vtx_dira_bac_kills, 'lambdac_vtx_dira_bac_kills/F')
+xi_charge_conservation_signal_kills = array('f', [0])
+RunDiagnostics.Branch('xi_charge_conservation_signal_kills', xi_charge_conservation_signal_kills, 'xi_charge_conservation_signal_kills/F')
+xi_charge_conservation_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('xi_charge_conservation_bkg_kills', xi_charge_conservation_bkg_kills, 'xi_charge_conservation_bkg_kills/F')
+xi_vtx_chi2_ndof_sig_kills = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_chi2_ndof_sig_kills', xi_vtx_chi2_ndof_sig_kills, 'xi_vtx_chi2_ndof_sig_kills/F')
+xi_vtx_chi2_ndof_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_chi2_ndof_bkg_kills', xi_vtx_chi2_ndof_bkg_kills, 'xi_vtx_chi2_ndof_bkg_kills/F')
+xi_signal_minimum_momentum_kills = array('f', [0])
+RunDiagnostics.Branch('xi_signal_minimum_momentum_kills', xi_signal_minimum_momentum_kills, 'xi_signal_minimum_momentum_kills/F')
+xi_bkg_minimum_momentum_kills = array('f', [0])
+RunDiagnostics.Branch('xi_bkg_minimum_momentum_kills', xi_bkg_minimum_momentum_kills, 'xi_bkg_minimum_momentum_kills/F')
+xi_vtx_chi2_distance_sig_kills = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_chi2_distance_sig_kills', xi_vtx_chi2_distance_sig_kills, 'xi_vtx_chi2_distance_sig_kills/F')
+xi_chi2_disatance_bac_kills = array('f', [0])
+RunDiagnostics.Branch('xi_chi2_disatance_bac_kills', xi_chi2_disatance_bac_kills, 'xi_chi2_disatance_bac_kills/F')
+xi_vtx_dira_sig_kills = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_dira_sig_kills', xi_vtx_dira_sig_kills, 'xi_vtx_dira_sig_kills/F')
+xi_vtx_dira_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_dira_bkg_kills', xi_vtx_dira_bkg_kills, 'xi_vtx_dira_bkg_kills/F')
+xi_mass_sig_kills = array('f', [0])
+RunDiagnostics.Branch('xi_mass_sig_kills', xi_mass_sig_kills, 'xi_mass_sig_kills/F')
+xi_mass_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('xi_mass_bkg_kills', xi_mass_bkg_kills, 'xi_mass_bkg_kills/F')
+# ------------------- OutputsTree -------------------
 Outputs = TTree("Run Diagnostics","Run Diagnostics")
-xi_sig = array('f', [0])
-Outputs.Branch('xi_sig', xi_sig, 'xi_sig/F')
+xiccpp_signal_binary_flag = array('f', [0])
+Outputs.Branch('xiccpp_signal_binary_flag', xiccpp_signal_binary_flag, 'xiccpp_signal_binary_flag/F')
 Num_pions_detected = array('f', [0])
 Outputs.Branch('Num_pions_detected', Num_pions_detected, 'Num_pions_detected/F')
 Num_kaons_detected = array('f', [0])
@@ -141,81 +119,64 @@ Num_lambda_container = array('f', [0])
 Outputs.Branch('Num_lambda_container', Num_lambda_container, 'Num_lambda_container/F')
 Num_pv = array('f', [0])
 Outputs.Branch('Num_pv', Num_pv, 'Num_pv/F')
-Lambda_chi2 = array('f', [0])
-Outputs.Branch('Lambda_chi2', Lambda_chi2, 'Lambda_chi2/F')
-p_pt = array('f', [0])
-Outputs.Branch('p_pt', p_pt, 'p_pt/F')
-p_eta = array('f', [0])
-Outputs.Branch('p_eta', p_eta, 'p_eta/F')
-k1_pt = array('f', [0])
-Outputs.Branch('k1_pt', k1_pt, 'k1_pt/F')
-k1_eta = array('f', [0])
-Outputs.Branch('k1_eta', k1_eta, 'k1_eta/F')
-k2_pt = array('f', [0])
-Outputs.Branch('k2_pt', k2_pt, 'k2_pt/F')
-k2_eta = array('f', [0])
-Outputs.Branch('k2_eta', k2_eta, 'k2_eta/F')
-pi1_pt = array('f', [0])
-Outputs.Branch('pi1_pt', pi1_pt, 'pi1_pt/F')
-pi1_eta = array('f', [0])
-Outputs.Branch('pi1_eta', pi1_eta, 'pi1_eta/F')
-pi1_ID = array('f', [0])
-Outputs.Branch('pi1_ID', pi1_ID, 'pi1_ID/F')
-Lambdac_mass = array('f', [0])
-Outputs.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
-Lambdac_chi2_distance = array('f', [0])
-Outputs.Branch('Lambdac_chi2_distance', Lambdac_chi2_distance, 'Lambdac_chi2_distance/F')
-Lambdac_dira= array('f', [0])
-Outputs.Branch('Lambdac_dira', Lambdac_dira, 'Lambdac_dira/F')
-Xi_chi2 = array('f', [0])
-Outputs.Branch('Xi_chi2', Xi_chi2, 'Xi_chi2/F')
+lambdac_vtx_chi2_ndof_v = array('f', [0])
+Outputs.Branch('lambdac_vtx_chi2_ndof_v', lambdac_vtx_chi2_ndof_v, 'lambdac_vtx_chi2_ndof_v/F')
+proton_pt = array('f', [0])
+Outputs.Branch('proton_pt', proton_pt, 'proton_pt/F')
+xiccpp_pion2_pt = array('f', [0])
+Outputs.Branch('xiccpp_pion2_pt', xiccpp_pion2_pt, 'xiccpp_pion2_pt/F')
+xiccpp_pion2_eta = array('f', [0])
+Outputs.Branch('xiccpp_pion2_eta', xiccpp_pion2_eta, 'xiccpp_pion2_eta/F')
+xiccpp_kaon_eta = array('f', [0])
+Outputs.Branch('xiccpp_kaon_eta', xiccpp_kaon_eta, 'xiccpp_kaon_eta/F')
+xiccpp_kaon_pt = array('f', [0])
+Outputs.Branch('xiccpp_kaon_pt', xiccpp_kaon_pt, 'xiccpp_kaon_pt/F')
+lambdac_kaon_pt = array('f', [0])
+Outputs.Branch('lambdac_kaon_pt', lambdac_kaon_pt, 'lambdac_kaon_pt/F')
+lambdac_kaon_eta = array('f', [0])
+Outputs.Branch('lambdac_kaon_eta', lambdac_kaon_eta, 'lambdac_kaon_eta/F')
+lambdac_pion_pt = array('f', [0])
+Outputs.Branch('lambdac_pion_pt', lambdac_pion_pt, 'lambdac_pion_pt/F')
+lambdac_pion_eta = array('f', [0])
+Outputs.Branch('lambdac_pion_eta', lambdac_pion_eta, 'lambdac_pion_eta/F')
+lambdac_pion_ID = array('f', [0])
+Outputs.Branch('lambdac_pion_ID', lambdac_pion_ID, 'lambdac_pion_ID/F')
+lambdac_mass = array('f', [0])
+Outputs.Branch('lambdac_mass', lambdac_mass, 'lambdac_mass/F')
+lambdac_vtx_chi2_distance = array('f', [0])
+Outputs.Branch('lambdac_vtx_chi2_distance', lambdac_vtx_chi2_distance, 'lambdac_vtx_chi2_distance/F')
+lambdac_vtx_dira= array('f', [0])
+Outputs.Branch('lambdac_vtx_dira', lambdac_vtx_dira, 'lambdac_vtx_dira/F')
+xiccpp_vtx_chi2_ndof = array('f', [0])
+Outputs.Branch('xiccpp_vtx_chi2_ndof', xiccpp_vtx_chi2_ndof, 'xiccpp_vtx_chi2_ndof/F')
 lambdac_pt= array('f', [0])
 Outputs.Branch('lambdac_pt', lambdac_pt, 'lmabdas_pt/F')
-Lambdac_eta = array('f', [0])
-Outputs.Branch('Lambdac_eta', Lambdac_eta, 'Lambdac_eta/F')
-pi2_pt= array('f', [0])
-Outputs.Branch('pi2_pt', pi2_pt, 'pi2_pt/F')
-pi2_eta = array('f', [0])
-Outputs.Branch('pi2_eta', pi2_eta, 'pi2_eta/F')
-Xi_chi2_distance= array('f', [0])
-Outputs.Branch('Xi_chi2_distance', Xi_chi2_distance, 'Xi_chi2_distance/F')
-Xi_dira= array('f', [0])
-Outputs.Branch('Xi_dira', Xi_dira, 'Xi_dira/F')
-num_lambdac= array('f', [0])
-Outputs.Branch('num_lambdac', num_lambdac, 'num_lambdac/F')
-Outputs.Branch('Lambdac_mass', Lambdac_mass, 'Lambdac_mass/F')
-num_xiccpp= array('f', [0])
+lambdac_eta = array('f', [0])
+Outputs.Branch('lambdac_eta', lambdac_eta, 'lambdac_eta/F')
+xiccpp_pion1_pt= array('f', [0])
+Outputs.Branch('xiccpp_pion1_pt', xiccpp_pion1_pt, 'xiccpp_pion1_pt/F')
+xiccpp_pion1_eta = array('f', [0])
+Outputs.Branch('xiccpp_pion1_eta', xiccpp_pion1_eta, 'xiccpp_pion1_eta/F')
+xi_vtx_chi2_distance= array('f', [0])
+Outputs.Branch('xi_vtx_chi2_distance', xi_vtx_chi2_distance, 'xi_vtx_chi2_distance/F')
+xi_vtx_dira= array('f', [0])
+Outputs.Branch('xi_vtx_dira', xi_vtx_dira, 'xi_vtx_dira/F')
+number_of_xiccpp= array('f', [0])
 xiccpp_mass= array('f', [0])
-Outputs.Branch('num_xiccpp', num_xiccpp, 'num_xiccpp/F')
+Outputs.Branch('number_of_xiccpp', number_of_xiccpp, 'number_of_xiccpp/F')
 Outputs.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
-#endregion Outputs
-#endregion Outputs
-
-#region USERINPUTS
-
+# ------------------- UserInputs -------------------
 def get_arg(index, default, args):  # Arg function that returns relevant arguments and deals with missing args
     try:
         return int(args[index])
     except (IndexError, ValueError, TypeError):
         return default
-
 args = sys.argv
 lower = get_arg(1, 0, args)  # Default timing argument if not provided
 upper = get_arg(2, 2, args)  # Default timing argument if not provided
 rand_seed_arg = get_arg(3, int(time.time() * os.getpid()), args)  # Default random seed if not provided
-
-# Set tree values from user inputs
-
 rand_seed[0] = rand_seed_arg
-
-max_timing = 0.050
-lambdacMass = 2286.46
-XiccMass = 3621.6
-
-
-
-
-# File is run in different place when batching and when not
+max_timing = 0.050 # needs adjusting (temporary line)
 if path.dirname(path.realpath(__file__))[-6:] == "python": # Checks if path ends in "python"
   basedir=path.dirname(path.realpath(__file__))
   sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
@@ -224,15 +185,10 @@ else:
   basedir = f"{path.dirname(path.realpath(__file__))}/../../../.."
   sys.path.append(f"{path.dirname(path.realpath(__file__))}/../../../..")
   batching = True
-
-#endregion USERINPUTS
-
-#region RANDOM NUMBER GENERATOR
-rand = ROOT.TRandom() # creates a random number engine
+# ------------------- RandomNumberGenerator -------------------
+rand = ROOT.TRandom() # creates a random number engine, used for when we want to have PID (temporarily not used here)
 rand.SetSeed(rand_seed_arg)
-#endregion RANDOM NUMBER GENERATOR
-
-#region FUNCTION DEFINITIONS
+# ------------------- Class and Function Definitions -------------------
 class SigVsBkg:
   # Creates the signal vs background histograms
   
@@ -250,16 +206,13 @@ class SigVsBkg:
     self.background.Draw("same") # Draws the background onto the same canvas as the signal used
 
 def dira_bpv( particle, vertices, max_dt):
-
   # bpv means best possible vertex
   # cos(Angle) between the momentum vector and the line of the orignal momentum connecting the decay vertex and the primary vertex
   # cosine of the angle between the angle momentum and trajectory vectors is the direction angle (DIRA)
   vertex = vertices[0] # First vertex, is the primary vertex
-  
   ipw = lambda particle, vertex : particle.ip(vertex) if particle.ip_t(vertex) < max_dt else 9999
   # consider a vertex passed to the function. Consider particles and find if its possible they came from the vertex
   # based on the "time" between the measurements. If possible return the time betweem the hit and the vertex
-  
   ip = ipw(particle, vertex ) # save the ipw of the vertex being analysed
   for index in range(1, len(vertices ) ) : # runs through all the verticies 
     if ipw(particle, vertices[index]) < ip : # if the time is lower than the maximum allowed time save the vertex
@@ -269,7 +222,6 @@ def dira_bpv( particle, vertices, max_dt):
   dy = particle.firstState.y0 - vertex.y 
   dz = particle.firstState.z  - vertex.z
   p = particle.p4() # creates four vector of the decay particle
-  
   # cos(Angle) between the momentum vector and the line of the orignal momentum connecting the decay vertex and the primary vertex
   return (dx * p.x() + dy * p.y() + dz * p.z() ) / sqrt( (dx**2 + dy**2 + dz**2 )*p.P2() ) 
 
@@ -290,86 +242,81 @@ def eff_model(df):
   scatter_plot.Fit(linear_function)
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
 
+def kill_counter(condition,tree_branch1,tree_branch2):
+  if condition:
+    tree_branch1[0] += 1
+  else:
+    tree_branch2[0] += 1 
+# ------------------- Dictionaries -------------------
 p_dict = {
   "Kaon":321,
   "Pion":211,
   "Proton":2212,
-  "Lambdac":4122,
-  "Xicc++":4222,
-  "Xicc+":4212,
-  "Xic+": 4232
-}
+  "lambdac":4122,
+  "xicc++":4222,
+  "xicc+":4212,
+  "xic+": 4232}
 
-#endregion FUNCTION DEFINITIONS
+mass_dict = {
+  "xiccpp":2286.46,
+  "lambdac":3621.6}
 
-#region FILE READING
-
+limits_dict = {
+  "lambdac_vtx_chi2_ndof":5,
+  "lambdac_vtx_chi2_distance":16,
+  "lambdac_vtx_dira":0.9,
+  "xiccpp_vtx_chi2_ndof":15,
+  "xiccpp_vtx_chi2_distance":50,
+  "xiccpp_dira":0.9,
+  "lambdac_combined_momentum":mass_dict["lambdac"] - 150,
+  "xiccpp_combined_momentum":mass_dict["xiccpp"] - 150}
+# ------------------- LimitTreeFill(can be closed with region) -------------------
+#region LimitsTree
+lambdac_vtx_chi2_ndof_limit = limits_dict["lambdac_vtx_chi2_ndof"]
+lambdac_combined_momentum_lower_limit = limits_dict["lambdac_combined_momentum"]
+lambdac_vtx_chi2_distance_limit = limits_dict["lambdac_vtx_chi2_distance"]
+lambdac_vtx_dira_limit = limits_dict["lambdac_vtx_dira"]
+xiccpp_vtx_chi2_ndof_limit = limits_dict["xiccpp_vtx_chi2_ndof"]
+xiccpp_combined_momentum_lower_limit = limits_dict["xiccpp_combined_momentum"]
+xiccpp_vtx_chi2_distance_limit = limits_dict["xiccpp_vtx_chi2_distance"]
+xiccpp_vtx_dira_limit = limits_dict["xiccpp_dira"]
+#endregion LimitsTree
+# ------------------- FileReading/EventGrabbing -------------------
 sys.path.insert(0,basedir) 
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
 gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the python path
-
 events = TChain("Events") # connects all the events into a single data set
-
 dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
-
 onlyfiles = onlyfiles[int(lower):int(upper)]
 # Since list is formed in order for every run, this selects the relevant files to be run
-
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
-
-# plot = ROOT.TH1D("m_ds","",100,1.8,2.1) # initiates the mass plot
-vtx_chi2 = SigVsBkg("vtx_chi2",100,2,3) # initiates the signal vs background plot
-lambdac_plot = ROOT.TH1D("m_lambdac","",100,5.1,5.6)
-lambdac_plot.SetTitle("Reconstructed Lambdac Mass Plot") 
-lambdac_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
-lambdac_plot.GetYaxis().SetTitle("Frequency")
-
-xi_plot = ROOT.TH1D("m_xis","",100,1.8,2.1)
-xi_plot.SetTitle("Reconstructed Xi Mass Plot") 
-xi_plot.GetXaxis().SetTitle("Mass (MeV/c^2)")
-xi_plot.GetYaxis().SetTitle("Frequency")
-xi_vtx_chi2 = SigVsBkg("xi_vtx_chi2",100,2,3)
-
 entry=0
-n_signal=0
-
-#endregion FILE READING
-
-#region DETECTOR EFFICIENCY
+# -------------------PID SImulation (Not Activate ATM) -------------------
 # Switched off as per Dan'd instructions
-
 # eff_directory = os.path.join(basedir, f'Inputs/PEff Kaons_{rich_timing}')
 # List all file paths
 # eff_dfs = [pd.read_csv(os.path.join(eff_directory, file)) for file in sorted(os.listdir(eff_directory))]
 # boundaries = np.array([eff_dfs[i]['Momentum'][0].astype(float) for i in range(1,len(eff_dfs))])*(10**3)
-
 # models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if rich_timing == 300 else None]
-
-#endregion DETECTOR EFFICIENCY
-
-#region EVENT LOOP
-
 file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 current_file_name = "" #  Sets to empty string so first event loop changes it
-
 for event in events: # loop through all events
 
   if events.GetFile().GetName() != current_file_name: #  If no longer in same file as before
     current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
-    # print(f"Current file name: \n{current_file_name} \nCurrent file number: \n{file_number[0]}")
-  
+# ------------------- ParticleLists -------------------
   displaced_tracks = ROOT.select( event.Particles, event.Vertices, 200, 1000,6) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   good_pions = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Pion'] and track.charge() > 0] # all pi+
   good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Kaon'] and track.charge() < 0] # all k^-
-  good_protons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Proton'] and track.charge() > 0] # all p^+
-  doca_cut = 0.5 # distance of closest approach cutoff, maximum allowed closest approach for consideration
-  nPVs = npvs( event ) # the number of primary verticies in an event
+  good_protons = [ track for track in displaced_tracks if abs(track.trueID) == p_dict['Proton'] and track.charge() > 0] # all proton^+
+  doca_cut = Doca_cut[0] = 0.5 # distance of closest approach cutoff, maximum allowed closest approach for consideration
+  nPVs = Num_pv[0] = npvs( event ) # the number of primary verticies in an event
   #print(f'the total number of primary verticies per event{nPVs}')
-  found_signal = False # placeholder for when a signal is found, default of no signal found
+  found_xiccpp_signal = False # placeholder for when a signal is found, default of no signal found
   found_lambdac_signal = False
   #print( f"{entry} {nPVs} {len(good_pions)} {len(good_kaons)} {len(good_protons)}") # prints event information
   lambda_container = ROOT.combine( good_protons, good_kaons, doca_cut, 3, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
@@ -379,179 +326,108 @@ for event in events: # loop through all events
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
   xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Pion'] and track.charge()>0]
-  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Kaon'] and track.charge()<0] # needs changing from bs to Xi limits
+  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 400, 2000, 3 ) if  track.trueID == p_dict['Kaon'] and track.charge()<0] # needs changing from bs to xi limits
   Num_protons_detected[0] = len(good_protons)
   Num_pions_detected[0] = len(good_pions)
   Num_kaons_detected[0] = len(good_kaons)
-  Doca_cut[0] = doca_cut
-  Num_pv[0] = nPVs
-
+# ------------------- LambdacReconstruction -------------------
   for pion in good_pions :
-    for p,k1,lambda0,lambda0_vtx in lambda_container: 
-
-      # k1 is the four momenta of the positive kaons, k2 is the four momenta of the negative kaons, phi is the combined particle
-      # created by the kaons, and phi_vtx is the vertex in which the combination occurs
-
-      lambdac_vtx = ROOT.uVertex( [p,k1,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
-      # these recombine to create a B0 (see diagram)
+    for proton,lambdac_kaon,lambda0,lambda0_vtx in lambda_container: 
+      #region LambdacOutputTreeFill
+      proton_pt[0] = proton.pt()
+      proton_pt[0] = proton.eta()
+      lambdac_kaon_pt[0] = lambdac_kaon.pt()
+      lambdac_kaon_eta[0] = lambdac_kaon.eta()
+      lambdac_pion_pt[0] = pion.pt()
+      lambdac_pion_eta[0] = pion.eta()
+      lambdac_pion_ID[0] = abs(pion.trueID)
+      #endregion LambdacOutputTreeFill
+      lambdac_vtx = ROOT.uVertex( [proton,lambdac_kaon,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # Should make reverse case as well
-
-      lambdac = ROOT.uParticle( [p,k1,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
- 
-      is_lambdac_signal = is_from(p, event, p_dict['Xicc++']) and is_from(k1, event, p_dict['Xicc++']) and is_from(pion, event, p_dict['Xicc++'])
-      
-      vtx_chi2.Fill( lambdac_vtx.chi2 / lambdac_vtx.ndof, is_lambdac_signal) # Fills the chi2 graph for the candiate signal
-
-      Lambda_chi2[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
-      p_pt[0] = p.pt()
-      p_eta[0] = p.eta()
-      k1_pt[0] = k1.pt()
-      k1_eta[0] = k1.eta()
-      pi1_pt[0] = pion.pt()
-      pi1_eta[0] = pion.eta()
-      pi1_ID[0] = abs(pion.trueID)
-      Lambda_chi2_limit[0] = 5 # Formerly Chi2_ndf_limit
-
-      if lambdac_vtx.chi2 / lambdac_vtx.ndof > 5 : # kills nothing
-        if is_lambdac_signal:
-          Lambdac_chi2_sig_kills[0] += 1
-        else:
-          Lambdac_chi2_bac_kills[0] += 1
+      lambdac = ROOT.uParticle( [proton,lambdac_kaon,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
+      is_lambdac_signal = is_from(proton, event, p_dict['xicc++']) and is_from(lambdac_kaon, event, p_dict['xicc++']) and is_from(pion, event, p_dict['xicc++'])
+      lambdac_vtx_chi2_ndof_v[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
+      if lambdac_vtx.chi2 / lambdac_vtx.ndof > limits_dict["lambdac_vtx_chi2_ndof"] :
+        kill_counter(is_lambdac_signal,lambdac_vtx_chi2_ndof_signal_kills,lambdac_vtx_chi2_ndof_bkg_kills)
         continue # if the chi2/ndf is not acceptable, disgard possible particle
-      Lambdac_pdg = 2286.46
-      Lambdac_Pcomposite_limit[0] = 1800
-      if p.pt() + k1.pt() + pion.pt() < Lambdac_pdg - 150 :
-        if is_lambdac_signal:
-          Lambdac_Pcomposite_sig_kills[0] += 1
-        else:
-          Lambdac_Pcomposite_bac_kills[0] += 1
+      if proton.pt() + lambdac_kaon.pt() + pion.pt() < limits_dict["lambdac_combined_momentum"]:
+        kill_counter(is_lambdac_signal,lambdac_signal_combined_momentum_kills,lambdac_signal_combined_momentum_kills)
         continue # insufficient momentum to create a phi, discard
-      Lambdac_mass_lower_limit[0] = 1800
-      Lambdac_mass_upper_limit[0] = 2100
-      if lambdac.mass < Lambdac_pdg - 150 or lambdac.mass  > Lambdac_pdg + 150 :
-        if is_lambdac_signal:
-          Lambdac_mass_sig_kills[0] += 1
-        else:
-          Lambdac_mass_bac_kills[0] += 1
+      if lambdac.mass < mass_dict['lambdac'] - 150 or lambdac.mass  > mass_dict['lambdac'] + 150 :
+        kill_counter(is_lambdac_signal,lambdac_mass_limit_signal_kills,lambdac_mass_limit_bkg_kills)
         continue # insufficient mass to create D particle, discard
-      
       pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
-      Lambdac_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
-      Lambdac_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
-#     vtx_chi2.Fill( ds_vtx.chi2_distance(pv), is_lambdac_signal )
-      Lambdac_chi2_distance_limit[0] = 50
-      if lambdac_vtx.chi2_distance(pv) < 16 : 
-        if is_lambdac_signal:
-          Lambdac_chi2_distance_sig_kills[0] += 1
-        else:
-          Lambdac_chi2_distance_bac_kills[0] += 1
+      lambdac_vtx_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
+      lambdac_vtx_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
+      if lambdac_vtx.chi2_distance(pv) < limits_dict['lambdac_vtx_chi2_distance'] : 
+        kill_counter(is_lambdac_signal,lambdac_vtx_chi2_distance_sig_kills,lambdac_vtx_chi2_distance_bac_kills)
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
-      Lambdac_dira_limit[0] = 0.9
-      if dira_bpv(lambdac,event.Vertices,max_timing)  < 0.9 : 
-        if is_lambdac_signal:
-          Lambdac_dira_sig_kills[0] += 1
-        else:
-          Lambdac_dira_bac_kills[0] += 1
+      if dira_bpv(lambdac,event.Vertices,max_timing)  < limits_dict['lambdac_vtx_dira'] : 
+        kill_counter(is_lambdac_signal,lambdac_vtx_dira_sig_kills,lambdac_vtx_dira_bac_kills)
         continue # if the cos of the angle between momenta is less than 0.9 discard
-
-      Lambdac_mass[0] = lambdac.mass
+      # ------------------- LambdacOutputs -------------------
+      lambdac_mass[0] = lambdac.mass
+      found_lambdac_signal |= is_lambdac_signal
       lambdac_pt[0] = lambdac.pt()
-      Lambdac_eta[0] = lambdac.eta()
-      lambdac_plot.Fill(lambdac.mass*0.001)
-      print(lambdac.mass)
-      
-      if (lambdac.mass<Lambdac_pdg-30) or (lambdac.mass>Lambdac_pdg+30):
-        if is_lambdac_signal:
-          Lambdac_mass2_sig_kills[0] += 1
-        else:
-          Lambdac_mass2_bac_kills[0] += 1
+      lambdac_eta[0] = lambdac.eta()      
+      if (lambdac.mass<mass_dict["lambdac"]-30) or (lambdac.mass>mass_dict["lambdac"]+30):
+        kill_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_kills,lambdac_final_mass_cut_bkg_kills)
         continue
+      # ------------------- xiccppReconstruction -------------------
       for xiccpp_pion1,xiccpp_pion2 in xiccpp_pions:
             for xiccpp_kaon in xiccpp_kaons:
-            
-              is_xiccpp_signal = is_from(p, event, p_dict['Xicc++']) and is_from(k1, event, p_dict['Xicc++']) and is_from(pion, event,p_dict['Xicc++']) and is_from(xiccpp_pion1, event,p_dict['Xicc++']) and is_from(xiccpp_pion2, event,p_dict['Xicc++']) and is_from(xiccpp_kaon, event,p_dict['Xicc++'])
+              #region xiccppTreeFill
+              xiccpp_pion1_pt[0] = xiccpp_pion1.pt()
+              xiccpp_pion1_eta[0] = xiccpp_pion1.eta()
+              xiccpp_pion2_pt[0] = xiccpp_pion2.pt()
+              xiccpp_pion2_eta[0] = xiccpp_pion2.eta()
+              xiccpp_kaon_pt[0] = xiccpp_kaon.pt()
+              xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
+              #endregion xiccppTreeFill
+              is_xiccpp_signal = is_from(proton, event, p_dict['xicc++']) and is_from(lambdac_kaon, event, p_dict['xicc++']) and is_from(pion, event,p_dict['xicc++']) and is_from(xiccpp_pion1, event,p_dict['xicc++']) and is_from(xiccpp_pion2, event,p_dict['xicc++']) and is_from(xiccpp_kaon, event,p_dict['xicc++'])
               if xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2: 
-                if is_xiccpp_signal:
-                  Xi_sign_sig_kills[0] += 1
-                else:
-                  Xi_sign_bac_kills[0] += 1
+                kill_counter(lambdac_final_mass_cut_signal_kills,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
                 continue
-              xiccpp_vtx = ROOT.uVertex( [p, k1, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
-              xiccpp = ROOT.uParticle( [p, k1, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
-
-              Xi_chi2[0] = xiccpp_vtx.chi2 / xiccpp_vtx.ndof
-              pi2_pt[0] = pion.pt()
-              pi2_eta[0] = pion.eta()
-
-              xi_vtx_chi2.Fill( xiccpp_vtx.chi2 / xiccpp_vtx.ndof, is_xiccpp_signal)
-              Xi_chi2_limit[0] = 15
-              if xiccpp_vtx.chi2 / xiccpp_vtx.ndof > 15 : 
-                if is_xiccpp_signal:
-                  Xi_chi2_sig_kills[0] += 1
-                else:
-                  Xi_chi2_bac_kills[0] += 1
+              xiccpp_vtx = ROOT.uVertex( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
+              xiccpp = ROOT.uParticle( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
+              xiccpp_vtx_chi2_ndof[0] = xiccpp_vtx.chi2 / xiccpp_vtx.ndof
+              if xiccpp_vtx.chi2 / xiccpp_vtx.ndof > limits_dict['xiccpp_vtx_chi2_ndof'] : 
+                kill_counter(is_xiccpp_signal,xi_vtx_chi2_ndof_sig_kills,xi_vtx_chi2_ndof_bkg_kills)
                 continue # if the chi2/ndf is not acceptable, disgard possible particle
-              Xi_Pcomposite_limit[0] = 5000
-              if lambdac.pt() + xiccpp_kaon.pt() + xiccpp_pion1 + xiccpp_pion2 < 5000 :
-                if is_xiccpp_signal:
-                  Xi_Pcomposite_sig_kills[0] += 1
-                else:
-                  Xi_Pcomposite_bac_kills[0] += 1
+              if lambdac.pt() + xiccpp_kaon.pt() + xiccpp_pion1 + xiccpp_pion2 < limits_dict['xiccpp_combined_momentum'] :
+                kill_counter(is_xiccpp_signal,xi_signal_minimum_momentum_kills,xi_bkg_minimum_momentum_kills)
                 continue # insufficient momentum to create a phi, discard
-              Xi_mass_lower_limit[0] = 5100
-              Xi_mass_upper_limit[0] = 5600
               xiccpp_pv  = xiccpp.bpv_4d( event.Vertices )
-
-              Xi_chi2_distance[0] = xiccpp_vtx.chi2_distance(xiccpp_pv) 
-              Xi_dira[0] = dira_bpv(xiccpp,event.Vertices,max_timing)
-
-              Xi_chi2_distance_limit[0] = 50
-              if xiccpp_vtx.chi2_distance(xiccpp_pv) < 50 : 
-                if is_xiccpp_signal:
-                  Xi_chi2_distance_sig_kills[0] += 1
-                else:
-                  Xi_chi2_disatance_bac_kills[0] += 1
+              xi_vtx_chi2_distance[0] = xiccpp_vtx.chi2_distance(xiccpp_pv) 
+              xi_vtx_dira[0] = dira_bpv(xiccpp,event.Vertices,max_timing)
+              if xiccpp_vtx.chi2_distance(xiccpp_pv) < limits_dict['xiccpp_vtx_chi2_distance'] :
+                kill_counter(is_xiccpp_signal,xi_vtx_chi2_distance_sig_kills,xi_chi2_disatance_bac_kills)
                 continue 
-              Xi_dira_limit[0] = 0.9
-              if dira_bpv(xiccpp,event.Vertices,max_timing)  < 0.90 :
-                if is_xiccpp_signal:
-                  Xi_dira_sig_kills[0] += 1
-                else:
-                  Xi_dira_bac_kills[0] += 1
+              if dira_bpv(xiccpp,event.Vertices,max_timing)  < limits_dict['xiccpp_dira'] :
+                kill_counter(is_xiccpp_signal,xi_vtx_dira_sig_kills,xi_vtx_dira_bkg_kills)
                 continue
-              if (xiccpp.mass<XiccMass-100) or (xiccpp.mass>XiccMass+100):
-                if is_xiccpp_signal:
-                  Xi_mass_sig_kills[0] += 1
-                else:
-                  Xi_mass_bac_kills[0] += 1
+              if (xiccpp.mass<mass_dict['xiccpp']-100) or (xiccpp.mass>mass_dict['xiccpp']+100):
+                kill_counter(is_xiccpp_signal,xi_mass_sig_kills,xi_mass_bkg_kills)
                 continue
-              
-              xi_sig[0] = 1 if is_xiccpp_signal is True else 0
-              xi_plot.Fill(xiccpp.mass * 0.001)
+              # ------------------- xiccppOutputs -------------------
+              xiccpp_signal_binary_flag[0] = 1 if is_xiccpp_signal is True else 0
               xiccpp_mass[0] = xiccpp.mass * 0.001
               entry += 1 # entry is the event being examined
-              num_xiccpp[0] = entry
-              found_signal |= is_xiccpp_signal
-
+              number_of_xiccpp[0] = entry
+              found_xiccpp_signal |= is_xiccpp_signal
+              # ---------------------------------------------------
+# ------------------- TreeFilling -------------------
   RunParams.Fill()
   RunLimits.Fill()
   RunDiagnostics.Fill()
   Outputs.Fill()
-
-
-  
-#tree.Show(5)
-#print(tree.GetEntries())
-
-#endregion EVENT LOOP
-
-file = TFile(f"{basedir}/Outputs/XisToLambdas/Tree{lower}:{upper}.root", "RECREATE")
+# ------------------- FileWriting -------------------
+file = TFile(f"{basedir}/Outputs/XisTolambdas/Tree{lower}:{upper}.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
 file.WriteObject(Outputs, "Outputs")
 file.WriteObject(RunParams, "RunParams")
 file.WriteObject(RunLimits, "RunLimits")
 file.WriteObject(RunDiagnostics, "RunDiagnostics")
-file.WriteObject(lambdac_plot, "Lambdac_Histogram")
-file.WriteObject(xi_plot, "Xicc++_Histogram")
 file.Close()
+# ---------------------------------------------------
