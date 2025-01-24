@@ -26,6 +26,18 @@ def is_from( track, event, index ):
   mcp = event.MCParticles[track.mcParticleIndex] 
   return abs(mcp.motherID) == index or abs(mcp.GDmotherID) == index
 
+def is_parent( track, event, index ):
+  if track.mcParticleIndex == -1 : return False
+  if track.mcParticleIndex >= len(event.MCParticles) : return False 
+  mcp = event.MCParticles[track.mcParticleIndex] 
+  return abs(mcp.motherID) == index
+
+def is_Gparent( track, event, index ):
+  if track.mcParticleIndex == -1 : return False
+  if track.mcParticleIndex >= len(event.MCParticles) : return False 
+  mcp = event.MCParticles[track.mcParticleIndex] 
+  return abs(mcp.GDmotherID) == index
+
 def print_mc_particle(track, mcParticles ) :
   if track.mcParticleIndex == -1 : return False
   mcp = mcParticles[track.mcParticleIndex]
