@@ -22,8 +22,8 @@ events = TChain("Events") # connects all the events into a single data set
 dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 
-events.AddFile( path.join(dir, onlyfiles[0]) )  # Look at a file in the target directory for analysis
-events.AddFile( path.join(dir, onlyfiles[1]) )
+for i in range(5):
+  events.AddFile( path.join(dir, onlyfiles[i]) )  # Look at a file in the target directory for analysis
 
 tracks = np.array([])
 
@@ -42,7 +42,6 @@ max_num_event_xilambdac = 0
 max_num_event_xi = 0
 max_num_lambdac = 0
 max_num_xilambdac = 0
-max_num_xi = 0
 
 for event in events: # loop through all events
   
@@ -51,9 +50,9 @@ for event in events: # loop through all events
   #   track.scale_uncertainty(1, 5)   
   #   scaled_tracks.append( track ) 
   
-  lambdac_tracks = ROOT.select( event.Particles, event.Vertices, 250, 1500, 6 ) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
+  lambdac_tracks = ROOT.select( event.Particles, event.Vertices, 200, 1000,6) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis min_pt, min_p, min_ipchi2_4d
-  full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 4 )
+  full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 0 )
 
   # print( "{} {}".format( scaled_tracks[0].firstState.cov(5,5), event.Particles[0].firstState.cov(5,5) ) ) 
 
@@ -67,20 +66,20 @@ for event in events: # loop through all events
   num_event_xi_kaons = 0
   num_event_xi_protons = 0
 
-  #good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # narrows particels to only good pions or
-  #good_ds = [ track for track in displaced_tracks if abs( track.trueID ) == 431] #  good Ds
+  investigated_tracks = full_tracks  # Toggle between track selections
 
-  for track in lambdac_tracks:
+  for track in investigated_tracks:
     tracks = np.append(tracks, abs(track.trueID))
+  
+  
+  all_pions = [track for track in investigated_tracks if abs( track.trueID ) == 211]  # all pi
+  pions = [ track for track in investigated_tracks if abs(track.trueID) == 211 and track.charge() > 0] # all pi+
 
-  all_pions = [track for track in lambdac_tracks if abs( track.trueID ) == 211]  # all pi
-  pions = [ track for track in lambdac_tracks if abs(track.trueID) == 211 and track.charge() > 0] # all pi+
+  all_kaons = [ track for track in investigated_tracks if abs( track.trueID ) == 321] # all kaons
+  kaons = [ track for track in investigated_tracks if abs(track.trueID) == 321 and track.charge() < 0] # all k^-
 
-  all_kaons = [ track for track in lambdac_tracks if abs( track.trueID ) == 321] # all kaons
-  kaons = [ track for track in lambdac_tracks if abs(track.trueID) == 321 and track.charge() < 0] # all k^-
-
-  all_protons = [track for track in lambdac_tracks if abs( track.trueID ) == 2212]  # all p
-  protons = [ track for track in lambdac_tracks if abs(track.trueID) == 2212 and track.charge() > 0] # all p^+
+  all_protons = [track for track in investigated_tracks if abs( track.trueID ) == 2212]  # all p
+  protons = [ track for track in investigated_tracks if abs(track.trueID) == 2212 and track.charge() > 0] # all p^+
 
   for pion in pions:
     if is_parent(pion, event, 4122):
@@ -109,7 +108,7 @@ for event in events: # loop through all events
   if num_event_xilambdac_protons > 0 and num_event_xilambdac_kaons > 0 and num_event_xilambdac_protons > 0:
     max_num_event_xilambdac += 1
     if num_event_xi_kaons > 0 and num_event_xi_pions > 1:
-      max_event_num_xi += 1
+      max_num_event_xi += 1
 
   num_lambdac_kaons += num_event_lambdac_kaons
   num_lambdac_pions += num_event_lambdac_pions
@@ -125,11 +124,7 @@ for event in events: # loop through all events
 
   max_num_lambdac += max_num_event_lambdac
   max_num_xilambdac += max_num_event_xilambdac
-  max_num_Xiccdouble = max_event_num_xi
-                
-max_num_lambdac = min(num_lambdac_kaons, num_lambdac_pions, num_lambdac_protons)
-max_num_xilambdac = min(num_xilambdac_kaons, num_xilambdac_pions, num_xilambdac_protons)
-max_num_Xiccdouble = min(num_xi_kaons, num_xi_pions, num_xi_protons)
+  max_num_Xiccdouble = max_num_event_xi
 
 tracks = tracks[tracks != 0]
 unique_numbers, counts = np.unique(tracks, return_counts=True)
@@ -152,15 +147,22 @@ for number, count in zip(unique_numbers, counts):
       print(f"{count} occurrences of Proton")
       print(f"{num_lambdac_protons} occurrences of LambdacProton")
       print(f"{num_xilambdac_protons} occurrences of XiLambdacProton")
-      print(f"{num_xi_protons} occurrences of Xicc++Proton")
       print("_______")
 
 print(f"{max_num_lambdac} Lambdac made")
 print(f"{max_num_xilambdac} XiLambdac made")
 print(f"{max_num_Xiccdouble} Xicc++ possible")
 
-# 2 file, full-tracks values
+# 5 file, full-tracks values
+ftrack_num_lambdac = 56939
+ftrack_num_xilambdac = 56266
+ftrack_num_xikaons = 258
+ftrack_num_xipion = 506
+ftrack_num_xi = 203
 
-ftrack_num_lambdac = 
-ftrack_num_xilambdac = 
-ftrack_num_xi = 
+print("\n_______")
+print(f"{max_num_lambdac/ftrack_num_lambdac} Lambdacs Made")
+print(f"{max_num_xilambdac/ftrack_num_xilambdac} XiLambdacs Made")
+print(f"{num_xi_kaons/ftrack_num_xikaons} XiKaons Made")
+print(f"{num_xi_pions/ftrack_num_xipion} XiKaons Made")
+print(f"{max_num_Xiccdouble/ftrack_num_xi} Xi Made")
