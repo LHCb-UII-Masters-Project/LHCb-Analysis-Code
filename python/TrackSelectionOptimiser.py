@@ -21,19 +21,28 @@ events = TChain("Events") # connects all the events into a single data set
 # can be changed to look at different timing resolutions and detector geometries
 dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym/"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
-events.AddFile( path.join(dir, onlyfiles[1]) )  # Look at a file in the target directory for analysis
+
+events.AddFile( path.join(dir, onlyfiles[0]) )  # Look at a file in the target directory for analysis
+events.AddFile( path.join(dir, onlyfiles[1]) )
 
 tracks = np.array([])
 
 num_lambdac_pions = 0
 num_lambdac_kaons = 0
 num_lambdac_protons = 0
-num_Xiccdouble_pions = 0
-num_Xiccdouble_kaons = 0
-num_Xiccdouble_protons = 0
+num_xilambdac_pions = 0
+num_xilambdac_kaons = 0
+num_xilambdac_protons = 0
+num_xi_pions = 0
+num_xi_kaons = 0
+num_xi_protons = 0
 
+max_num_event_lambdac = 0
+max_num_event_xilambdac = 0
+max_num_event_xi = 0
 max_num_lambdac = 0
-max_num_Xiccdouble = 0
+max_num_xilambdac = 0
+max_num_xi = 0
 
 for event in events: # loop through all events
   
@@ -51,79 +60,107 @@ for event in events: # loop through all events
   num_event_lambdac_pions = 0
   num_event_lambdac_kaons = 0
   num_event_lambdac_protons = 0
-  num_event_Xiccdouble_pions = 0
-  num_event_Xiccdouble_kaons = 0
-  num_event_Xiccdouble_protons = 0
+  num_event_xilambdac_pions = 0
+  num_event_xilambdac_kaons = 0
+  num_event_xilambdac_protons = 0
+  num_event_xi_pions = 0
+  num_event_xi_kaons = 0
+  num_event_xi_protons = 0
 
   #good_pions = [ track for track in displaced_tracks if abs( track.trueID ) == 211] # narrows particels to only good pions or
   #good_ds = [ track for track in displaced_tracks if abs( track.trueID ) == 431] #  good Ds
 
   for track in lambdac_tracks:
     tracks = np.append(tracks, abs(track.trueID))
-    total_pions = [track for track in lambdac_tracks if abs( track.trueID ) == 211]  # all pi
-    pions = [ track for track in lambdac_tracks if abs(track.trueID) == 211 and track.charge() > 0] # all pi+
 
-    all_kaons = [ track for track in lambdac_tracks if abs( track.trueID ) == 321] # all kaons
-    good_kaons = [] # initialised list to be filled with good kaons
-    good_kaons = [ track for track in lambdac_tracks if abs(track.trueID) == 321 and track.charge() < 0] # all k^-
+  all_pions = [track for track in lambdac_tracks if abs( track.trueID ) == 211]  # all pi
+  pions = [ track for track in lambdac_tracks if abs(track.trueID) == 211 and track.charge() > 0] # all pi+
 
-    total_protons = [track for track in lambdac_tracks if abs( track.trueID ) == 2212]  # all p
-    protons = [ track for track in lambdac_tracks if abs(track.trueID) == 2212 and track.charge() > 0] # all p^+
+  all_kaons = [ track for track in lambdac_tracks if abs( track.trueID ) == 321] # all kaons
+  kaons = [ track for track in lambdac_tracks if abs(track.trueID) == 321 and track.charge() < 0] # all k^-
+
+  all_protons = [track for track in lambdac_tracks if abs( track.trueID ) == 2212]  # all p
+  protons = [ track for track in lambdac_tracks if abs(track.trueID) == 2212 and track.charge() > 0] # all p^+
 
   for pion in pions:
-    if is_from(pion, event, 4122):
+    if is_parent(pion, event, 4122):
       num_event_lambdac_pions += 1
-    if is_from(pion, event, 4222):
-      num_event_Xiccdouble_pions += 1
+      if is_Gparent(pion, event, 4222):
+        num_event_xilambdac_pions += 1
+    elif is_parent(pion, event, 4222):
+      num_event_xi_pions += 1
 
-  for kaon in all_kaons:
-    if is_from(kaon, event, 4122):
+  for kaon in kaons:
+    if is_parent(kaon, event, 4122):
       num_event_lambdac_kaons += 1
-    if is_from(kaon, event, 4222):
-      num_event_Xiccdouble_kaons += 1
+      if is_Gparent(kaon, event, 4222):
+        num_event_xilambdac_kaons += 1
+    elif is_parent(kaon, event, 4222):
+      num_event_xi_kaons += 1
 
-  for proton in total_protons:
-    if is_from(proton, event, 4122):
+  for proton in protons:
+    if is_parent(proton, event, 4122):
       num_event_lambdac_protons += 1
-    if is_from(proton, event, 4222):
-      num_event_Xiccdouble_protons += 1
+      if is_Gparent(proton, event, 4222):
+        num_event_xilambdac_protons += 1
   
   if num_event_lambdac_protons > 0 and num_event_lambdac_kaons > 0 and num_event_lambdac_protons > 0:
-    max_num_lambdac += 1
-  if num_event_Xiccdouble_protons > 0 and num_event_Xiccdouble_kaons > 0 and num_event_Xiccdouble_pions > 0:
-    max_num_Xiccdouble += 1
+    max_num_event_lambdac += 1
+  if num_event_xilambdac_protons > 0 and num_event_xilambdac_kaons > 0 and num_event_xilambdac_protons > 0:
+    max_num_event_xilambdac += 1
+    if num_event_xi_kaons > 0 and num_event_xi_pions > 1:
+      max_event_num_xi += 1
 
   num_lambdac_kaons += num_event_lambdac_kaons
   num_lambdac_pions += num_event_lambdac_pions
   num_lambdac_protons += num_event_lambdac_protons
 
-  num_Xiccdouble_protons += num_event_Xiccdouble_protons
-  num_Xiccdouble_kaons += num_event_Xiccdouble_kaons
-  num_Xiccdouble_pions += num_event_Xiccdouble_pions
+  num_xilambdac_kaons += num_event_xilambdac_kaons
+  num_xilambdac_pions += num_event_xilambdac_pions
+  num_xilambdac_protons += num_event_xilambdac_protons
+
+  num_xi_protons += num_event_xi_protons
+  num_xi_kaons += num_event_xi_kaons
+  num_xi_pions += num_event_xi_pions
+
+  max_num_lambdac += max_num_event_lambdac
+  max_num_xilambdac += max_num_event_xilambdac
+  max_num_Xiccdouble = max_event_num_xi
                 
 max_num_lambdac = min(num_lambdac_kaons, num_lambdac_pions, num_lambdac_protons)
-max_num_Xiccdouble = min(num_Xiccdouble_kaons, num_Xiccdouble_pions, num_Xiccdouble_protons)
+max_num_xilambdac = min(num_xilambdac_kaons, num_xilambdac_pions, num_xilambdac_protons)
+max_num_Xiccdouble = min(num_xi_kaons, num_xi_pions, num_xi_protons)
 
 tracks = tracks[tracks != 0]
 unique_numbers, counts = np.unique(tracks, return_counts=True)
 
+print("_______")
 for number, count in zip(unique_numbers, counts):
     if abs(number) == 211.0: 
       print(f"{count} occurrences of Pion")
       print(f"{num_lambdac_pions} occurrences of LambdacPion")
-      print(f"{num_Xiccdouble_pions} occurrences of Xicc++Pion")
+      print(f"{num_xilambdac_pions} occurrences of XiLambdacPion")
+      print(f"{num_xi_pions} occurrences of Xicc++Pion")
+      print("_______")
     elif abs(number) == 321.0: 
       print(f"{count} occurrences of Kaon")
       print(f"{num_lambdac_kaons} occurrences of LambdacKaon")
-      print(f"{num_Xiccdouble_kaons} occurrences of Xicc++Kaon")
+      print(f"{num_xilambdac_kaons} occurrences of XiLambdacKaon")
+      print(f"{num_xi_kaons} occurrences of Xicc++Kaon")
+      print("_______")
     elif abs(number) == 2212.0: 
       print(f"{count} occurrences of Proton")
       print(f"{num_lambdac_protons} occurrences of LambdacProton")
-      print(f"{num_Xiccdouble_protons} occurrences of Xicc++Proton")
+      print(f"{num_xilambdac_protons} occurrences of XiLambdacProton")
+      print(f"{num_xi_protons} occurrences of Xicc++Proton")
+      print("_______")
 
 print(f"{max_num_lambdac} Lambdac made")
+print(f"{max_num_xilambdac} XiLambdac made")
 print(f"{max_num_Xiccdouble} Xicc++ possible")
-if max_num_lambdac != 0:
-  print(f"Approx SNR of {max_num_lambdac/(num_lambdac_kaons+num_lambdac_pions+num_lambdac_protons)}")
-else:
-  print("There are no good Lambdac candidates")
+
+# 2 file, full-tracks values
+
+ftrack_num_lambdac = 
+ftrack_num_xilambdac = 
+ftrack_num_xi = 
