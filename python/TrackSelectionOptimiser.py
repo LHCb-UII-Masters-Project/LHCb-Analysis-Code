@@ -79,7 +79,7 @@ for event in events: # loop through all events
   num_event_xi_kaons = 0
   num_event_xi_protons = 0
 
-  investigated_tracks = lambdac_tracks  # Toggle between track selections
+  investigated_tracks = full_tracks  # Toggle between track selections
 
   for track in investigated_tracks:
     tracks = np.append(tracks, abs(track.trueID))
@@ -146,18 +146,21 @@ print("\n_______")
 for number, count in zip(unique_numbers, counts):
     if abs(number) == 211.0: 
       print(f"{count} occurrences of Pion")
+      num_pions = count
       print(f"{num_lambdac_pions} occurrences of LambdacPion")
       print(f"{num_xilambdac_pions} occurrences of XiLambdacPion")
       print(f"{num_xi_pions} occurrences of Xicc++Pion")
       print("\n_______")
     elif abs(number) == 321.0: 
       print(f"{count} occurrences of Kaon")
+      num_kaon = count
       print(f"{num_lambdac_kaons} occurrences of LambdacKaon")
       print(f"{num_xilambdac_kaons} occurrences of XiLambdacKaon")
       print(f"{num_xi_kaons} occurrences of Xicc++Kaon")
       print("\n_______")
     elif abs(number) == 2212.0: 
       print(f"{count} occurrences of Proton")
+      num_proton = count
       print(f"{num_lambdac_protons} occurrences of LambdacProton")
       print(f"{num_xilambdac_protons} occurrences of XiLambdacProton")
       print("\n_______")
@@ -167,11 +170,23 @@ print(f"{max_num_xilambdac} XiLambdac made")
 print(f"{max_num_Xiccdouble} Xicc++ possible")
 
 # 5 file, full-tracks values
+"""
 frac_track_num_lambdac = max_num_lambdac/56939
 frac_track_num_xilambdac = max_num_xilambdac/56266
 frac_track_num_xikaons = num_xi_kaons/258
 frac_track_num_xipion = num_xi_pions/506
 frac_track_num_xi = max_num_Xiccdouble/203
+"""
+
+# 10 file, full-tracks values
+frac_track_num_lambdac = max_num_lambdac/236842
+frac_track_num_xilambdac = max_num_xilambdac/233171
+frac_track_num_xikaons = num_xi_kaons/493
+frac_track_num_xipion = num_xi_pions/973
+frac_track_num_xi = max_num_Xiccdouble/399
+# num_pions = 622662
+# num_kaons = 88970
+# num_proton = 66641
 
 print("\n_______")
 print(f"{frac_track_num_lambdac} Lambdacs Made")
@@ -180,8 +195,9 @@ print(f"{frac_track_num_xikaons} XiKaons Made")
 print(f"{frac_track_num_xipion} XiKaons Made")
 print(f"{frac_track_num_xi} Xi Made")
 
+
 data = [num_files, min_pt, min_p, min_ipChi2_4d, frac_track_num_lambdac, frac_track_num_xilambdac, 
-        frac_track_num_xikaons, frac_track_num_xipion, frac_track_num_xi]
+        frac_track_num_xikaons, frac_track_num_xipion, frac_track_num_xi, num_pion, num_kaon, num_proton]
 
 # Filepath for the CSV file
 file_path = f"{basedir}/Outputs/TrackSelection/LambdacCompIP{min_ipChi2_4d}.csv"
@@ -196,7 +212,7 @@ with open(file_path, mode='a', newline='') as file:
     # Write header only if the file doesn't exist
     if not file_exists:
         writer.writerow(["NumFiles", "MinPT", "MinP", "MinIPChi2", "#Lambdas", "#XiLambdas", "#XiKaons",
-                         "#XiPions", "#Xis"])
+                         "#XiPions", "#Xis", "#Pion", "#Kaon", "#Proton"])
     
     # Append the data
     writer.writerow(data)
