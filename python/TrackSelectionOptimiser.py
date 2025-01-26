@@ -79,7 +79,7 @@ for event in events: # loop through all events
   num_event_xi_kaons = 0
   num_event_xi_protons = 0
 
-  investigated_tracks = full_tracks  # Toggle between track selections
+  investigated_tracks = lambdac_tracks  # Toggle between track selections
 
   for track in investigated_tracks:
     tracks = np.append(tracks, abs(track.trueID))
@@ -146,7 +146,7 @@ print("\n_______")
 for number, count in zip(unique_numbers, counts):
     if abs(number) == 211.0: 
       print(f"{count} occurrences of Pion")
-      num_pions = count
+      num_pion = count
       print(f"{num_lambdac_pions} occurrences of LambdacPion")
       print(f"{num_xilambdac_pions} occurrences of XiLambdacPion")
       print(f"{num_xi_pions} occurrences of Xicc++Pion")
