@@ -375,7 +375,10 @@ for event in events: # loop through all events
         kill_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_kills,lambdac_final_mass_cut_bkg_kills)
         continue
       # ------------------- xiccppReconstruction -------------------
-      for xiccpp_pion1,xiccpp_pion2 in xiccpp_pions:
+      for xiccpp_pion1, pion1_index in enumerate(xiccpp_pions):
+          for xiccpp_pion2, pion2_index in enumerate(xiccpp_pions):
+            if pion2_index <= pion1_index:
+              continue
             for xiccpp_kaon in xiccpp_kaons:
               #region xiccppTreeFill
               xiccpp_pion1_pt[0] = xiccpp_pion1.pt()
@@ -423,7 +426,7 @@ for event in events: # loop through all events
   RunDiagnostics.Fill()
   Outputs.Fill()
 # ------------------- FileWriting -------------------
-file = TFile(f"{basedir}/Outputs/XisTolambdas/Tree{lower}:{upper}.root", "RECREATE")
+file = TFile(f"{basedir}/Outputs/XisToLambdas/Tree{lower}:{upper}.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
 file.WriteObject(Outputs, "Outputs")
 file.WriteObject(RunParams, "RunParams")
