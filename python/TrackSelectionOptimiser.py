@@ -57,11 +57,13 @@ num_xi_pions = 0
 num_xi_kaons = 0
 num_xi_protons = 0
 
-max_num_event_lambdac = 0
-max_num_event_xilambdac = 0
-max_num_event_xi = 0
+num_pion = 0
+num_kaon = 0
+num_proton = 0
+
 max_num_lambdac = 0
 max_num_xilambdac = 0
+max_num_Xiccdouble = 0
 
 for event in events: # loop through all events
 
@@ -78,8 +80,11 @@ for event in events: # loop through all events
   num_event_xi_pions = 0
   num_event_xi_kaons = 0
   num_event_xi_protons = 0
+  max_num_event_lambdac = 0
+  max_num_event_xilambdac = 0
+  max_num_event_xi = 0
 
-  investigated_tracks = lambdac_tracks  # Toggle between track selections
+  investigated_tracks = full_tracks  # Toggle between track selections
 
   for track in investigated_tracks:
     tracks = np.append(tracks, abs(track.trueID))
@@ -101,6 +106,7 @@ for event in events: # loop through all events
         num_event_xilambdac_pions += 1
     elif is_parent(pion, event, 4222):
       num_event_xi_pions += 1
+    num_pion += 1
 
   for kaon in kaons:
     if is_parent(kaon, event, 4122):
@@ -109,19 +115,21 @@ for event in events: # loop through all events
         num_event_xilambdac_kaons += 1
     elif is_parent(kaon, event, 4222):
       num_event_xi_kaons += 1
+    num_kaon += 1
 
   for proton in protons:
     if is_parent(proton, event, 4122):
       num_event_lambdac_protons += 1
       if is_Gparent(proton, event, 4222):
         num_event_xilambdac_protons += 1
+    num_proton += 1
   
   if num_event_lambdac_protons > 0 and num_event_lambdac_kaons > 0 and num_event_lambdac_protons > 0:
-    max_num_event_lambdac += 1
+    max_num_event_lambdac = 1
   if num_event_xilambdac_protons > 0 and num_event_xilambdac_kaons > 0 and num_event_xilambdac_protons > 0:
-    max_num_event_xilambdac += 1
+    max_num_event_xilambdac = 1
     if num_event_xi_kaons > 0 and num_event_xi_pions > 1:
-      max_num_event_xi += 1
+      max_num_event_xi = 1
 
   num_lambdac_kaons += num_event_lambdac_kaons
   num_lambdac_pions += num_event_lambdac_pions
@@ -137,56 +145,37 @@ for event in events: # loop through all events
 
   max_num_lambdac += max_num_event_lambdac
   max_num_xilambdac += max_num_event_xilambdac
-  max_num_Xiccdouble = max_num_event_xi
-
-tracks = tracks[tracks != 0]
-unique_numbers, counts = np.unique(tracks, return_counts=True)
+  max_num_Xiccdouble += max_num_event_xi
 
 print("\n_______")
-for number, count in zip(unique_numbers, counts):
-    if abs(number) == 211.0: 
-      print(f"{count} occurrences of Pion")
-      num_pion = count
-      print(f"{num_lambdac_pions} occurrences of LambdacPion")
-      print(f"{num_xilambdac_pions} occurrences of XiLambdacPion")
-      print(f"{num_xi_pions} occurrences of Xicc++Pion")
-      print("\n_______")
-    elif abs(number) == 321.0: 
-      print(f"{count} occurrences of Kaon")
-      num_kaon = count
-      print(f"{num_lambdac_kaons} occurrences of LambdacKaon")
-      print(f"{num_xilambdac_kaons} occurrences of XiLambdacKaon")
-      print(f"{num_xi_kaons} occurrences of Xicc++Kaon")
-      print("\n_______")
-    elif abs(number) == 2212.0: 
-      print(f"{count} occurrences of Proton")
-      num_proton = count
-      print(f"{num_lambdac_protons} occurrences of LambdacProton")
-      print(f"{num_xilambdac_protons} occurrences of XiLambdacProton")
-      print("\n_______")
+print(f"{num_lambdac_pions} occurrences of LambdacPion")
+print(f"{num_xilambdac_pions} occurrences of XiLambdacPion")
+print(f"{num_xi_pions} occurrences of Xicc++Pion")
+print(f"{num_pion} occurrences of Pion")
+print("\n_______")
+print(f"{num_lambdac_kaons} occurrences of LambdacKaon")
+print(f"{num_xilambdac_kaons} occurrences of XiLambdacKaon")
+print(f"{num_xi_kaons} occurrences of Xicc++Kaon")
+print(f"{num_kaon} occurrences of Kaon")
+print("\n_______")
+print(f"{num_lambdac_protons} occurrences of LambdacProton")
+print(f"{num_xilambdac_protons} occurrences of XiLambdacProton")
+print(f"{num_proton} occurrences of Proton")
+print("\n_______")
 
 print(f"{max_num_lambdac} Lambdac made")
 print(f"{max_num_xilambdac} XiLambdac made")
 print(f"{max_num_Xiccdouble} Xicc++ possible")
 
-# 5 file, full-tracks values
-"""
-frac_track_num_lambdac = max_num_lambdac/56939
-frac_track_num_xilambdac = max_num_xilambdac/56266
-frac_track_num_xikaons = num_xi_kaons/258
-frac_track_num_xipion = num_xi_pions/506
-frac_track_num_xi = max_num_Xiccdouble/203
-"""
-
 # 10 file, full-tracks values
-frac_track_num_lambdac = max_num_lambdac/236842
-frac_track_num_xilambdac = max_num_xilambdac/233171
+frac_track_num_lambdac = max_num_lambdac/464
+frac_track_num_xilambdac = max_num_xilambdac/504
 frac_track_num_xikaons = num_xi_kaons/493
 frac_track_num_xipion = num_xi_pions/973
 frac_track_num_xi = max_num_Xiccdouble/399
-# num_pions = 622662
-# num_kaons = 88970
-# num_proton = 66641
+# num_pions = 312407
+# num_kaons = 44186
+# num_proton = 34833
 
 print("\n_______")
 print(f"{frac_track_num_lambdac} Lambdacs Made")
