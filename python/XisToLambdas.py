@@ -262,8 +262,8 @@ particle_dict = {
   "xic+": 4232}
 
 mass_dict = {
-  "xiccpp":2286.46,
-  "lambdac":3621.6}
+  "xiccpp":3621.6,
+  "lambdac":2286.46}
 
 limits_dict = {
   "lambdac_vtx_chi2_ndof":5,
@@ -332,16 +332,16 @@ for event in events: # loop through all events
   #print( f"{entry} {nPVs} {len(good_pions)} {len(good_kaons)} {len(good_protons)}") # prints event information
   lambda_container = ROOT.combine( good_protons, good_kaons, doca_cut, 3, 0) # inputs: all kp, all km, doca_max, chi2ndf_max, charge
   # returns:  four momenta of particle1, particle2 , a combined particle, and the vertex where combination occurs
-  #Num_lambda_container[0] = len(lambda_container)
+  Num_lambda_container[0] += len(lambda_container)
   # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
-  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 ) if  track.trueID == particle_dict['Pion'] and track.charge()>0]
-  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 ) if  track.trueID == particle_dict['Kaon'] and track.charge()<0] # needs changing from bs to xi limits
-  xiccpp_pion_combinations = combinations(xiccpp_pions,2)
-  Num_protons_detected[0] = len(good_protons)
-  Num_pions_detected[0] = len(good_pions)
-  Num_kaons_detected[0] = len(good_kaons)
+  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 ) if  abs(track.trueID) == particle_dict['Pion'] and track.charge()>0]
+  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 ) if  abs(track.trueID) == particle_dict['Kaon'] and track.charge()<0] # needs changing from bs to xi limits
+  xiccpp_pion_combinations = combinations(xiccpp_pions,2) 
+  Num_protons_detected[0] += len(good_protons)
+  Num_pions_detected[0] += len(good_pions)
+  Num_kaons_detected[0] += len(good_kaons)
 # ------------------- LambdacReconstruction -------------------
   for pion in good_pions :
     for proton,lambdac_kaon,lambda0,lambda0_vtx in lambda_container: 
