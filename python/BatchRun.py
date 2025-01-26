@@ -83,7 +83,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
     
-def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, tot_num_files=4, rich_timing=300, 
+def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2, tot_num_files=4, rich_timing=300, 
                 velo_time=50, pid_switch=1, kaon_switch=1, rand_seed=None):
     """
     Function that can be called by a procces in order to run multiple combinations of arguments simultaneously
@@ -243,7 +243,6 @@ def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, t
         batchJobName = "BatchRun_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
         # PID included as batched jobs start at same time
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-        run_args = f"{size} {rand_seed}"
 
         wait_id = []  # Holds the return that can be used to make program wait for completion
         num_range = []  # List of strings [0:5, 5:10 ,...]
@@ -354,13 +353,37 @@ def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, t
         
         #endregion MERGE TREES
 
+    elif program == "Optimiser":
+
+        wait_id = []
+        p_vals = []
+        num_files = 10
+        pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+        for min_ipChi2_4d in range(0,8):
+            for min_pt in range(50, 350, 50):
+                for min_p in range(800, 2400, 200):
+                    run_args = f"{num_files} {min_pt} {min_p} {min_ipChi2_4d}"
+                    wait_id.append(runThisScriptOnCondor(f"{basedir}/TrackSelectionOptimiser.py", f"Optimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_pt}-{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
+                    time.sleep(2)
+                    p_vals.append(f"{min_pt}-{min_p}")
+
+        if local is True:
+            # Uses ret to wait if local
+            for index, ret in enumerate(wait_id):
+                ret.wait()
+                time.sleep(1)
+        else:
+            # Uses condor_wait to wait if on condor
+            for index, numbers in enumerate(p_vals):
+                subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
+                time.sleep(1)
+
+        end_time = time.time()
+
     elif program == "Test":
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
         runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run, is_local=local)
         end_time = time.time()
-    
-    elif program == "TrackOptimiser":
-        print("A")
 
     # Timer output for interest
     time_taken = end_time - start_time
@@ -371,7 +394,7 @@ def macro_batch(program="XisRun", comp="Local", size="Small", files_per_run=2, t
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
-    program = "XisRun"
+    program = f"Optimiser"
     comp = "NonLocal"
     size = "Small"
     files_per_run = 8
