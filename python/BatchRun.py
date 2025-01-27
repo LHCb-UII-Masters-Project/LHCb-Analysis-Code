@@ -248,8 +248,8 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
         num_range = []  # List of strings [0:5, 5:10 ,...]
         for i in range(0,tot_num_files, files_per_run):
             # print(f"{i}:{i+files_per_run}")
-
-            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {run_args}", is_local=local))
+            
+            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}", is_local=local))
             # Runs with all arguments passed, inlcuding if to run local or on Condor
             num_range.append(f"{i}:{i+files_per_run}")
 
@@ -320,10 +320,10 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
 
         print("Made it this far")
         time.sleep(10)
-        OutTree = OutChain.CopyTree("Lambdac_mass!=0")
-        RunPTree = RunPChain.CopyTree("Lambdac_mass!=0")
-        RunLTree = RunLChain.CopyTree("Lambdac_mass!=0")
-        RunDTree = RunDChain.CopyTree("Lambdac_mass!=0")
+        OutTree = OutChain.CopyTree("xiccpp_mass!=0")
+        RunPTree = RunPChain.CopyTree("xiccpp_mass!=0")
+        RunLTree = RunLChain.CopyTree("xiccpp_mass!=0")
+        RunDTree = RunDChain.CopyTree("xiccpp_mass!=0")
         OutTree.SetName("Outputs")
         RunPTree.SetName("RunParams")
         RunLTree.SetName("RunLimits")
@@ -364,7 +364,7 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
                 for min_p in range(800, 2400, 200):
                     run_args = f"{num_files} {min_pt} {min_p} {min_ipChi2_4d}"
                     wait_id.append(runThisScriptOnCondor(f"{basedir}/TrackSelectionOptimiser.py", f"Optimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_pt}-{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
-                    time.sleep(2)
+                    time.sleep(1)
                     p_vals.append(f"{min_pt}-{min_p}")
 
         if local is True:
@@ -394,11 +394,11 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
-    program = f"Optimiser"
+    program = "XisRun"
     comp = "NonLocal"
     size = "Small"
-    files_per_run = 8
-    tot_num_files = 496
+    files_per_run = 2
+    tot_num_files = 50
     rand_seed = None
 
     #rich_options = [150, 300]
@@ -422,7 +422,7 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
                     vt, PID, k_switch, rand_seed))
                     process_store.append(p)
                     time.sleep(1)
-                        
+
         # Starts proccesses and then waits for them to be complete
         for p in process_store:
             p.start()
