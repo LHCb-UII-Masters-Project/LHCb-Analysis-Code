@@ -276,7 +276,7 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
         RunLChain = ROOT.TChain("RunLimits")
         RunDChain = ROOT.TChain("RunDiagnostics")
         str_chain = []  # List of filepaths for os.removing later
-        lambdac_hist_sum = None
+        # lambdac_hist_sum = None
         # Initialises chain for tree, chain for tree names and hist for combining
 
         for numbers in num_range:
@@ -303,23 +303,8 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
                 RunLChain.Add(file_path)
                 RunDChain.Add(file_path)
 
-                # Open each file separately to retrieve the histogram
-                f = ROOT.TFile.Open(file_path, "READ")
-                lambdac_hist = f.Get("Lambdac_Histogram")
-                lambdac_hist.SetDirectory(0)
-                f.Close()
-
-                if lambdac_hist_sum is None:
-                    lambdac_hist_sum = lambdac_hist.Clone("hist")
-                    lambdac_hist_sum.SetDirectory(0)
-                else:
-                    lambdac_hist_sum.Add(lambdac_hist)
-                    lambdac_hist_sum.SetDirectory(0)
-
         ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
 
-        print("Made it this far")
-        time.sleep(10)
         OutTree = OutChain.CopyTree("xiccpp_mass!=0")
         RunPTree = RunPChain.CopyTree("xiccpp_mass!=0")
         RunLTree = RunLChain.CopyTree("xiccpp_mass!=0")
@@ -337,7 +322,6 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
         RunPTree.Write("RunParams")
         RunLTree.Write("RunLimits")
         RunDTree.Write("RunDiagnostics")
-        lambdac_hist_sum.Write("Lambdac_Histogram")
 
         # Close the output file
         output_file.Write()
