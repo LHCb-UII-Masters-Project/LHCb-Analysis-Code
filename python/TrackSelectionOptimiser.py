@@ -84,7 +84,7 @@ for event in events: # loop through all events
   max_num_event_xilambdac = 0
   max_num_event_xi = 0
 
-  investigated_tracks = full_tracks  # Toggle between track selections
+  investigated_tracks = lambdac_tracks  # Toggle between track selections
 
   for track in investigated_tracks:
     tracks = np.append(tracks, abs(track.trueID))

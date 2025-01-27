@@ -305,7 +305,7 @@ onlyfiles = onlyfiles[int(lower):int(upper)]
 num_events = 0
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
-  num_events += 1
+  # num_events += 1
 entry=0
 # -------------------PID SImulation (Not Activate ATM) -------------------
 # Switched off as per Dan'd instructions
@@ -316,10 +316,10 @@ entry=0
 # models = [eff_model(eff_dfs[0]), eff_model(eff_dfs[1]), eff_model(eff_dfs[2]), eff_model(eff_dfs[3]), eff_model(eff_dfs[4]) if rich_timing == 300 else None]
 file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 current_file_name = "" #  Sets to empty string so first event loop changes it
-for event_number, event in enumerate(events): # loop through all events
+for event in events: # loop through all events
 
-  if (event_number/num_events)*10 == round((event_number/num_events)*10,0):
-    print(f"{int((event_number/num_events)*10)} %")
+  #if event_number % (num_events // 10) == 0:  # Check every 10%
+  #  print(f"{(event_number * 100) // num_events}%")
 
   if events.GetFile().GetName() != current_file_name: #  If no longer in same file as before
     current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
@@ -455,10 +455,10 @@ for event_number, event in enumerate(events): # loop through all events
           found_xiccpp_signal |= is_xiccpp_signal
           # ---------------------------------------------------
 # ------------------- TreeFilling -------------------
-  RunParams.Fill()
-  RunLimits.Fill()
-  RunDiagnostics.Fill()
-  Outputs.Fill()
+RunParams.Fill()
+RunLimits.Fill()
+RunDiagnostics.Fill()
+Outputs.Fill()
 # ------------------- FileWriting -------------------
 file = TFile(f"{basedir}/Outputs/XisToLambdas/Tree{lower}:{upper}.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
