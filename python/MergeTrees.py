@@ -49,6 +49,7 @@ for numbers in num_range:
         RunLChain.Add(file_path)
         RunDChain.Add(file_path)
 
+        """
         # Open each file separately to retrieve the histogram
         f = ROOT.TFile.Open(file_path, "READ")
         lambdac_hist = f.Get("Lambdac_Histogram")
@@ -61,15 +62,14 @@ for numbers in num_range:
         else:
             lambdac_hist_sum.Add(lambdac_hist)
             lambdac_hist_sum.SetDirectory(0)
+        """
 
 ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
 
-print("Made it this far")
-time.sleep(10)
-OutTree = OutChain.CopyTree("Lambdac_mass!=0")
-RunPTree = RunPChain.CopyTree("Lambdac_mass!=0")
-RunLTree = RunLChain.CopyTree("Lambdac_mass!=0")
-RunDTree = RunDChain.CopyTree("Lambdac_mass!=0")
+OutTree = OutChain.CopyTree("xiccpp_mass!=0")
+RunPTree = RunPChain.CopyTree("xiccpp_mass!=0")
+RunLTree = RunLChain.CopyTree("xiccpp_mass!=0")
+RunDTree = RunDChain.CopyTree("xiccpp_mass!=0")
 OutTree.SetName("Outputs")
 RunPTree.SetName("RunParams")
 RunLTree.SetName("RunLimits")
@@ -83,7 +83,7 @@ OutTree.Write("Outputs")
 RunPTree.Write("RunParams")
 RunLTree.Write("RunLimits")
 RunDTree.Write("RunDiagnostics")
-lambdac_hist_sum.Write("Lambdac_Histogram")
+# lambdac_hist_sum.Write("Lambdac_Histogram")
 
 # Close the output file
 output_file.Write()
