@@ -36,6 +36,9 @@ RunParams.Branch('spacial_resolution', spacial_resolution, 'spacial_resolution/F
 spacial_resolution[0] = 10
 com_energy = array('f', [0])
 RunParams.Branch('com_energy', com_energy, 'com_energy/F')
+number_of_xiccpp= array('f', [0])
+xiccpp_mass= array('f', [0])
+RunParams.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 com_energy[0] = 14
 # ------------------- RunLimitsTree -------------------
 RunLimits = ROOT.TTree("RunLimits", "RunLimits")
@@ -55,6 +58,7 @@ xiccpp_vtx_chi2_distance_limit = array('f', [0])
 RunLimits.Branch('xiccpp_vtx_chi2_distance_limit', xiccpp_vtx_chi2_distance_limit, 'xiccpp_vtx_chi2_distance_limit/F')
 xiccpp_vtx_dira_limit = array('f', [0])
 RunLimits.Branch('xiccpp_vtx_dira_limit', xiccpp_vtx_dira_limit, 'xiccpp_vtx_dira_limit/F')
+RunLimits.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 # ------------------- RunDiagnosticsTree -------------------
 RunDiagnostics = TTree("RunDiagnostics","RunDiagnostics")
 lambdac_signal_combined_momentum_kills = array('f', [0]) # Formerly Chi2_ndf_limit
@@ -105,6 +109,7 @@ xi_mass_sig_kills = array('f', [0])
 RunDiagnostics.Branch('xi_mass_sig_kills', xi_mass_sig_kills, 'xi_mass_sig_kills/F')
 xi_mass_bkg_kills = array('f', [0])
 RunDiagnostics.Branch('xi_mass_bkg_kills', xi_mass_bkg_kills, 'xi_mass_bkg_kills/F')
+RunDiagnostics.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 # ------------------- OutputsTree -------------------
 Outputs = TTree("Run Diagnostics","Run Diagnostics")
 xiccpp_signal_binary_flag = array('f', [0])
@@ -165,8 +170,6 @@ xi_vtx_chi2_distance= array('f', [0])
 Outputs.Branch('xi_vtx_chi2_distance', xi_vtx_chi2_distance, 'xi_vtx_chi2_distance/F')
 xi_vtx_dira= array('f', [0])
 Outputs.Branch('xi_vtx_dira', xi_vtx_dira, 'xi_vtx_dira/F')
-number_of_xiccpp= array('f', [0])
-xiccpp_mass= array('f', [0])
 Outputs.Branch('number_of_xiccpp', number_of_xiccpp, 'number_of_xiccpp/F')
 Outputs.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 # ------------------- UserInputs -------------------
