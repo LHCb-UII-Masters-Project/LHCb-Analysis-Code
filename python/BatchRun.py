@@ -344,8 +344,8 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
         output_file.Close()
 
         # Deletes the trees that made up the now combined tree
-        for file_path in str_chain:
-            os.remove(file_path)
+        #for file_path in str_chain:
+        #    os.remove(file_path)
         
         print(f"Made Tree")
 
