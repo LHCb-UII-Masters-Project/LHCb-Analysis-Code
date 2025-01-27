@@ -170,6 +170,8 @@ xi_vtx_chi2_distance= array('f', [0])
 Outputs.Branch('xi_vtx_chi2_distance', xi_vtx_chi2_distance, 'xi_vtx_chi2_distance/F')
 xi_vtx_dira= array('f', [0])
 Outputs.Branch('xi_vtx_dira', xi_vtx_dira, 'xi_vtx_dira/F')
+number_of_xiccpp= array('f', [0])
+xiccpp_mass= array('f', [0])
 Outputs.Branch('number_of_xiccpp', number_of_xiccpp, 'number_of_xiccpp/F')
 Outputs.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 # ------------------- UserInputs -------------------
@@ -305,10 +307,8 @@ dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc+
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(lower):int(upper)]
 # Since list is formed in order for every run, this selects the relevant files to be run
-num_events = 0
 for file in onlyfiles:
   events.AddFile( path.join(dir, file) )  # Look at a file in the target directory for analysis
-  # num_events += 1
 entry=0
 # -------------------PID SImulation (Not Activate ATM) -------------------
 # Switched off as per Dan'd instructions
@@ -321,14 +321,11 @@ file_number[0] = 0 #  Initialises run number so += 1 can be used in event loop
 current_file_name = "" #  Sets to empty string so first event loop changes it
 for event in events: # loop through all events
 
-  #if event_number % (num_events // 10) == 0:  # Check every 10%
-  #  print(f"{(event_number * 100) // num_events}%")
-
   if events.GetFile().GetName() != current_file_name: #  If no longer in same file as before
     current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
 # ------------------- ParticleLists -------------------
-  displaced_tracks = ROOT.select( event.Particles, event.Vertices, 200, 1500,6) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
+  displaced_tracks = ROOT.select( event.Particles, event.Vertices, 200, 1000,6) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   good_pions = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Pion'] and track.charge() > 0] # all pi+
   good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Kaon'] and track.charge() < 0] # all k^-
   good_protons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Proton'] and track.charge() > 0] # all proton^+
@@ -344,9 +341,9 @@ for event in events: # loop through all events
   # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
-  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 200, 1500, 6 ) if  abs(track.trueID) == particle_dict['Pion'] and track.charge()>0]
-  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 200, 1500, 6 ) if  abs(track.trueID) == particle_dict['Kaon'] and track.charge()<0] # needs changing from bs to xi limits
-  xiccpp_pion_combinations = combinations(xiccpp_pions,2) 
+  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 ) if  abs(track.trueID) == particle_dict['Pion'] and track.charge()>0]
+  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 ) if  abs(track.trueID) == particle_dict['Kaon'] and track.charge()<0] # needs changing from bs to xi limits
+  pion_kaon_container =  ROOT.combine( xiccpp_pions, xiccpp_kaons, doca_cut, 3, 0)
   Num_protons_detected[0] += len(good_protons)
   Num_pions_detected[0] += len(good_pions)
   Num_kaons_detected[0] += len(good_kaons)
@@ -405,9 +402,11 @@ for event in events: # loop through all events
         kill_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_kills,lambdac_final_mass_cut_bkg_kills)
         continue
       # ------------------- xiccppReconstruction -------------------
-      for xiccpp_pion1, xiccpp_pion2 in xiccpp_pion_combinations:
-        for xiccpp_kaon in xiccpp_kaons:
-          if xiccpp_kaon == lambdac_kaon or xiccpp_pion1 == pion or xiccpp_pion2 == pion:
+      for xiccpp_pion1,xiccpp_kaon,pion1_kaon_composite,pion1_kaon_container_vtx in pion_kaon_container:
+        if xiccpp_kaon == lambdac_kaon or xiccpp_pion1 == pion:
+          continue
+        for xiccpp_pion2 in xiccpp_pions:
+          if xiccpp_pion2 == xiccpp_pion1 or xiccpp_pion2 == pion:
             continue
           #region xiccppTreeFill
           Vxiccpp_pion1_pt = xiccpp_pion1_pt[0] = xiccpp_pion1.pt()
@@ -419,7 +418,7 @@ for event in events: # loop through all events
           #endregion xiccppTreeFill
           is_xiccpp_signal = is_from(proton, event, particle_dict['xicc++']) and is_from(lambdac_kaon, event, particle_dict['xicc++']) and is_from(pion, event,particle_dict['xicc++']) and is_from(xiccpp_pion1, event,particle_dict['xicc++']) and is_from(xiccpp_pion2, event,particle_dict['xicc++']) and is_from(xiccpp_kaon, event,particle_dict['xicc++'])
           
-          if xiccpp_pion1.charge() + xiccpp_pion2.charge() + xiccpp_kaon.charge() + lambdac.charge() !=2: 
+          if xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2: 
             kill_counter(lambdac_final_mass_cut_signal_kills,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
             continue
           
@@ -458,10 +457,10 @@ for event in events: # loop through all events
           found_xiccpp_signal |= is_xiccpp_signal
           # ---------------------------------------------------
 # ------------------- TreeFilling -------------------
-RunParams.Fill()
-RunLimits.Fill()
-RunDiagnostics.Fill()
-Outputs.Fill()
+  RunParams.Fill()
+  RunLimits.Fill()
+  RunDiagnostics.Fill()
+  Outputs.Fill()
 # ------------------- FileWriting -------------------
 file = TFile(f"{basedir}/Outputs/XisToLambdas/Tree{lower}:{upper}.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
