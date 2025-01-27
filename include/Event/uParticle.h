@@ -59,4 +59,13 @@ std::vector<std::tuple<uParticle, uParticle, uParticle, uVertex>> combine (
     double doca_max, 
     double chi2ndof_max,
     unsigned charge );
+
+std::vector<std::tuple<uParticle, uParticle, uParticle, uParticle, uVertex>> combine ( 
+    const std::vector<uParticle>& container1, 
+    const std::vector<uParticle>& container2,
+    const std::vector<uParticle>& container3,
+    double doca_max,
+    double chi2ndof_max,
+    unsigned intermediate_charge,
+    unsigned charge );
 #endif

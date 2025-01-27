@@ -197,11 +197,45 @@ std::vector<std::tuple<uParticle, uParticle, uParticle, uVertex>> combine (
   {
     for( const auto& p2 : container2 )
     {
+      if(p1.index == p2.index) continue;
       if( p1.charge() + p2.charge() != charge ) continue; 
       if( p1.firstState.doca( p2.firstState ) > doca_max ) continue;
       auto vtx = uVertex( {p1,p2} );
       if( vtx.chi2 / vtx.ndof > chi2ndof_max ) continue; 
       rt.push_back( std::make_tuple(p1,p2, uParticle({p1,p2}), vtx ));
+    }
+  }
+  return rt; 
+}
+
+std::vector<std::tuple<uParticle, uParticle, uParticle, uParticle, uVertex>> combine ( 
+    const std::vector<uParticle>& container1, 
+    const std::vector<uParticle>& container2,
+    const std::vector<uParticle>& container3,
+    double doca_max, 
+    double chi2ndof_max,
+    unsigned intermediate_charge,
+    unsigned charge)
+{
+  std::vector<std::tuple<uParticle, uParticle, uParticle, uParticle, uVertex>> rt; 
+  for( const auto& p1 : container1 )
+  {
+    for( const auto& p2 : container2 )
+    {
+      if(p1.index == p2.index) continue;
+      if( p1.firstState.doca( p2.firstState ) > doca_max ) continue;
+      if( p1.charge() + p2.charge() != intermediate_charge ) continue;
+      
+      for(const auto& p3 : container3)
+      {
+        if((p2.index == p3.index) || (p1.index == p3.index)) continue;
+        if( p1.charge() + p2.charge() + p3.charge() != charge ) continue; 
+        if( p1.firstState.doca( p3.firstState) > doca_max) continue;
+        if( p2.firstState.doca( p3.firstState) > doca_max) continue;
+        auto vtx = uVertex( {p1,p2,p3} );
+        if( vtx.chi2 / vtx.ndof > chi2ndof_max ) continue; 
+        rt.push_back( std::make_tuple(p1,p2,p3, uParticle({p1,p2,p3}), vtx ));
+      }
     }
   }
   return rt; 
