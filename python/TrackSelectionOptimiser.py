@@ -30,7 +30,7 @@ args = sys.argv
 num_files = get_arg(1, 5, args)
 min_pt = get_arg(2, 200, args)
 min_p = get_arg(3, 1500, args)
-min_ipChi2_4d = get_arg(4, 6, args)
+min_ipChi2_4d = float(args[4])
 
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
@@ -69,7 +69,8 @@ for event in events: # loop through all events
 
   lambdac_tracks = ROOT.select( event.Particles, event.Vertices, min_pt, min_p,min_ipChi2_4d) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis min_pt, min_p, min_ipchi2_4d
-  full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 0 )
+  #full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 0 )
+  # xi_tracks = ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 )
 
   num_event_lambdac_pions = 0
   num_event_lambdac_kaons = 0
