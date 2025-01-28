@@ -6,6 +6,7 @@ import sys
 import ROOT
 from ROOT import TH1D, TChain, TTree, TFile
 from multiprocessing import Process
+import numpy as np
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -343,9 +344,9 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
         p_vals = []
         num_files = 10
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-        for min_ipChi2_4d in range(0,8):
-            for min_pt in range(50, 350, 50):
-                for min_p in range(800, 2400, 200):
+        for min_ipChi2_4d in np.linspace(0,7, 15):
+            for min_pt in range(300, 1000, 70):
+                for min_p in range(500, 4000, 250):
                     run_args = f"{num_files} {min_pt} {min_p} {min_ipChi2_4d}"
                     wait_id.append(runThisScriptOnCondor(f"{basedir}/TrackSelectionOptimiser.py", f"Optimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_pt}-{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
                     time.sleep(1)
@@ -378,7 +379,7 @@ def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
-    program = "XisRun"
+    program = "Optimiser"
     comp = "NonLocal"
     size = "Small"
     files_per_run = 2
