@@ -4,8 +4,11 @@ from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 import numpy as np
 
+particle = "Xi"
+#particle = "Lambdac"
+
 # Load the CSV file
-file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/LambdacCompIPAll.csv"
+file = f"/home/user293/Documents/selections/python/Outputs/TrackSelection/{particle}CompIPALL.csv"
 df = pd.read_csv(file)
 
 # Extract columns
@@ -13,10 +16,14 @@ MinPT = df["MinPT"]
 MinP = df["MinP"]
 MinIPChi2 = df["MinIPChi2"]
 
-efficiency = df["efficiency"] = df["#XiLambdas"]
-purity = df["purity"] = (df["#XiLambdas"] * 504) / (df["#Pion"] * df["#Proton"] * df["#Kaon"])
+if particle == "Lambdac":
+    efficiency = df["efficiency"] = df["#XiLambdas"]
+    purity = df["purity"] = (df["#XiLambdas"] * 504) / (df["#Pion"] * df["#Proton"] * df["#Kaon"])
+else:
+    efficiency = df["efficiency"] = df["#XiPions"] * df["#XiKaons"]
+    purity = df["purity"] = (df["#XiPions"] * 973 + df["#XiKaons"] * 493) / (df["#Pion"] + df["#Kaon"])
 
-df["efficiency_purity"] = np.sqrt(df["efficiency"]**2 * df["purity"]**2)
+df["efficiency_purity"] = np.sqrt(df["efficiency"]**2 + df["purity"]**2)
 max_row = df.loc[df["efficiency_purity"].idxmax()]
 
 # Extract the corresponding values
@@ -66,7 +73,7 @@ cbar_b = fig.colorbar(sm_b, ax=ax, fraction=0.02, pad=0.16, location='right')
 cbar_b.set_label("MinIPChi2 (Blue)", color="blue")
 
 # Save the plot as a PNG file
-output_file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/Efficiency_vs_Purity.png"
+output_file = f"/home/user293/Documents/selections/python/Outputs/TrackSelection/{particle}PionsEvsP.png"
 plt.savefig(output_file, dpi=300)  # Save with 300 DPI for high quality
 plt.close()  # Close the plot to free up memory
 
