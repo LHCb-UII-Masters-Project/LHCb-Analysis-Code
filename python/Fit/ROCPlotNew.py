@@ -76,14 +76,17 @@ idata_unique = idata.drop_duplicates(subset=["XiccppPurity", "XiccppEfficiency"]
 unique_pion = idata.drop_duplicates(subset=["PionPurity", "PionEfficiency"])
 unique_kaon = idata.drop_duplicates(subset=["KaonPurity", "KaonEfficiency"])
 
+idata_unique_sorted = idata_unique.sort_values(by="XiccppEfficiency", ascending=True)
+unique_pion_sorted = unique_pion.sort_values(by="PionEfficiency", ascending=True)
+unique_kaon_sorted = unique_kaon.sort_values(by="KaonEfficiency", ascending=True)
 
-
-fig, axs = plt.subplots(3, figsize=(15, 20))
+fig, axs = plt.subplots(3, figsize=(10, 20))
 DisplacedTracksScatter = axs[0]
 XiccppPionScatter = axs[1]
 XiccppKaonScatter = axs[2]
 # Plot for Xiccpp (top-left and top-right)
-DisplacedTracksScatter.scatter(idata_unique["XiccppEfficiency"],idata_unique["XiccppPurity"], s=30, color='red', label='DisplacedTracks')
+DisplacedTracksScatter.scatter(idata_unique["XiccppEfficiency"],idata_unique["XiccppPurity"], s=30, color='black', label='DisplacedTracks')
+DisplacedTracksScatter.plot(idata_unique_sorted["XiccppEfficiency"],idata_unique_sorted["XiccppPurity"], color = 'red')
 DisplacedTracksScatter.set_xlabel("Efficiency")
 DisplacedTracksScatter.set_ylabel("Background Rejection")
 DisplacedTracksScatter.set_title("Efficiency vs background rejection for DisplacedTracks")
@@ -96,20 +99,30 @@ DisplacedTracksScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 
 # Plot for Pion (middle-left and middle-right)
-XiccppPionScatter.scatter(unique_pion["PionEfficiency"],unique_pion["PionPurity"], s = 30, color='blue', label='xiccpp_pions')
+XiccppPionScatter.scatter(unique_pion["PionEfficiency"],unique_pion["PionPurity"], s = 30, color='black', label='xiccpp_pions')
+XiccppPionScatter.plot(unique_pion_sorted["PionEfficiency"],unique_pion_sorted["PionPurity"], color = 'red')
 XiccppPionScatter.set_xlabel("Efficiency")
 XiccppPionScatter.set_ylabel("Background Rejection")
 XiccppPionScatter.set_title("Efficiency vs background rejection for xiccpp_pions")
 XiccppPionScatter.grid(alpha=0.3)
 XiccppPionScatter.legend()
+xspace = 0.025  # You can change this value to set the spacing of ticks
+yspace = 0.0001  # You can change this value to set the spacing of ticks
+XiccppPionScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
+XiccppPionScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Kaon (bottom-left and bottom-right)
 XiccppKaonScatter.scatter(unique_kaon["KaonEfficiency"],unique_kaon["KaonPurity"], s= 30, color='black', label='xiccpp_kaons')
+XiccppKaonScatter.plot(unique_kaon_sorted["KaonEfficiency"],unique_kaon_sorted["KaonPurity"], color = 'red')
 XiccppKaonScatter.set_xlabel("Efficiency")
 XiccppKaonScatter.set_ylabel("Background Rejection")
 XiccppKaonScatter.set_title("Efficiency vs background rejection for xiccpp_kaons")
 XiccppKaonScatter.grid(alpha=0.3)
 XiccppKaonScatter.legend()
+xspace = 0.025  # You can change this value to set the spacing of ticks
+yspace = 0.001  # You can change this value to set the spacing of ticks
+XiccppKaonScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
+XiccppKaonScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 
 # Adjust layout and save the figure
