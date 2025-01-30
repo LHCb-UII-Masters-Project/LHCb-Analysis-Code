@@ -16,7 +16,7 @@ import matplotlib.ticker as ticker
 
 #import lhcbstyle
 
-file = "/home/user294/Documents/selections/python/Outputs/TrackSelection/ROCPLOTDATA.csv"
+file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/ROCPLOTDATA.csv"
 df = pd.read_csv(file)
 idata = df.assign(
 
@@ -62,8 +62,6 @@ def df_zoom(idata, efficiency_column, purity_column, dictionary):
                  (idata[purity_column] >= purity_min) &
                  (idata[purity_column] <= purity_max)]
     return zoomed_df[~zoomed_df[['XiccppPurity', 'XiccppEfficiency']].duplicated(keep=False)]
-
-     
 
 
 # Example usage
@@ -127,5 +125,28 @@ XiccppKaonScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Adjust layout and save the figure
 plt.tight_layout()
-plt.savefig("/home/user294/Documents/selections/python/Fit/triple_plot.pdf", format='pdf', dpi=350)
+plt.savefig("/home/user293/Documents/selections/python/Fit/triple_plot.pdf", format='pdf', dpi=350)
 
+
+# Chosen trade-off values:
+
+dis_tracks_coords = [0.0015, 0.550]
+xiccpp_pions_coords = [0.0069, 0.4]
+xiccpp_kaons_coords = [0.036, 0.675]
+
+jdata = df.assign(
+    dis_track_min = ((idata["XiccppPurity"] - dis_tracks_coords[0])/dis_tracks_coords[0]) * ((idata["XiccppEfficiency"] - dis_tracks_coords[1])/dis_tracks_coords[1]),
+    xipion_track_min = ((idata["PionPurity"] - xiccpp_pions_coords[0])/xiccpp_pions_coords[0]) * ((idata["PionEfficiency"] - xiccpp_pions_coords[1])/xiccpp_pions_coords[1]),
+    xikaons_track_min = ((idata["KaonPurity"] - xiccpp_kaons_coords[0])/xiccpp_kaons_coords[0]) * ((idata["KaonEfficiency"] - xiccpp_kaons_coords[1])/xiccpp_kaons_coords[1])
+)
+
+dis_track_ID = df.loc[jdata["dis_track_min"].idxmin()]
+xipion_track_ID = df.loc[jdata["xipion_track_min"].idxmin()]
+xikaon_track_ID = df.loc[jdata["xikaons_track_min"].idxmin()]
+
+track_ids = [dis_track_ID, xipion_track_ID, xikaon_track_ID]
+track_id_names = ["Displaced", "XiPion", "XiKaons"]
+for i, ID in enumerate(track_ids):
+    print(f"{track_id_names[i]} Tracks Min_PT = " + str(ID["MinPT"]))
+    print((f"{track_id_names[i]} Tracks Min_P = " + str(ID["MinP"])))
+    print(f"{track_id_names[i]} MinIPChi2 = " + str(ID["MinIPChi2"]))
