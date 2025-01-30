@@ -84,7 +84,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
     
-def macro_batch(program="Optimiser", comp="Local", size="Small", files_per_run=2, tot_num_files=4, rich_timing=300, 
+def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_files=4, size="Small", rich_timing=300, 
                 velo_time=50, pid_switch=1, kaon_switch=1, rand_seed=None):
     """
     Function that can be called by a procces in order to run multiple combinations of arguments simultaneously
@@ -386,33 +386,41 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     tot_num_files = 50
     rand_seed = None
 
-    #rich_options = [150, 300]
-    rich_options = [300]
-
-   # PID_switch = [0,1]
-    PID_switch = [0]
-    
-    # velo_options = [50, 200]
-    velo_options = [50]
-
-    # Makes proccesses for all combinations of arguments
-    process_store = []
     try:
-    # process_store = []
-        for rt in rich_options:
-            for vt in velo_options:
-                for PID in PID_switch:
-                    k_switch = 1 if PID == 1 else 0
-                    p = Process(target = macro_batch, args = (program, comp, size, files_per_run, tot_num_files, rt, 
-                    vt, PID, k_switch, rand_seed))
-                    process_store.append(p)
-                    time.sleep(1)
+        if program == "BsRun":
 
-        # Starts proccesses and then waits for them to be complete
-        for p in process_store:
-            p.start()
-        for p in process_store:
-            p.join()
+            #rich_options = [150, 300]
+            rich_options = [300]
+
+        # PID_switch = [0,1]
+            PID_switch = [0]
+            
+            # velo_options = [50, 200]
+            velo_options = [50]
+
+            # Makes proccesses for all combinations of arguments
+            process_store = []
+            # process_store = []
+            for rt in rich_options:
+                for vt in velo_options:
+                    for PID in PID_switch:
+                        k_switch = 1 if PID == 1 else 0
+                        p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files, size, rt, 
+                        vt, PID, k_switch, rand_seed))
+                        process_store.append(p)
+                        time.sleep(1)
+            
+        else:
+            process_store = []
+            p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files))
+            process_store.append(p)
+            time.sleep(1)
+
+            # Starts proccesses and then waits for them to be complete
+            for p in process_store:
+                p.start()
+            for p in process_store:
+                p.join()
     
     except KeyboardInterrupt:
         try: 
