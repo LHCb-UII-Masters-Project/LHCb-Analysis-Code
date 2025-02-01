@@ -10,6 +10,23 @@ from os import path, listdir
 import numpy as np
 import csv
 
+def particle_selector(tracks, min_min_pt, max_min_pt, pt_interval):
+  lc_daughters = np.zeros(int((max_min_pt - min_min_pt)/pt_interval))
+  xi_lc_daughters = np.zeros_like(lc_daughters)
+  xi_daughters = np.zeros_like(lc_daughters)
+  particles = np.zeros_like(lc_daughters)
+
+  for track in tracks:
+    if is_parent(track, event, 4122):
+      lc_daughters[i] += 1
+      if is_Gparent(track, event, 4222):
+        xi_lc_daughters[i] += 1
+    elif is_parent(track, event, 4222):
+      xi_daughters[i] += 1
+    particles[i] += 1
+
+    return lc_daughters, xi_lc_daughters, xi_daughters, particles
+
 if path.dirname(path.realpath(__file__))[-6:] == "python": # Checks if path ends in "python"
   basedir=path.dirname(path.realpath(__file__))
   sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
@@ -28,9 +45,11 @@ def get_arg(index, default, args):  # Arg function that returns relevant argumen
         return default
 args = sys.argv
 num_files = get_arg(1, 5, args)
-min_pt = get_arg(2, 200, args)
-min_p = get_arg(3, 1500, args)
-min_ipChi2_4d = float(args[4])
+min_min_pt = get_arg(2, 200, args)
+max_min_pt = get_arg(3, 1000, args)
+pt_interval = get_arg(4, 100, args)
+min_p = get_arg(5, 1500, args)
+min_ipChi2_4d = float(args[6])
 
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
@@ -68,7 +87,7 @@ max_num_Xiccdouble = 0
 
 for event in events: # loop through all events
 
-  lambdac_tracks = ROOT.select( event.Particles, event.Vertices, min_pt, min_p,min_ipChi2_4d) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
+  max_tracks = ROOT.select( event.Particles, event.Vertices, max_min_pt, min_p,min_ipChi2_4d) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis min_pt, min_p, min_ipchi2_4d
   #full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 0 )
   # xi_tracks = ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 )
@@ -87,7 +106,7 @@ for event in events: # loop through all events
   max_num_event_xilambdac = 0
   max_num_event_xi = 0
 
-  investigated_tracks = lambdac_tracks  # Toggle between track selections
+  investigated_tracks = max_tracks  # Toggle between track selections
 
   for track in investigated_tracks:
     tracks = np.append(tracks, abs(track.trueID))
@@ -102,30 +121,9 @@ for event in events: # loop through all events
   all_protons = [track for track in investigated_tracks if abs( track.trueID ) == 2212]  # all p
   protons = [ track for track in investigated_tracks if abs(track.trueID) == 2212 and track.charge() > 0] # all p^+
 
-  for pion in pions:
-    if is_parent(pion, event, 4122):
-      num_event_lambdac_pions += 1
-      if is_Gparent(pion, event, 4222):
-        num_event_xilambdac_pions += 1
-    elif is_parent(pion, event, 4222):
-      num_event_xi_pions += 1
-    num_pion += 1
-
-  for kaon in kaons:
-    if is_parent(kaon, event, 4122):
-      num_event_lambdac_kaons += 1
-      if is_Gparent(kaon, event, 4222):
-        num_event_xilambdac_kaons += 1
-    elif is_parent(kaon, event, 4222):
-      num_event_xi_kaons += 1
-    num_kaon += 1
-
-  for proton in protons:
-    if is_parent(proton, event, 4122):
-      num_event_lambdac_protons += 1
-      if is_Gparent(proton, event, 4222):
-        num_event_xilambdac_protons += 1
-    num_proton += 1
+  num_event_lambdac_pions, num_event_xilambdac_pions, num_event_xi_pions, num_pions = particle_selector(pions, min_min_pt, max_min_pt)
+  num_event_lambdac_kaons, num_event_xilambdac_kaons, num_event_xi_kaons, num_kaons = particle_selector(kaons, min_min_pt, max_min_pt)
+  num_event_lambdac_protons, num_event_xilambdac_protons, _, num_protons = particle_selector(protons, min_min_pt, max_min_pt)
   
   max_num_event_lambdac_candidates = num_pion * num_proton * num_kaon
   if num_event_lambdac_protons > 0 and num_event_lambdac_kaons > 0 and num_event_lambdac_protons > 0:
