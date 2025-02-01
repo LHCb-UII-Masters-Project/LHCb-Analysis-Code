@@ -348,9 +348,38 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
             for min_pt in range(300, 1000, 70):
                 for min_p in range(500, 4000, 250):
                     run_args = f"{num_files} {min_pt} {min_p} {min_ipChi2_4d}"
-                    wait_id.append(runThisScriptOnCondor(f"{basedir}/TrackSelectionOptimiser.py", f"Optimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_pt}-{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
+                    wait_id.append(runThisScriptOnCondor(f"{basedir}/NewTrackSelector.py", f"Optimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_pt}-{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
                     time.sleep(1)
                     p_vals.append(f"{min_pt}-{min_p}")
+
+        if local is True:
+            # Uses ret to wait if local
+            for index, ret in enumerate(wait_id):
+                ret.wait()
+                time.sleep(1)
+        else:
+            # Uses condor_wait to wait if on condor
+            for index, numbers in enumerate(p_vals):
+                subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
+                time.sleep(1)
+
+        end_time = time.time()
+
+    elif program == "OptimiserBatch":
+
+        wait_id = []
+        p_vals = []
+        num_files = 10
+        pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+        min_min_pt = 300
+        max_min_pt = 1000
+        pt_interval = 70
+        for min_ipChi2_4d in np.linspace(0,7, 15):
+            for min_p in range(500, 4000, 250):
+                run_args = f"{num_files} {min_min_pt} {max_min_pt} {pt_interval} {min_p} {min_ipChi2_4d}"
+                wait_id.append(runThisScriptOnCondor(f"{basedir}/NewTrackSelector.py", f"Optimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
+                time.sleep(1)
+                p_vals.append(str(min_p))
 
         if local is True:
             # Uses ret to wait if local
@@ -379,7 +408,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
-    program = "Optimiser"
+    program = "OptimiserBatch"
     comp = "NonLocal"
     size = "Small"
     files_per_run = 2
