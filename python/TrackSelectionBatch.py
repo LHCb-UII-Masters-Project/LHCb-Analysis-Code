@@ -10,23 +10,49 @@ from os import path, listdir
 import numpy as np
 import csv
 
+def not_zero(counted_particles):
+  for i, counter in enumerate(counted_particles):
+    if i == 0 and counter == 0:
+      return counted_particles
+    elif counter == 0:
+      counted_particles[i] = counted_particles[0]
+  return counted_particles
+
 def particle_selector(tracks, min_pts, pt_interval):
   lc_daughters = np.zeros_like(min_pts)
   xi_lc_daughters = np.zeros_like(lc_daughters)
   xi_daughters = np.zeros_like(lc_daughters)
   particles = np.zeros_like(lc_daughters)
 
-  for i, pt in enumerate(min_pts):
-    for track in [track for track in tracks if track.pt() >= pt]:
-      if is_parent(track, event, 4122):
-        lc_daughters[i] += 1
-        if is_Gparent(track, event, 4222):
-          xi_lc_daughters[i] += 1
-      elif is_parent(track, event, 4222):
-        xi_daughters[i] += 1
-      particles[i] += 1
+  lc_daughters = not_zero(lc_daughters)
+  xi_lc_daughters = not_zero(xi_lc_daughters)
+  xi_daughters = not_zero(xi_daughters)
+  particles = not_zero(particles)
 
-    return lc_daughters, xi_lc_daughters, xi_daughters, particles
+  for track in [track for track in tracks if track.pt() >= min_pts[0]]:
+    if is_parent(track, event, 4122):
+      lc_daughters[0] += 1
+      if is_Gparent(track, event, 4222):
+        xi_lc_daughters[0] += 1
+    elif is_parent(track, event, 4222):
+      xi_daughters[0] += 1
+    particles[0] += 1
+
+  for i, pt in enumerate(min_pts):
+    if i == 0:
+      continue
+    else: 
+      for track in [track for track in tracks if track.pt() >= pt and track.pt() < min_pts[i-1]]:
+        if is_parent(track, event, 4122):
+          lc_daughters[i] = lc_daughters[i] - 1
+          if is_Gparent(track, event, 4222):
+            xi_lc_daughters[i] = xi_lc_daughters[i] - 1
+        elif is_parent(track, event, 4222):
+          xi_daughters[i] = xi_daughters[i] - 1
+        particles[i] = particles[i] - 1
+      
+
+  return lc_daughters, xi_lc_daughters, xi_daughters, particles
 
 if path.dirname(path.realpath(__file__))[-6:] == "python": # Checks if path ends in "python"
   basedir=path.dirname(path.realpath(__file__))
@@ -44,6 +70,7 @@ def get_arg(index, default, args):  # Arg function that returns relevant argumen
         return int(args[index])
     except (IndexError, ValueError, TypeError):
         return default
+
 args = sys.argv
 num_files = get_arg(1, 5, args)
 min_min_pt = get_arg(2, 200, args)
@@ -51,7 +78,7 @@ max_min_pt = get_arg(3, 1000, args)
 pt_interval = get_arg(4, 100, args)
 min_p = get_arg(5, 1500, args)
 min_ipChi2_4d = float(args[6])
-min_pts = np.linspace(min_min_pt, max_min_pt, int((max_min_pt - min_min_pt)/pt_interval)+1)
+min_pts = np.linspace(min_min_pt, max_min_pt, int((max_min_pt - min_min_pt)/pt_interval)+1)[::-1]
 
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
@@ -89,7 +116,7 @@ max_num_Xiccdouble = 0
 
 for event in events: # loop through all events
 
-  max_tracks = ROOT.select( event.Particles, event.Vertices, max_min_pt, min_p,min_ipChi2_4d) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
+  max_tracks = ROOT.select( event.Particles, event.Vertices, min_min_pt, min_p,min_ipChi2_4d) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   # selects acceptable particles for analysis min_pt, min_p, min_ipchi2_4d
   #full_tracks = ROOT.select( event.Particles, event.Vertices, 0, 0, 0 )
   # xi_tracks = ROOT.select( event.Particles, event.Vertices, 500, 1000, 3 )
