@@ -1,10 +1,11 @@
 import os
 import pandas as pd
 import numpy as np
+from os import path
 
 def combine_csv_files():
     # Define the range of filenames
-    filenames = [f"LambdacCompIP{i}.csv" for i in np.linspace(0,7, 15)]
+    filenames = [f"{path.dirname(path.realpath(__file__))}/../LambdacCompIP{i}.csv" for i in np.linspace(0,7, 15)]
     
     # Check if all files exist
     missing_files = [file for file in filenames if not os.path.exists(file)]
