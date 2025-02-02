@@ -10,12 +10,11 @@ from os import path, listdir
 import numpy as np
 import csv
 
-def not_zero(counted_particles):
-  for i, counter in enumerate(counted_particles):
-    if i == 0 and counter == 0:
-      return counted_particles
-    elif counter == 0:
-      counted_particles[i] = counted_particles[0]
+def not_zero(counted_particles, i):
+  if i == 0:
+    return counted_particles
+  else:
+    counted_particles[i] = counted_particles[i-1]
   return counted_particles
 
 def particle_selector(tracks, min_pts, pt_interval):
@@ -24,25 +23,23 @@ def particle_selector(tracks, min_pts, pt_interval):
   xi_daughters = np.zeros_like(lc_daughters)
   particles = np.zeros_like(lc_daughters)
 
-  lc_daughters = not_zero(lc_daughters)
-  xi_lc_daughters = not_zero(xi_lc_daughters)
-  xi_daughters = not_zero(xi_daughters)
-  particles = not_zero(particles)
-
-  for track in [track for track in tracks if track.pt() >= min_pts[0]]:
-    if is_parent(track, event, 4122):
-      lc_daughters[0] += 1
-      if is_Gparent(track, event, 4222):
-        xi_lc_daughters[0] += 1
-    elif is_parent(track, event, 4222):
-      xi_daughters[0] += 1
-    particles[0] += 1
-
   for i, pt in enumerate(min_pts):
+    lc_daughters = not_zero(lc_daughters, i)
+    xi_lc_daughters = not_zero(xi_lc_daughters, i)
+    xi_daughters = not_zero(xi_daughters, i)
+    particles = not_zero(particles, i)
+
     if i == 0:
-      continue
+      for track in [track for track in tracks if track.pt() >= min_pts[0]]:
+        if is_parent(track, event, 4122):
+          lc_daughters[0] += 1
+          if is_Gparent(track, event, 4222):
+            xi_lc_daughters[0] += 1
+        elif is_parent(track, event, 4222):
+          xi_daughters[0] += 1
+        particles[0] += 1
     else: 
-      for track in [track for track in tracks if track.pt() >= pt and track.pt() < min_pts[i-1]]:
+      for track in [track for track in tracks if track.pt() > min_pts[i-1] and track.pt() <= pt]:
         if is_parent(track, event, 4122):
           lc_daughters[i] = lc_daughters[i] - 1
           if is_Gparent(track, event, 4222):
@@ -78,7 +75,7 @@ max_min_pt = get_arg(3, 1000, args)
 pt_interval = get_arg(4, 100, args)
 min_p = get_arg(5, 1500, args)
 min_ipChi2_4d = float(args[6])
-min_pts = np.linspace(min_min_pt, max_min_pt, int((max_min_pt - min_min_pt)/pt_interval)+1)[::-1]
+min_pts = np.linspace(min_min_pt, max_min_pt, int((max_min_pt - min_min_pt)/pt_interval)+1)
 
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
