@@ -84,15 +84,15 @@ for event in events: # loop through all events
    xiccpp_true_number = [track for track in event.Particles if abs(track.trueID) == particle_dict['xicc++']]
 
    true_xiccpp = [track for track in event.Particles if is_from(track,event,particle_dict['xicc++'])]
-   true_xilc_daughters = [track for track in event.Particles if (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lamdac']))]
+   true_xilc_daughters = [track for track in event.Particles if (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lambdac']))]
 
    displaced_tracks = ROOT.select( event.Particles, event.Vertices, min_pt, min_p,min_ipChi2_4d) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
 
    xiccpp_tracks = [ track for track in displaced_tracks if is_from(track,event,particle_dict['xicc++'])] # all proton^
-   xilc_daughter_tracks = [ track for track in displaced_tracks if (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lamdac']))] # all proton^
+   xilc_daughter_tracks = [ track for track in displaced_tracks if (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lambdac']))] # all proton^
 
    background_tracks = [ track for track in displaced_tracks if not is_from(track,event,particle_dict['xicc++'])]
-   xilc_background_tracks = [ track for track in displaced_tracks if not (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lamdac']))]
+   xilc_background_tracks = [ track for track in displaced_tracks if not (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lambdac']))]
 
    # Bachelor
    true_pions = [track for track in event.Particles if abs(track.trueID) == particle_dict['Pion']]
@@ -197,7 +197,7 @@ with open(file_path, mode='a', newline='') as file:
                          "MinIPChi2", 
                          "#1.TotalTrueXiccpp", 
                          "#1.TotalTrueXiccppTracks", 
-                         "#1.TotalTrueXiLcDaughterTracks"
+                         "#1.TotalTrueXiLcDaughterTracks",
                          "#1.TotalXiccppTracks",
                          "#1.TotalXiLcDaughterTracks",
                          "#1.TotalBackgroundTracks",
