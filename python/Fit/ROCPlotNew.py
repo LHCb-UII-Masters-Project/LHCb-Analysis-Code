@@ -15,40 +15,55 @@ from lhcbstyle import LHCbStyle
 import matplotlib.ticker as ticker 
 
 #import lhcbstyle
+new_numerator = True
 
-file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/ROCPLOTDATA.csv"
+file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/LambdacCompIP7.0.csv"
 df = pd.read_csv(file)
-idata = df.assign(
 
-    XiccppEfficiency = df['#1.TotalXiccppTracks']/df['#1.TotalTrueXiccppTracks'],
-    XiccppPurity =  1 -( df['#1.TotalBackgroundTracks']/(df['#1.TotalXiccppTracks']+df['#1.TotalBackgroundTracks'])),
+if new_numerator is True:
+    idata = df.assign(
 
-    PionEfficiency = df['#2.TotalXiccppPions']/df['#2.TotalTrueXiccppPions'],
-    PionPurity =  1-(df['#2.TotalBackgroundPions']/(df['#2.TotalBackgroundPions'] + df['#2.TotalXiccppPions'])),
+        XiccppEfficiency = df['#1.TotalXiLcDaughterTracks']/df['#1.TotalTrueXiLcDaughterTracks'],
+        XiccppPurity =  1 -( df['#1.TotalXiLcBackgroundTracks']/(df['#1.TotalXiLcDaughterTracks']+df['#1.TotalXiLcBackgroundTracks'])),
 
-    KaonEfficiency = df["#3.TotalXiccppKaons"]/df["#3.TotalTrueXiccppKaons"],
-    KaonPurity = 1 - (df["#3.TotalBackgroundKaons"]/(df["#3.TotalXiccppKaons"]+ df["#3.TotalBackgroundKaons"]))
+        PionEfficiency = df['#2.TotalBachelorPionTracks']/df['#2.TotalTrueBachelorPionTracks'],
+        PionPurity =  1-(df['#2.TotalBachelorPionBackgroundTracks']/(df['#2.TotalBachelorPionBackgroundTracks'] + df['#2.TotalBachelorPionTracks'])),
 
-)
+        KaonEfficiency = df["#3.TotalBachelorKaonTracks"]/df["#3.TotalTrueBachelorKaonTracks"],
+        KaonPurity = 1 - (df["#3.TotalBackgroundBachelorKaons"]/(df["#3.TotalBachelorKaonTracks"]+ df["#3.TotalBackgroundBachelorKaons"]))
+    )
+else:
+    idata = df.assign(
+
+        XiccppEfficiency = df['#1.TotalXiccppTracks']/df['#1.TotalTrueXiccppTracks'],
+        XiccppPurity =  1 -( df['#1.TotalBackgroundTracks']/(df['#1.TotalXiccppTracks']+df['#1.TotalBackgroundTracks'])),
+
+        PionEfficiency = df['#2.TotalXiccppPions']/df['#2.TotalTrueXiccppPions'],
+        PionPurity =  1-(df['#2.TotalBackgroundPions']/(df['#2.TotalBackgroundPions'] + df['#2.TotalXiccppPions'])),
+
+        KaonEfficiency = df["#3.TotalXiccppKaons"]/df["#3.TotalTrueXiccppKaons"],
+        KaonPurity = 1 - (df["#3.TotalBackgroundKaons"]/(df["#3.TotalXiccppKaons"]+ df["#3.TotalBackgroundKaons"]))
+    )
+
 DisplacedTracksDict = {
-  "efficiency_minimum":0.6,
-  "efficiency_maximum":0.8,
-  "purity_minimum":0.0125,
-  "purity_maximum":0.013
+  "efficiency_minimum":0.545,
+  "efficiency_maximum":0.56,
+  "purity_minimum":0.018,
+  "purity_maximum":0.0205
   }
 
 XiccppPionsDict = {
- "efficiency_minimum":321,
-  "efficiency_maximum":211,
-  "purity_minimum":2212,
-  "purity_maximum":4122
+ "efficiency_minimum":0.250,
+  "efficiency_maximum":0.325,
+  "purity_minimum":0.01575,
+  "purity_maximum":0.01951
 }
 
 XiccppKaonsDict = {
- "efficiency_minimum":321,
-  "efficiency_maximum":211,
-  "purity_minimum":2212,
-  "purity_maximum":4122
+ "efficiency_minimum":0.375,
+  "efficiency_maximum":0.45,
+  "purity_minimum":0.09,
+  "purity_maximum":0.114
 }
 
 def df_zoom(idata, efficiency_column, purity_column, dictionary):
@@ -78,61 +93,81 @@ idata_unique_sorted = idata_unique.sort_values(by="XiccppEfficiency", ascending=
 unique_pion_sorted = unique_pion.sort_values(by="PionEfficiency", ascending=True)
 unique_kaon_sorted = unique_kaon.sort_values(by="KaonEfficiency", ascending=True)
 
-fig, axs = plt.subplots(3, figsize=(10, 20))
+fig, axs = plt.subplots(3, figsize=(15, 30))
 DisplacedTracksScatter = axs[0]
 XiccppPionScatter = axs[1]
 XiccppKaonScatter = axs[2]
 # Plot for Xiccpp (top-left and top-right)
-DisplacedTracksScatter.scatter(idata_unique["XiccppEfficiency"],idata_unique["XiccppPurity"], s=30, color='black', label='DisplacedTracks')
-DisplacedTracksScatter.plot(idata_unique_sorted["XiccppEfficiency"],idata_unique_sorted["XiccppPurity"], color = 'red')
+DisplacedTracksScatter.scatter(data = idata, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='black', label='DisplacedTracks')
+# Annotate each point
+# Annotate each point
+"""
+for i, row in idata_unique.iterrows():
+    DisplacedTracksScatter.annotate(
+        f'[{row["MinP"],row["MinPT"],row["MinIPChi2"]}]', 
+        (row["XiccppEfficiency"], row["XiccppPurity"]),  # Use the correct coordinates
+        textcoords="offset points",
+        xytext=(0, 0),  # Offset the text slightly
+        ha='center', fontsize=8  # Corrected capitalization and fontsize
+    )
+"""
+
 DisplacedTracksScatter.set_xlabel("Efficiency")
 DisplacedTracksScatter.set_ylabel("Background Rejection")
 DisplacedTracksScatter.set_title("Efficiency vs background rejection for DisplacedTracks")
 DisplacedTracksScatter.grid(alpha=0.3)
 DisplacedTracksScatter.legend()
-xspace = 0.025  # You can change this value to set the spacing of ticks
-yspace = 0.001  # You can change this value to set the spacing of ticks
+xspace = 0.0025  # You can change this value to set the spacing of ticks
+yspace = 0.00005  # You can change this value to set the spacing of ticks
 DisplacedTracksScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
 DisplacedTracksScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 
 # Plot for Pion (middle-left and middle-right)
-XiccppPionScatter.scatter(unique_pion["PionEfficiency"],unique_pion["PionPurity"], s = 30, color='black', label='xiccpp_pions')
-XiccppPionScatter.plot(unique_pion_sorted["PionEfficiency"],unique_pion_sorted["PionPurity"], color = 'red')
+XiccppPionScatter.scatter(data = pion_zoomed , x = "PionEfficiency",y = "PionPurity", s = 30, color='black', label='xiccpp_pions')
+for i, row in pion_zoomed.iterrows():
+    XiccppPionScatter.annotate(
+        f'[{row["MinP"],row["MinPT"],row["MinIPChi2"]}]', 
+        (row["XiccppEfficiency"], row["XiccppPurity"]),  # Use the correct coordinates
+        textcoords="offset points",
+        xytext=(0, 0),  # Offset the text slightly
+        ha='center', fontsize=8  # Corrected capitalization and fontsize
+    )
 XiccppPionScatter.set_xlabel("Efficiency")
 XiccppPionScatter.set_ylabel("Background Rejection")
 XiccppPionScatter.set_title("Efficiency vs background rejection for xiccpp_pions")
 XiccppPionScatter.grid(alpha=0.3)
 XiccppPionScatter.legend()
-xspace = 0.025  # You can change this value to set the spacing of ticks
-yspace = 0.0001  # You can change this value to set the spacing of ticks
+
+xspace = 0.0025  # You can change this value to set the spacing of ticks
+yspace = 0.00005  # You can change this value to set the spacing of ticks
 XiccppPionScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
 XiccppPionScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Kaon (bottom-left and bottom-right)
 XiccppKaonScatter.scatter(unique_kaon["KaonEfficiency"],unique_kaon["KaonPurity"], s= 30, color='black', label='xiccpp_kaons')
-XiccppKaonScatter.plot(unique_kaon_sorted["KaonEfficiency"],unique_kaon_sorted["KaonPurity"], color = 'red')
 XiccppKaonScatter.set_xlabel("Efficiency")
 XiccppKaonScatter.set_ylabel("Background Rejection")
 XiccppKaonScatter.set_title("Efficiency vs background rejection for xiccpp_kaons")
 XiccppKaonScatter.grid(alpha=0.3)
 XiccppKaonScatter.legend()
 xspace = 0.025  # You can change this value to set the spacing of ticks
-yspace = 0.001  # You can change this value to set the spacing of ticks
+yspace = 0.005  # You can change this value to set the spacing of ticks
 XiccppKaonScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
 XiccppKaonScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 
 # Adjust layout and save the figure
 plt.tight_layout()
-plt.savefig("/home/user293/Documents/selections/python/Fit/triple_plot.pdf", format='pdf', dpi=350)
+plt.savefig("/home/user293/Documents/selections/python/Fit/triple_plot_4D.pdf", format='pdf', dpi=350)
 
 
 # Chosen trade-off values:
 
-dis_tracks_coords = [0.0015, 0.550]
-xiccpp_pions_coords = [0.0069, 0.4]
-xiccpp_kaons_coords = [0.036, 0.675]
+# [purity, efficiency]
+dis_tracks_coords = [0.018, 0.56]
+xiccpp_pions_coords = [0.01575, 0.325]
+xiccpp_kaons_coords = [0.094, 0.45]
 
 jdata = df.assign(
     dis_track_min = ((idata["XiccppPurity"] - dis_tracks_coords[0])/dis_tracks_coords[0]) * ((idata["XiccppEfficiency"] - dis_tracks_coords[1])/dis_tracks_coords[1]),
