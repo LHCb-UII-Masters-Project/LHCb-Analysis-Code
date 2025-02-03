@@ -201,11 +201,11 @@ with open(file_path, mode='a', newline='') as file:
                          "#1.TotalXiccppTracks",
                          "#1.TotalXiLcDaughterTracks",
                          "#1.TotalBackgroundTracks",
-                         "#1.TotalXiLcBackgroundTracks"
+                         "#1.TotalXiLcBackgroundTracks",
 
-                         "#2.TotalTruePions", 
-                         "#TotalTrueBachelorPionTracks",
+                         "#2.TotalTruePions",
                          "#2.TotalTrueXiccppPions",
+                         "#2.TotalTrueBachelorPionTracks",
                          "#2.TotalXiccppPions",
                          "#2.TotalBachelorPionTracks",
                          "#2.TotalBackgroundPions",
@@ -213,10 +213,10 @@ with open(file_path, mode='a', newline='') as file:
 
                          "#3.TotalTrueKaons",
                          "#3.TotalTrueXiccppKaons",
-                         "#3.TotalTrueBachelorKaonTracks"
+                         "#3.TotalTrueBachelorKaonTracks",
                          "#3.TotalXiccppKaons",
                          "#3.TotalBachelorKaonTracks",
-                         "#3.TotalBackgroundKaons"
+                         "#3.TotalBackgroundKaons",
                          "#3.TotalBackgroundBachelorKaons"])
 
     # Append the data
