@@ -6,8 +6,6 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 import ROOT
-from Variables import *
-import ROOT
 from ROOT import TGraph
 import ctypes
 import lhcbstyle
@@ -17,7 +15,7 @@ import matplotlib.ticker as ticker
 #import lhcbstyle
 new_numerator = True
 
-file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/LambdacCompIP7.0.csv"
+file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/Batch4D.csv"
 df = pd.read_csv(file)
 
 if new_numerator is True:
@@ -45,25 +43,28 @@ else:
         KaonPurity = 1 - (df["#3.TotalBackgroundKaons"]/(df["#3.TotalXiccppKaons"]+ df["#3.TotalBackgroundKaons"]))
     )
 
+paper_lc_values = idata.query('MinP == 2000 and MinPT == 200 and MinIPChi2 == 6')
+paper_xi_values = idata.query('MinP == 1000 and MinPT == 500')
+
 DisplacedTracksDict = {
-  "efficiency_minimum":0.545,
-  "efficiency_maximum":0.56,
-  "purity_minimum":0.018,
-  "purity_maximum":0.0205
+  "efficiency_minimum":0.63,
+  "efficiency_maximum":0.65,
+  "purity_minimum":0.014,
+  "purity_maximum":0.017
   }
 
 XiccppPionsDict = {
- "efficiency_minimum":0.250,
-  "efficiency_maximum":0.325,
-  "purity_minimum":0.01575,
-  "purity_maximum":0.01951
+ "efficiency_minimum":0.32,
+  "efficiency_maximum":0.43,
+  "purity_minimum":0.0052,
+  "purity_maximum":0.006
 }
 
 XiccppKaonsDict = {
- "efficiency_minimum":0.375,
-  "efficiency_maximum":0.45,
-  "purity_minimum":0.09,
-  "purity_maximum":0.114
+ "efficiency_minimum":0.6,
+  "efficiency_maximum":0.63,
+  "purity_minimum":0.018,
+  "purity_maximum":0.024
 }
 
 def df_zoom(idata, efficiency_column, purity_column, dictionary):
@@ -99,6 +100,8 @@ XiccppPionScatter = axs[1]
 XiccppKaonScatter = axs[2]
 # Plot for Xiccpp (top-left and top-right)
 DisplacedTracksScatter.scatter(data = idata, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='black', label='DisplacedTracks')
+DisplacedTracksScatter.scatter(data = paper_lc_values, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='red', label='LcPaperValues')
+DisplacedTracksScatter.scatter(data = paper_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='blue', label='XiPaperValues')
 # Annotate each point
 # Annotate each point
 """
@@ -117,49 +120,69 @@ DisplacedTracksScatter.set_ylabel("Background Rejection")
 DisplacedTracksScatter.set_title("Efficiency vs background rejection for DisplacedTracks")
 DisplacedTracksScatter.grid(alpha=0.3)
 DisplacedTracksScatter.legend()
-xspace = 0.0025  # You can change this value to set the spacing of ticks
-yspace = 0.00005  # You can change this value to set the spacing of ticks
-DisplacedTracksScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
-DisplacedTracksScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
-
+#xspace = 0.0025  # You can change this value to set the spacing of ticks
+#yspace = 0.00005  # You can change this value to set the spacing of ticks
+#DisplacedTracksScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
+#DisplacedTracksScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Pion (middle-left and middle-right)
-XiccppPionScatter.scatter(data = pion_zoomed , x = "PionEfficiency",y = "PionPurity", s = 30, color='black', label='xiccpp_pions')
+XiccppPionScatter.scatter(data = idata , x = "PionEfficiency",y = "PionPurity", s = 30, color='black', label='xiccpp_pions')
+XiccppPionScatter.scatter(data = paper_lc_values, x = "PionEfficiency", y = "PionPurity", s=30, color='red', label='LcPaperValuesPions')
+XiccppPionScatter.scatter(data = paper_xi_values, x = "PionEfficiency", y = "PionPurity", s=30, color='blue', label='XiPaperValuesPions')
+
+"""
 for i, row in pion_zoomed.iterrows():
     XiccppPionScatter.annotate(
         f'[{row["MinP"],row["MinPT"],row["MinIPChi2"]}]', 
-        (row["XiccppEfficiency"], row["XiccppPurity"]),  # Use the correct coordinates
+        (row["PionEfficiency"], row["PionPurity"]),  # Use the correct coordinates
         textcoords="offset points",
         xytext=(0, 0),  # Offset the text slightly
         ha='center', fontsize=8  # Corrected capitalization and fontsize
     )
+"""
+
 XiccppPionScatter.set_xlabel("Efficiency")
 XiccppPionScatter.set_ylabel("Background Rejection")
 XiccppPionScatter.set_title("Efficiency vs background rejection for xiccpp_pions")
 XiccppPionScatter.grid(alpha=0.3)
 XiccppPionScatter.legend()
 
-xspace = 0.0025  # You can change this value to set the spacing of ticks
-yspace = 0.00005  # You can change this value to set the spacing of ticks
-XiccppPionScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
-XiccppPionScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
+#xspace = 0.0025  # You can change this value to set the spacing of ticks
+#yspace = 0.00005  # You can change this value to set the spacing of ticks
+#XiccppPionScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
+#XiccppPionScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Kaon (bottom-left and bottom-right)
-XiccppKaonScatter.scatter(unique_kaon["KaonEfficiency"],unique_kaon["KaonPurity"], s= 30, color='black', label='xiccpp_kaons')
+XiccppKaonScatter.scatter(data = kaon_zoomed , x = "KaonEfficiency",y = "KaonPurity", s = 30, color='black', label='xiccpp_kaons')
+#XiccppKaonScatter.scatter(data = paper_lc_values, x = "KaonEfficiency", y = "KaonPurity", s=30, color='red', label='LcPaperValuesKaons')
+#XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=30, color='blue', label='XiPaperValuesKaons')
+
+for i, row in kaon_zoomed.iterrows():
+    XiccppKaonScatter.annotate(
+        f'[{row["MinP"],row["MinPT"],row["MinIPChi2"]}]', 
+        (row["KaonEfficiency"], row["KaonPurity"]),  # Use the correct coordinates
+        textcoords="offset points",
+        xytext=(0, 0),  # Offset the text slightly
+        ha='center', fontsize=8  # Corrected capitalization and fontsize
+    )
+
 XiccppKaonScatter.set_xlabel("Efficiency")
 XiccppKaonScatter.set_ylabel("Background Rejection")
 XiccppKaonScatter.set_title("Efficiency vs background rejection for xiccpp_kaons")
 XiccppKaonScatter.grid(alpha=0.3)
 XiccppKaonScatter.legend()
-xspace = 0.025  # You can change this value to set the spacing of ticks
-yspace = 0.005  # You can change this value to set the spacing of ticks
-XiccppKaonScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
-XiccppKaonScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
+#xspace = 0.025  # You can change this value to set the spacing of ticks
+#yspace = 0.005  # You can change this value to set the spacing of ticks
+#XiccppKaonScatter.yaxis.set_major_locator(ticker.MultipleLocator(yspace))
+#XiccppKaonScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 
 # Adjust layout and save the figure
 plt.tight_layout()
-plt.savefig("/home/user293/Documents/selections/python/Fit/triple_plot_4D.pdf", format='pdf', dpi=350)
+if new_numerator is True:
+    plt.savefig("/home/user293/Documents/selections/python/Fit/batch_newnewtrip_plot_4D.pdf", format='pdf', dpi=350)
+else:
+    plt.savefig("/home/user293/Documents/selections/python/Fit/batch_newoldtrip_plot_4D.pdf", format='pdf', dpi=350)
 
 
 # Chosen trade-off values:
