@@ -95,12 +95,12 @@ for event in events: # loop through all events
   true_xilc_daughters = [track for track in event.Particles if (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lambdac']))]
 
   set_of_displaced_tracks = [ROOT.select( event.Particles, event.Vertices, min_pts[0], min_p,min_ipChi2_4d)]
-  for pt in min_pts:
-    if pt != min_pts[0]:
-      set_of_displaced_tracks.append([track for track in set_of_displaced_tracks[0] if track.pt() <= pt])
+  for i, pt in enumerate(min_pts):
+    if i != 0:
+      set_of_displaced_tracks.append([track for track in set_of_displaced_tracks[0] if (track.pt() < pt and track.pt() >= min_pts[i-1])])
 
   for i, displaced_tracks in enumerate(set_of_displaced_tracks):
-    xiccpp_tracks = [ track for track in displaced_tracks if is_from(track,event,particle_dict['xicc++'])] # all proton^
+    xiccpp_tracks = [ track for track in displaced_tracks if is_from(track,event,particle_dict['xicc++'])]
     xilc_daughter_tracks = [ track for track in displaced_tracks if (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lambdac']))] # all proton^
 
     background_tracks = [ track for track in displaced_tracks if not is_from(track,event,particle_dict['xicc++'])]
@@ -135,54 +135,48 @@ for event in events: # loop through all events
     bachelor_kaon_background = [ track for track in kaons if not (is_parent(track,event,particle_dict['xicc++']))] # all proton^
 
     if i == 0:
-      xiccpp_total_true_number[i] += len(xiccpp_true_number)
-      xiccpp_true_tracks[i] += len(true_xiccpp)
-      xilc_true_daughters_tracks[i] += len(true_xilc_daughters)
-      xiccpp_total_tracks[i] += len(xiccpp_tracks)
-      xilc_daughter_total_tracks[i] += len(xilc_daughter_tracks)
-      xiccpp_background_tracks[i] += len(background_tracks)
-      xilc_background_total_tracks[i] += len(xilc_background_tracks)
-      
-      pion_true_tracks[i] += len(true_pions)
-      xiccpp_true_pion_tracks[i] += len(true_xiccpp_pions)
-      true_bachelor_pion_tracks[i] += len(true_bachelor_pions)
-      xiccpp_pion_tracks[i] += len(xiccpp_pions)
-      bachelor_pion_tracks[i] += len(bachelor_pions)
-      pion_background_tracks[i] += len(pion_background)
-      pion_bachelor_background_tracks[i] += len(bachelor_pion_background)
-      
-      kaon_true_tracks[i] += len(true_kaons)
-      xicpp_true_kaon_tracks[i] += len(true_xiccpp_kaons)
-      true_bachelor_kaon_tracks[i] += len(true_bachelor_kaons)
-      xiccpp_kaon_tracks[i] += len(xiccpp_kaons)
-      bachelor_kaon_tracks[i] += len(bachelor_kaons)
-      kaon_background_tracks[i] += len(kaon_background)
-      kaon_bachelor_background_tracks[i] += len(bachelor_kaon_background)
+      for j in range(len(min_pts)):
+        xiccpp_total_true_number[j] += len(xiccpp_true_number)
+        xiccpp_true_tracks[j] += len(true_xiccpp)
+        xilc_true_daughters_tracks[j] += len(true_xilc_daughters)
+        xiccpp_total_tracks[j] += len(xiccpp_tracks) # fault
+        xilc_daughter_total_tracks[j] += len(xilc_daughter_tracks)
+        xiccpp_background_tracks[j] += len(background_tracks)
+        xilc_background_total_tracks[j] += len(xilc_background_tracks)
+        
+        pion_true_tracks[j] += len(true_pions)
+        xiccpp_true_pion_tracks[j] += len(true_xiccpp_pions)
+        true_bachelor_pion_tracks[j] += len(true_bachelor_pions)
+        xiccpp_pion_tracks[j] += len(xiccpp_pions)
+        bachelor_pion_tracks[j] += len(bachelor_pions)
+        pion_background_tracks[j] += len(pion_background)
+        pion_bachelor_background_tracks[j] += len(bachelor_pion_background)
+        
+        kaon_true_tracks[j] += len(true_kaons)
+        xicpp_true_kaon_tracks[j] += len(true_xiccpp_kaons)
+        true_bachelor_kaon_tracks[j] += len(true_bachelor_kaons)
+        xiccpp_kaon_tracks[j] += len(xiccpp_kaons)
+        bachelor_kaon_tracks[j] += len(bachelor_kaons)
+        kaon_background_tracks[j] += len(kaon_background)
+        kaon_bachelor_background_tracks[j] += len(bachelor_kaon_background)
     
     else:
-      xiccpp_total_true_number[i] = xiccpp_total_true_number[i-1] - len(xiccpp_true_number)
-      xiccpp_true_tracks[i] = xiccpp_true_tracks[i-1] - len(true_xiccpp)
-      xilc_true_daughters_tracks[i] = xilc_true_daughters_tracks[i-1] - len(true_xilc_daughters)
-      xiccpp_total_tracks[i] = xiccpp_total_tracks[i-1] - len(xiccpp_tracks)
-      xilc_daughter_total_tracks[i] = xilc_daughter_total_tracks[i-1] - len(xilc_daughter_tracks)
-      xiccpp_background_tracks[i] = xiccpp_background_tracks[i-1] - len(background_tracks)
-      xilc_background_total_tracks[i] = xilc_background_total_tracks[i-1] - len(xilc_background_tracks)
+      for j in range(len(min_pts)):
+        if j >= i:
+          xiccpp_total_tracks[j] = xiccpp_total_tracks[j] - len(xiccpp_tracks)
+          xilc_daughter_total_tracks[j] = xilc_daughter_total_tracks[j] - len(xilc_daughter_tracks)
+          xiccpp_background_tracks[j] = xiccpp_background_tracks[j] - len(background_tracks)
+          xilc_background_total_tracks[j] = xilc_background_total_tracks[j] - len(xilc_background_tracks)
 
-      pion_true_tracks[i] = pion_true_tracks[i-1] - len(true_pions)
-      xiccpp_true_pion_tracks[i] = xiccpp_true_pion_tracks[i-1] - len(true_xiccpp_pions)
-      true_bachelor_pion_tracks[i] = true_bachelor_pion_tracks[i-1] - len(true_bachelor_pions)
-      xiccpp_pion_tracks[i] = xiccpp_pion_tracks[i-1] - len(xiccpp_pions)
-      bachelor_pion_tracks[i] = bachelor_pion_tracks[i-1] - len(bachelor_pions)
-      pion_background_tracks[i] = pion_background_tracks[i-1] - len(pion_background)
-      pion_bachelor_background_tracks[i] = pion_bachelor_background_tracks[i-1] - len(bachelor_pion_background)
+          xiccpp_pion_tracks[j] = xiccpp_pion_tracks[j] - len(xiccpp_pions)
+          bachelor_pion_tracks[j] = bachelor_pion_tracks[j] - len(bachelor_pions)
+          pion_background_tracks[j] = pion_background_tracks[j] - len(pion_background)
+          pion_bachelor_background_tracks[j] = pion_bachelor_background_tracks[j] - len(bachelor_pion_background)
 
-      kaon_true_tracks[i] = kaon_true_tracks[i-1] - len(true_kaons)
-      xicpp_true_kaon_tracks[i] = xicpp_true_kaon_tracks[i-1] - len(true_xiccpp_kaons)
-      true_bachelor_kaon_tracks[i] = true_bachelor_kaon_tracks[i-1] - len(true_bachelor_kaons)
-      xiccpp_kaon_tracks[i] = xiccpp_kaon_tracks[i-1] - len(xiccpp_kaons)
-      bachelor_kaon_tracks[i] = bachelor_kaon_tracks[i-1] - len(bachelor_kaons)
-      kaon_background_tracks[i] = kaon_background_tracks[i-1] - len(kaon_background)
-      kaon_bachelor_background_tracks[i] = kaon_bachelor_background_tracks[i-1] - len(bachelor_kaon_background)
+          xiccpp_kaon_tracks[j] = xiccpp_kaon_tracks[j] - len(xiccpp_kaons)
+          bachelor_kaon_tracks[j] = bachelor_kaon_tracks[j] - len(bachelor_kaons)
+          kaon_background_tracks[j] = kaon_background_tracks[j] - len(kaon_background)
+          kaon_bachelor_background_tracks[j] = kaon_bachelor_background_tracks[j] - len(bachelor_kaon_background)
 
 
 for i, pt in enumerate(min_pts):
@@ -194,7 +188,7 @@ for i, pt in enumerate(min_pts):
               xiccpp_total_true_number[0],
               xiccpp_true_tracks[0],
               xilc_true_daughters_tracks[0],
-              xiccpp_total_tracks[i],
+              xiccpp_total_tracks[i], # Fault
               xilc_daughter_total_tracks[i],
               xiccpp_background_tracks[i],
               xilc_background_total_tracks[i],
