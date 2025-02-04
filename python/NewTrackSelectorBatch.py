@@ -49,9 +49,6 @@ min_pts = np.linspace(min_min_pt, max_min_pt, int((max_min_pt - min_min_pt)/pt_i
 file_path = f"{basedir}/Outputs/TrackSelection/BatchLambdacCompIP{min_ipChi2_4d}.csv"
 #file_path = f"test.csv"
 
-# Check if the file exists
-file_exists = path.isfile(file_path)
-
 from MCTools import * 
 gInterpreter.AddIncludePath( f'{basedir}/../include')
 gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the python path
@@ -194,35 +191,38 @@ for i, pt in enumerate(min_pts):
             min_p,
               min_ipChi2_4d, 
             
-              xiccpp_total_true_number,
-              xiccpp_true_tracks,
-              xilc_true_daughters_tracks,
-              xiccpp_total_tracks,
-              xilc_daughter_total_tracks,
-              xiccpp_background_tracks,
-              xilc_background_total_tracks,
+              xiccpp_total_true_number[i],
+              xiccpp_true_tracks[i],
+              xilc_true_daughters_tracks[i],
+              xiccpp_total_tracks[i],
+              xilc_daughter_total_tracks[i],
+              xiccpp_background_tracks[i],
+              xilc_background_total_tracks[i],
 
-              pion_true_tracks,
-              xiccpp_true_pion_tracks,
-              true_bachelor_pion_tracks,
-              xiccpp_pion_tracks,
-              bachelor_pion_tracks,
-              pion_background_tracks,
-              pion_bachelor_background_tracks,
+              pion_true_tracks[i],
+              xiccpp_true_pion_tracks[i],
+              true_bachelor_pion_tracks[i],
+              xiccpp_pion_tracks[i],
+              bachelor_pion_tracks[i],
+              pion_background_tracks[i],
+              pion_bachelor_background_tracks[i],
 
-              kaon_true_tracks,
-              xicpp_true_kaon_tracks,
-              true_bachelor_kaon_tracks,
-              xiccpp_kaon_tracks,
-              bachelor_kaon_tracks,
-              kaon_background_tracks,
-              kaon_bachelor_background_tracks,
+              kaon_true_tracks[i],
+              xicpp_true_kaon_tracks[i],
+              true_bachelor_kaon_tracks[i],
+              xiccpp_kaon_tracks[i],
+              bachelor_kaon_tracks[i],
+              kaon_background_tracks[i],
+              kaon_bachelor_background_tracks[i],
                 ]
 
+  # Check if the file exists
+  file_exists = path.isfile(file_path)
+  
   # Open the file in append mode
   with open(file_path, mode='a', newline='') as file:
       writer = csv.writer(file)
-      
+
       # Write header only if the file doesn't exist
       if not file_exists:
           writer.writerow(["NumFiles", 
