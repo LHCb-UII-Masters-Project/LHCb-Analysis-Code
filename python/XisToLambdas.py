@@ -110,6 +110,15 @@ RunDiagnostics.Branch('xi_mass_sig_kills', xi_mass_sig_kills, 'xi_mass_sig_kills
 xi_mass_bkg_kills = array('f', [0])
 RunDiagnostics.Branch('xi_mass_bkg_kills', xi_mass_bkg_kills, 'xi_mass_bkg_kills/F')
 RunDiagnostics.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
+
+lambdac_is_signal_mass_pre_selections = array('f', [0])
+RunDiagnostics.Branch('lambdac_is_signal_mass_pre_selections', lambdac_is_signal_mass_pre_selections, 'lambdac_is_signal_mass_pre_selections/F')
+lambdac_is_signal_mass_post_selections = array('f', [0])
+RunDiagnostics.Branch('lambdac_is_signal_mass_post_selections', lambdac_is_signal_mass_post_selections, 'lambdac_is_signal_mass_post_selections/F')
+xiccpp_is_signal_mass_pre_selections = array('f', [0])
+RunDiagnostics.Branch('xiccpp_is_signal_mass_pre_selections', xiccpp_is_signal_mass_pre_selections, 'lambdac_is_signal_mass_pre_selections/F')
+xiccpp_is_signal_mass_post_selections = array('f', [0])
+RunDiagnostics.Branch('xiccpp_is_signal_mass_post_selections', xiccpp_is_signal_mass_post_selections, 'xiccpp_is_signal_mass_post_selections/F')
 # ------------------- OutputsTree -------------------
 Outputs = TTree("Run Diagnostics","Run Diagnostics")
 xiccpp_signal_binary_flag = array('f', [0])
@@ -250,6 +259,81 @@ def eff_model(df):
   scatter_plot.Fit(linear_function)
   return(linear_function.GetParameter(0), linear_function.GetParameter(1))
 
+def reset_all_branches():
+  # Resetting the arrays for the RunParams tree
+  number_of_xiccpp[0] = -1
+  xiccpp_mass[0] = -1
+
+  # Resetting the arrays for the RunDiagnostics tree
+  lambdac_signal_combined_momentum_kills[0] = -1
+  lambdac_bkg_combined_momentum_kills[0] = -1
+  lambdac_mass_limit_signal_kills[0] = -1
+  lambdac_mass_limit_bkg_kills[0] = -1
+  lambdac_final_mass_cut_signal_kills[0] = -1
+  lambdac_final_mass_cut_bkg_kills[0] = -1
+  lambdac_vtx_chi2_ndof_signal_kills[0] = -1
+  lambdac_vtx_chi2_ndof_bkg_kills[0] = -1
+  lambdac_vtx_chi2_distance_sig_kills[0] = -1
+  lambdac_vtx_chi2_distance_bac_kills[0] = -1
+  lambdac_vtx_dira_sig_kills[0] = -1
+  lambdac_vtx_dira_bac_kills[0] = -1
+  xi_charge_conservation_signal_kills[0] = -1
+  xi_charge_conservation_bkg_kills[0] = -1
+  xi_vtx_chi2_ndof_sig_kills[0] = -1
+  xi_vtx_chi2_ndof_bkg_kills[0] = -1
+  xi_signal_minimum_momentum_kills[0] = -1
+  xi_bkg_minimum_momentum_kills[0] = -1
+  xi_vtx_chi2_distance_sig_kills[0] = -1
+  xi_chi2_disatance_bac_kills[0] = -1
+  xi_vtx_dira_sig_kills[0] = -1
+  xi_vtx_dira_bkg_kills[0] = -1
+  xi_mass_sig_kills[0] = -1
+  xi_mass_bkg_kills[0] = -1
+  xiccpp_mass[0] = -1
+  lambdac_is_signal_mass_pre_selections[0] = -1
+  lambdac_is_signal_mass_post_selections[0] = -1
+  xiccpp_is_signal_mass_pre_selections[0] = -1
+  xiccpp_is_signal_mass_post_selections[0] = -1
+
+  # Resetting the arrays for the Outputs tree
+  xiccpp_signal_binary_flag[0] = -1
+  Num_pions_detected[0] = -1
+  Num_kaons_detected[0] = -1
+  Num_protons_detected[0] = -1
+  Num_lambda_container[0] = -1
+  Num_pv[0] = -1
+  lambdac_vtx_chi2_ndof_v[0] = -1
+  proton_pt[0] = -1
+  proton_eta[0] = -1
+  xiccpp_pion2_pt[0] = -1
+  xiccpp_pion2_eta[0] = -1
+  xiccpp_kaon_eta[0] = -1
+  xiccpp_kaon_pt[0] = -1
+  lambdac_kaon_pt[0] = -1
+  lambdac_kaon_eta[0] = -1
+  lambdac_pion_pt[0] = -1
+  lambdac_pion_eta[0] = -1
+  lambdac_pion_ID[0] = -1
+  lambdac_mass[0] = -1
+  lambdac_vtx_chi2_distance[0] = -1
+  lambdac_vtx_dira[0] = -1
+  xiccpp_vtx_chi2_ndof[0] = -1
+  lambdac_pt[0] = -1
+  lambdac_eta[0] = -1
+  xiccpp_pion1_pt[0] = -1
+  xiccpp_pion1_eta[0] = -1
+  xi_vtx_chi2_distance[0] = -1
+  xi_vtx_dira[0] = -1
+  number_of_xiccpp[0] = -1
+  xiccpp_mass[0] = -1
+
+def fill_trees():
+  RunParams.Fill()
+  RunLimits.Fill()
+  RunDiagnostics.Fill()
+  Outputs.Fill()
+  reset_all_branches()
+
 def kill_counter(condition,tree_branch1,tree_branch2):
   if condition:
     tree_branch1[0] += 1
@@ -302,7 +386,7 @@ from MCTools import *
 gInterpreter.AddIncludePath( f'{basedir}/../include')
 gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the python path
 events = TChain("Events") # connects all the events into a single data set
-dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym/"
+dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym_10um50ps"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(lower):int(upper)]
 # Since list is formed in order for every run, this selects the relevant files to be run
@@ -359,7 +443,6 @@ for event in events: # loop through all events
       lambdac_pion_ID[0] = abs(pion.trueID)
       #endregion LambdacOutputTreeFill
       is_lambdac_signal = is_from(proton, event, particle_dict['xicc++']) and is_from(lambdac_kaon, event, particle_dict['xicc++']) and is_from(pion, event, particle_dict['xicc++'])
-      
       if ilambdac_proton_pt + ilambdac_kaon_pt + ilambdac_pion_pt < limits_dict["lambdac_combined_momentum"]:
         kill_counter(is_lambdac_signal,lambdac_signal_combined_momentum_kills,lambdac_signal_combined_momentum_kills)
         continue # insufficient momentum to create a phi, discard
@@ -370,7 +453,8 @@ for event in events: # loop through all events
       lambdac_vtx = ROOT.uVertex( [proton,lambdac_kaon,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # Should make reverse case as well
       lambdac = ROOT.uParticle( [proton,lambdac_kaon,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
-      
+      if is_lambdac_signal and bool(lambdac.mass):
+        lambdac_is_signal_mass_pre_selections[0] = lambdac.mass
       if lambdac.mass < limits_dict["lambdac_mass_minimum"] or lambdac.mass  > limits_dict["lambdac_mass_maximum"] :
         kill_counter(is_lambdac_signal,lambdac_mass_limit_signal_kills,lambdac_mass_limit_bkg_kills)
         continue # insufficient mass to create D particle, discard
@@ -393,8 +477,9 @@ for event in events: # loop through all events
         kill_counter(is_lambdac_signal,lambdac_vtx_dira_sig_kills,lambdac_vtx_dira_bac_kills)
         continue # if the cos of the angle between momenta is less than 0.9 discard
       # ------------------- LambdacOutputs -------------------
+      if is_lambdac_signal and bool(lambdac.mass):
+        lambdac_is_signal_mass_post_selections[0] = lambdac.mass
       lambdac_mass[0] = lambdac.mass
-      found_lambdac_signal |= is_lambdac_signal
       ilambdac_pt = lambdac_pt[0] = lambdac.pt()
       lambdac_eta[0] = lambdac.eta()      
       if (lambdac.mass<limits_dict['lambdac_final_mass_minimum']) or (lambdac.mass>limits_dict["lambdac_final_mass_maximum"]):
@@ -412,7 +497,7 @@ for event in events: # loop through all events
         Vxiccpp_kaon_pt= xiccpp_kaon_pt[0] = xiccpp_kaon.pt()
         xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
         #endregion xiccppTreeFill
-        is_xiccpp_signal = is_from(proton, event, particle_dict['xicc++']) and is_from(lambdac_kaon, event, particle_dict['xicc++']) and is_from(pion, event,particle_dict['xicc++']) and is_from(xiccpp_pion1, event,particle_dict['xicc++']) and is_from(xiccpp_pion2, event,particle_dict['xicc++']) and is_from(xiccpp_kaon, event,particle_dict['xicc++'])
+        is_xiccpp_signal = is_from(proton, event, particle_dict['lambdac']) and is_from(lambdac_kaon, event, particle_dict['lambdac']) and is_from(pion, event,particle_dict['lambdac']) and is_from(xiccpp_pion1, event,particle_dict['xicc++']) and is_from(xiccpp_pion2, event,particle_dict['xicc++']) and is_from(xiccpp_kaon, event,particle_dict['xicc++'])
         
         if xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2: 
           kill_counter(lambdac_final_mass_cut_signal_kills,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
@@ -424,6 +509,8 @@ for event in events: # loop through all events
         
         xiccpp_vtx = ROOT.uVertex( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
         xiccpp = ROOT.uParticle( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
+        if is_xiccpp_signal and bool(xiccpp.mass):
+          xiccpp_is_signal_mass_pre_selections[0] = xiccpp.mass
 
         if (xiccpp.mass<limits_dict['xiccpp_mass_minimum']) or (xiccpp.mass>limits_dict['xiccpp_mass_maximum']):
           kill_counter(is_xiccpp_signal,xi_mass_sig_kills,xi_mass_bkg_kills)
@@ -447,16 +534,14 @@ for event in events: # loop through all events
           continue
         # ------------------- xiccppOutputs -------------------
         xiccpp_signal_binary_flag[0] = 1 if is_xiccpp_signal is True else 0
-        xiccpp_mass[0] = xiccpp.mass * 0.001
         entry += 1 # entry is the event being examined
         number_of_xiccpp[0] = entry
-        found_xiccpp_signal |= is_xiccpp_signal
+        if is_xiccpp_signal and bool(xiccpp.mass):
+          xiccpp_is_signal_mass_post_selections[0] = xiccpp.mass
+        xiccpp_mass[0] = xiccpp.mass * 0.001
         # ---------------------------------------------------
 # ------------------- TreeFilling -------------------
-  RunParams.Fill()
-  RunLimits.Fill()
-  RunDiagnostics.Fill()
-  Outputs.Fill()
+  fill_trees()
 # ------------------- FileWriting -------------------
 file = TFile(f"{basedir}/Outputs/XisToLambdas/Tree{lower}:{upper}.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
