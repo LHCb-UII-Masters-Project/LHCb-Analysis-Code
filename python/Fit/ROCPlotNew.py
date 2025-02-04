@@ -46,6 +46,10 @@ else:
 paper_lc_values = idata.query('MinP == 2000 and MinPT == 200 and MinIPChi2 == 6')
 paper_xi_values = idata.query('MinP == 1000 and MinPT == 500')
 
+chosen_xi_values = idata.query('MinP == 2000 and MinPT == 370 and MinIPChi2 == 4.5')
+chosen_xipi_values = idata.query('MinP == 1000 and MinPT == 230 and MinIPChi2 == 4.0')
+chosen_xik_values = idata.query('MinP == 2500 and MinPT == 440 and MinIPChi2 == 2')
+
 DisplacedTracksDict = {
   "efficiency_minimum":0.63,
   "efficiency_maximum":0.65,
@@ -100,8 +104,9 @@ XiccppPionScatter = axs[1]
 XiccppKaonScatter = axs[2]
 # Plot for Xiccpp (top-left and top-right)
 DisplacedTracksScatter.scatter(data = idata, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='black', label='DisplacedTracks')
-DisplacedTracksScatter.scatter(data = paper_lc_values, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='red', label='LcPaperValues')
-DisplacedTracksScatter.scatter(data = paper_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='blue', label='XiPaperValues')
+DisplacedTracksScatter.scatter(data = paper_lc_values, x = "XiccppEfficiency", y = "XiccppPurity", s=60, color='red', label='DisplacedPaperValues')
+#DisplacedTracksScatter.scatter(data = paper_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=60, color='blue', label='XiPaperValues')
+DisplacedTracksScatter.scatter(data = chosen_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=60, color='magenta', label='DisplacedChosenValues')
 # Annotate each point
 # Annotate each point
 """
@@ -126,9 +131,10 @@ DisplacedTracksScatter.legend()
 #DisplacedTracksScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Pion (middle-left and middle-right)
-XiccppPionScatter.scatter(data = idata , x = "PionEfficiency",y = "PionPurity", s = 30, color='black', label='xiccpp_pions')
-XiccppPionScatter.scatter(data = paper_lc_values, x = "PionEfficiency", y = "PionPurity", s=30, color='red', label='LcPaperValuesPions')
-XiccppPionScatter.scatter(data = paper_xi_values, x = "PionEfficiency", y = "PionPurity", s=30, color='blue', label='XiPaperValuesPions')
+XiccppPionScatter.scatter(data = idata , x = "PionEfficiency",y = "PionPurity", s = 30, color='black', label='BachelorPions')
+#XiccppPionScatter.scatter(data = paper_lc_values, x = "PionEfficiency", y = "PionPurity", s=60, color='red', label='LcPaperValuesPions')
+XiccppPionScatter.scatter(data = paper_xi_values, x = "PionEfficiency", y = "PionPurity", s=60, color='blue', label='XiPaperValuesPions')
+XiccppPionScatter.scatter(data = chosen_xipi_values, x = "PionEfficiency", y = "PionPurity", s=60, color='magenta', label='XiChosenValuesPions')
 
 """
 for i, row in pion_zoomed.iterrows():
@@ -153,9 +159,10 @@ XiccppPionScatter.legend()
 #XiccppPionScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Kaon (bottom-left and bottom-right)
-XiccppKaonScatter.scatter(data = idata , x = "KaonEfficiency",y = "KaonPurity", s = 30, color='black', label='xiccpp_kaons')
-XiccppKaonScatter.scatter(data = paper_lc_values, x = "KaonEfficiency", y = "KaonPurity", s=30, color='red', label='LcPaperValuesKaons')
-XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=30, color='blue', label='XiPaperValuesKaons')
+XiccppKaonScatter.scatter(data = idata , x = "KaonEfficiency",y = "KaonPurity", s = 30, color='black', label='BachelorKaons')
+#XiccppKaonScatter.scatter(data = paper_lc_values, x = "KaonEfficiency", y = "KaonPurity", s=60, color='red', label='LcPaperValuesKaons')
+XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=60, color='blue', label='XiPaperValuesKaons')
+XiccppKaonScatter.scatter(data = chosen_xik_values, x = "KaonEfficiency", y = "KaonPurity", s=60, color='magenta', label='XiChosenValuesKaons')
 
 """
 for i, row in kaon_zoomed.iterrows():
