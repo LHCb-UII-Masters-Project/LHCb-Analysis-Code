@@ -116,8 +116,8 @@ for i, row in idata_unique.iterrows():
 """
 
 DisplacedTracksScatter.set_xlabel("Efficiency")
-DisplacedTracksScatter.set_ylabel("Background Rejection")
-DisplacedTracksScatter.set_title("Efficiency vs background rejection for DisplacedTracks")
+DisplacedTracksScatter.set_ylabel("Purity")
+DisplacedTracksScatter.set_title("Efficiency vs Purity for DisplacedTracks")
 DisplacedTracksScatter.grid(alpha=0.3)
 DisplacedTracksScatter.legend()
 #xspace = 0.0025  # You can change this value to set the spacing of ticks
@@ -142,8 +142,8 @@ for i, row in pion_zoomed.iterrows():
 """
 
 XiccppPionScatter.set_xlabel("Efficiency")
-XiccppPionScatter.set_ylabel("Background Rejection")
-XiccppPionScatter.set_title("Efficiency vs background rejection for xiccpp_pions")
+XiccppPionScatter.set_ylabel("Purity")
+XiccppPionScatter.set_title("Efficiency vs Purity for xiccpp_pions")
 XiccppPionScatter.grid(alpha=0.3)
 XiccppPionScatter.legend()
 
@@ -153,10 +153,11 @@ XiccppPionScatter.legend()
 #XiccppPionScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Kaon (bottom-left and bottom-right)
-XiccppKaonScatter.scatter(data = kaon_zoomed , x = "KaonEfficiency",y = "KaonPurity", s = 30, color='black', label='xiccpp_kaons')
-#XiccppKaonScatter.scatter(data = paper_lc_values, x = "KaonEfficiency", y = "KaonPurity", s=30, color='red', label='LcPaperValuesKaons')
-#XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=30, color='blue', label='XiPaperValuesKaons')
+XiccppKaonScatter.scatter(data = idata , x = "KaonEfficiency",y = "KaonPurity", s = 30, color='black', label='xiccpp_kaons')
+XiccppKaonScatter.scatter(data = paper_lc_values, x = "KaonEfficiency", y = "KaonPurity", s=30, color='red', label='LcPaperValuesKaons')
+XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=30, color='blue', label='XiPaperValuesKaons')
 
+"""
 for i, row in kaon_zoomed.iterrows():
     XiccppKaonScatter.annotate(
         f'[{row["MinP"],row["MinPT"],row["MinIPChi2"]}]', 
@@ -165,10 +166,11 @@ for i, row in kaon_zoomed.iterrows():
         xytext=(0, 0),  # Offset the text slightly
         ha='center', fontsize=8  # Corrected capitalization and fontsize
     )
+"""
 
 XiccppKaonScatter.set_xlabel("Efficiency")
-XiccppKaonScatter.set_ylabel("Background Rejection")
-XiccppKaonScatter.set_title("Efficiency vs background rejection for xiccpp_kaons")
+XiccppKaonScatter.set_ylabel("Purity")
+XiccppKaonScatter.set_title("Efficiency vs Purity for xiccpp_kaons")
 XiccppKaonScatter.grid(alpha=0.3)
 XiccppKaonScatter.legend()
 #xspace = 0.025  # You can change this value to set the spacing of ticks
