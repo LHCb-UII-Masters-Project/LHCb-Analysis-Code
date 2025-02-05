@@ -1,4 +1,0 @@
-/usr/bin/singularity -s exec -S /tmp -S /var/tmp -W /var/lib/condor/execute/dir_3024058 --pwd /var/lib/condor/execute/dir_3024058 -B /var/lib/condor/execute/dir_3024058 -B /var/lib -B /etc/condor -B /var/run -B /disk/moose -B /scratch -B /cvmfs -B /disk/homedisk -B /home --home /var/lib/condor/execute/dir_3024058 -C /image/alma9-image /var/lib/condor/execute/dir_3024058/Test_07-11-24_12:56:47_Sub.sh
-/usr/bin/singularity -s exec -S /tmp -S /var/tmp -W /var/lib/condor/execute/dir_3024058 --pwd /var/lib/condor/execute/dir_3024058 -B /var/lib/condor/execute/dir_3024058 -B /var/lib -B /etc/condor -B /var/run -B /disk/moose -B /scratch -B /cvmfs -B /disk/homedisk -B /home --home /var/lib/condor/execute/dir_3024058 -C /image/alma9-image /etc/condor/container_wrapper.sh /var/lib/condor/execute/dir_3024058/Test_07-11-24_12:56:47_Sub.sh
-hello
-Job completed successfully, deleting temporary output file

@@ -1,8 +1,0 @@
-Executable = /home/user293/Documents/selections/python/BatchOutputs/BatchRun_07-11-24_18:04:28/BatchRun_07-11-24_18:04:28_Sub.sh
-output = /home/user293/Documents/selections/python/BatchOutputs/BatchRun_07-11-24_18:04:28/BatchRun_07-11-24_18:04:28.o
-error = /home/user293/Documents/selections/python/BatchOutputs/BatchRun_07-11-24_18:04:28/BatchRun_07-11-24_18:04:28.e
-log = /home/user293/Documents/selections/python/BatchOutputs/BatchRun_07-11-24_18:04:28/BatchRun_07-11-24_18:04:28.log
-getenv = True
-request_memory = 4000
-+SingularityImage = "/image/alma9-image"
-queue

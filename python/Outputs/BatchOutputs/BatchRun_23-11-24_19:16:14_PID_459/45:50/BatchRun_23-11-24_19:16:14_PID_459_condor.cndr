@@ -1,9 +1,0 @@
-Executable = /home/user294/Documents/selections/python/Outputs/BatchOutputs/BatchRun_23-11-24_19:16:14_PID_459/45:50/BatchRun_23-11-24_19:16:14_PID_459_45:50_Sub.sh
-output = /home/user294/Documents/selections/python/Outputs/BatchOutputs/BatchRun_23-11-24_19:16:14_PID_459/45:50/BatchRun_23-11-24_19:16:14_PID_459_45:50.o
-error = /home/user294/Documents/selections/python/Outputs/BatchOutputs/BatchRun_23-11-24_19:16:14_PID_459/45:50/BatchRun_23-11-24_19:16:14_PID_459_45:50.e
-log = /home/user294/Documents/selections/python/Outputs/BatchOutputs/BatchRun_23-11-24_19:16:14_PID_459/45:50/BatchRun_23-11-24_19:16:14_PID_459_45:50.log
-getenv = True
-request_memory = 4000
-request_cpus = 1
-+SingularityImage = "/image/alma9-image"
-queue
