@@ -443,7 +443,10 @@ for event in events: # loop through all events
       lambdac_pion_eta[0] = pion.eta()
       lambdac_pion_ID[0] = abs(pion.trueID)
       #endregion LambdacOutputTreeFill
-      is_lambdac_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, 'xiccpp') and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, 'xiccpp') and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, 'xiccpp')
+      
+      is_lambdac_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++'])
+      if is_lambdac_signal:
+        print("AHHHHH")
       if ilambdac_proton_pt + ilambdac_kaon_pt + ilambdac_pion_pt < limits_dict["lambdac_combined_momentum"]:
         kill_counter(is_lambdac_signal,lambdac_signal_combined_momentum_kills,lambdac_signal_combined_momentum_kills)
         continue # insufficient momentum to create a phi, discard
@@ -504,7 +507,7 @@ for event in events: # loop through all events
         Vxiccpp_kaon_pt= xiccpp_kaon_pt[0] = xiccpp_kaon.pt()
         xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
         #endregion xiccppTreeFill
-        is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, 'xiccpp') and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, 'xiccpp') and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, 'xiccpp') and is_parent(xiccpp_pion1, event,particle_dict['xicc++']) and is_parent(xiccpp_pion2, event,particle_dict['xicc++']) and is_parent(xiccpp_kaon, event,particle_dict['xicc++'])
+        is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++']) and is_parent(xiccpp_pion1, event,particle_dict['xicc++']) and is_parent(xiccpp_pion2, event,particle_dict['xicc++']) and is_parent(xiccpp_kaon, event,particle_dict['xicc++'])
         
         if abs(xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2): 
           kill_counter(lambdac_final_mass_cut_signal_kills,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
