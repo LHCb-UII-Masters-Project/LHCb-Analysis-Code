@@ -445,8 +445,6 @@ for event in events: # loop through all events
       #endregion LambdacOutputTreeFill
       
       is_lambdac_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++'])
-      if is_lambdac_signal:
-        print("AHHHHH")
       if ilambdac_proton_pt + ilambdac_kaon_pt + ilambdac_pion_pt < limits_dict["lambdac_combined_momentum"]:
         kill_counter(is_lambdac_signal,lambdac_signal_combined_momentum_kills,lambdac_signal_combined_momentum_kills)
         continue # insufficient momentum to create a phi, discard
