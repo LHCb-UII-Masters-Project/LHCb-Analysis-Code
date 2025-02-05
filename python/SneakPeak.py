@@ -52,16 +52,16 @@ filtered_lambdac_signal_data_pre = lambdac_signal_data_pre[lambdac_signal_data_p
 
 
 
-number_of_bins = 20
+number_of_bins = 100
 
-xiccpp_hist = TH1D("xiccpp_hist", "Xiccpp All", number_of_bins, min(filtered_xiccpp_data) - 0.3, max(filtered_xiccpp_data) + 0.3)
+xiccpp_hist = TH1D("xiccpp_hist", "Xiccpp All", number_of_bins, min(filtered_xiccpp_data), max(filtered_xiccpp_data))
 for dp in filtered_xiccpp_data:
     xiccpp_hist.Fill(dp)
 xiccpp_hist.SetTitle("Xiccpp All")
 xiccpp_hist.SetXTitle("Xiccpp Mass")
 xiccpp_hist.SetYTitle("Counts")
 
-xiccpp_signal_hist_post = TH1D("xiccpp_signal_hist_post", "Xiccpp Signal POST", number_of_bins, min(filtered_xiccpp_signal_data_post) - 300, max(filtered_xiccpp_signal_data_post) + 300)
+xiccpp_signal_hist_post = TH1D("xiccpp_signal_hist_post", "Xiccpp Signal POST", number_of_bins, min(filtered_xiccpp_signal_data_post), max(filtered_xiccpp_signal_data_post))
 for dp in filtered_xiccpp_signal_data_post:
     xiccpp_signal_hist_post.Fill(dp)
 xiccpp_signal_hist_post.SetTitle("Xiccpp Signal")
@@ -69,7 +69,7 @@ xiccpp_signal_hist_post.SetXTitle("Xiccpp Signal Mass Post Checks")
 xiccpp_signal_hist_post.SetYTitle("Counts")
 
 
-xiccpp_signal_hist_pre = TH1D("xiccpp_signal_hist_pre", "Xiccpp Signal Pre", number_of_bins, min(filtered_xiccpp_signal_data_pre) - 300, max(filtered_xiccpp_signal_data_pre) + 300)
+xiccpp_signal_hist_pre = TH1D("xiccpp_signal_hist_pre", "Xiccpp Signal Pre", number_of_bins, min(filtered_xiccpp_signal_data_post), max(filtered_xiccpp_signal_data_post))
 for dp in filtered_xiccpp_signal_data_pre:
     xiccpp_signal_hist_pre.Fill(dp)
 xiccpp_signal_hist_pre.SetTitle("Xiccpp Signal Pre Checks")
@@ -77,21 +77,21 @@ xiccpp_signal_hist_pre.SetXTitle("Xiccpp Signal Mass Pre Checks")
 xiccpp_signal_hist_pre.SetYTitle("Counts")
 
 
-lambdac_hist = TH1D("lambdac_hist", "Lambdac All", number_of_bins, min(filtered_lambdac_data) - 0.5, max(filtered_lambdac_data) + 0.5)
+lambdac_hist = TH1D("lambdac_hist", "Lambdac All", number_of_bins, min(filtered_lambdac_data), max(filtered_lambdac_data))
 for dp in filtered_lambdac_data:
     lambdac_hist.Fill(dp)
 lambdac_hist.SetTitle("Lambdac All")
 lambdac_hist.SetXTitle("Lambdac Mass")
 lambdac_hist.SetYTitle("Counts")
 
-lambdac_signal_hist_post = TH1D("lambdac_signal_hist_post", "Lambdac Signal POST", number_of_bins, min(filtered_lambdac_signal_data_post) - 0.5, max(filtered_lambdac_signal_data_post) + 0.5)
+lambdac_signal_hist_post = TH1D("lambdac_signal_hist_post", "Lambdac Signal POST", number_of_bins, min(filtered_lambdac_signal_data_post) , max(filtered_lambdac_signal_data_post))
 for dp in filtered_lambdac_signal_data_post:
     lambdac_signal_hist_post.Fill(dp)
 lambdac_signal_hist_post.SetTitle("Lambdac Signal Post Checks")
 lambdac_signal_hist_post.SetXTitle("Lambdac Signal Mass Post Checks")
 lambdac_signal_hist_post.SetYTitle("Counts")
 
-lambdac_signal_hist_pre = TH1D("lambdac_signal_pre", "Lambdac Signal Pre", number_of_bins, min(filtered_lambdac_signal_data_pre) - 0.5, max(filtered_lambdac_signal_data_pre) + 0.5)
+lambdac_signal_hist_pre = TH1D("lambdac_signal_pre", "Lambdac Signal Pre", number_of_bins, min(filtered_lambdac_signal_data_post), max(filtered_lambdac_signal_data_post))
 for dp in filtered_lambdac_signal_data_pre:
     lambdac_signal_hist_pre.Fill(dp)
 lambdac_signal_hist_pre.SetTitle("Lambdac Signal Pre Checks")
