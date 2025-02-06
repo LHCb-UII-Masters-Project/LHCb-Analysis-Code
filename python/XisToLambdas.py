@@ -33,13 +33,18 @@ Doca_cut = array('f', [0])
 RunParams.Branch('Doca_cut', Doca_cut, 'Doca_cut/F')
 spacial_resolution = array('f', [0])
 RunParams.Branch('spacial_resolution', spacial_resolution, 'spacial_resolution/F')
-spacial_resolution[0] = 10
 com_energy = array('f', [0])
 RunParams.Branch('com_energy', com_energy, 'com_energy/F')
 number_of_xiccpp= array('f', [0])
 xiccpp_mass= array('f', [0])
 RunParams.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
+rand_seed[0] = 0
 com_energy[0] = 14
+spacial_resolution[0] = 10
+PID_pion[0] = 0
+PID_kaon[0] = 0
+velo_timing[0] = 50
+
 # ------------------- RunLimitsTree -------------------
 RunLimits = ROOT.TTree("RunLimits", "RunLimits")
 lambdac_vtx_chi2_ndof_limit = array('f', [0]) # Formerly Chi2_ndf_limit
@@ -117,8 +122,12 @@ lambdac_is_signal_mass_post_selections = array('f', [0])
 RunDiagnostics.Branch('lambdac_is_signal_mass_post_selections', lambdac_is_signal_mass_post_selections, 'lambdac_is_signal_mass_post_selections/F')
 xiccpp_is_signal_mass_pre_selections = array('f', [0])
 RunDiagnostics.Branch('xiccpp_is_signal_mass_pre_selections', xiccpp_is_signal_mass_pre_selections, 'lambdac_is_signal_mass_pre_selections/F')
+xiccpp_is_bkg_mass_pre_selections = array('f', [0])
+RunDiagnostics.Branch('xiccpp_is_bkg_mass_pre_selections', xiccpp_is_bkg_mass_pre_selections, 'xiccpp_is_bkg_mass_pre_selections/F')
 xiccpp_is_signal_mass_post_selections = array('f', [0])
 RunDiagnostics.Branch('xiccpp_is_signal_mass_post_selections', xiccpp_is_signal_mass_post_selections, 'xiccpp_is_signal_mass_post_selections/F')
+xiccpp_is_bkg_mass_post_selections = array('f', [0])
+RunDiagnostics.Branch('xiccpp_is_bkg_mass_post_selections', xiccpp_is_bkg_mass_post_selections, 'xiccpp_is_bkg_mass_post_selections/F')
 # ------------------- OutputsTree -------------------
 Outputs = TTree("Run Diagnostics","Run Diagnostics")
 xiccpp_signal_binary_flag = array('f', [0])
@@ -293,7 +302,10 @@ def reset_all_branches():
   lambdac_is_signal_mass_pre_selections[0] = -1
   lambdac_is_signal_mass_post_selections[0] = -1
   xiccpp_is_signal_mass_pre_selections[0] = -1
+  xiccpp_is_bkg_mass_pre_selections[0] = -1
   xiccpp_is_signal_mass_post_selections[0] = -1
+  xiccpp_is_bkg_mass_post_selections[0] = -1
+
 
   # Resetting the arrays for the Outputs tree
   xiccpp_signal_binary_flag[0] = -1
@@ -524,6 +536,8 @@ for event in events: # loop through all events
         xiccpp = ROOT.uParticle( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
         if is_xiccpp_signal and bool(xiccpp.mass):
           xiccpp_is_signal_mass_pre_selections[0] = xiccpp.mass
+        if is_xiccpp_signal is False:
+          xiccpp_is_bkg_mass_pre_selections[0] = xiccpp.mass
 
         if (xiccpp.mass<limits_dict['xiccpp_mass_minimum']) or (xiccpp.mass>limits_dict['xiccpp_mass_maximum']):
           kill_counter(is_xiccpp_signal,xi_mass_sig_kills,xi_mass_bkg_kills)
@@ -551,8 +565,10 @@ for event in events: # loop through all events
         number_of_xiccpp[0] = entry
         if is_xiccpp_signal and bool(xiccpp.mass):
           xiccpp_is_signal_mass_post_selections[0] = xiccpp.mass
+        if is_xiccpp_signal is False:
+          xiccpp_is_bkg_mass_post_selections[0] = xiccpp.mass
         if bool(xiccpp.mass):
-          xiccpp_mass[0] = xiccpp.mass * 0.001
+          xiccpp_mass[0] = xiccpp.mass
         # ---------------------------------------------------
 # ------------------- TreeFilling -------------------
   fill_trees()

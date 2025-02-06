@@ -36,7 +36,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
     '''
     
     #will create a general condor out folder that stores all the results and details
-    jobDir = f"/home/user294/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
+    jobDir = f"/home/user293/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
 
     os.makedirs(jobDir,exist_ok=True,)
     #now empty dir if there is anything in there!
@@ -316,7 +316,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         RunDTree.SetName("RunDiagnostics")
 
         # Full output file name given here
-        output_file = ROOT.TFile(f"{basedir}/Outputs/XisToLambdas/TS_{str(OutTree.GetEntries())}_Time_ {time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())}.root", "RECREATE")
+        output_file = ROOT.TFile(f"{basedir}/Outputs/XisToLambdas/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
         # Writes to the output file
         output_file.cd()
         OutTree.Write("Outputs")
@@ -411,8 +411,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "XisRun"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 5
-    tot_num_files = 500
+    files_per_run = 7
+    tot_num_files = 497
     rand_seed = None
 
     try:
@@ -455,6 +455,6 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
         try: 
             for p in process_store:
                 p.kill()
-            subprocess.run(["condor_rm", "user294"], check=True)
+            subprocess.run(["condor_rm", "user293"], check=True)
         except NameError:
             print("No Processes to Kill")
