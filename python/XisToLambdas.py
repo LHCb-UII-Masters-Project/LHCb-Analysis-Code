@@ -366,21 +366,21 @@ mass_dict = {
   "lambdac":2286.46}
 
 limits_dict = {
-  "lambdac_combined_momentum":3000,
+  "lambdac_combined_momentum":3250,
   "lambdac_mass_minimum": mass_dict['lambdac'] - 150,
   "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
-  "lambdac_vtx_chi2_ndof":10,
-  "lambdac_vtx_chi2_distance":16,
-  "lambdac_vtx_dira":0.9,
-  "lambdac_final_mass_minimum": mass_dict['lambdac'] - 80,
-  "lambdac_final_mass_maximum":mass_dict['lambdac'] + 80,
+  "lambdac_vtx_chi2_ndof":12,
+  "lambdac_vtx_chi2_distance":19,
+  "lambdac_vtx_dira":0.9995,
+  "lambdac_final_mass_minimum": mass_dict['lambdac'] - 60,
+  "lambdac_final_mass_maximum":mass_dict['lambdac'] + 60,
 
-  "xiccpp_combined_momentum":2000,
+  "xiccpp_combined_momentum":5800,
   "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
   "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400,
-  "xiccpp_vtx_chi2_ndof":30,
-  "xiccpp_vtx_chi2_distance":1,
-  "xiccpp_dira":0.9,
+  "xiccpp_vtx_chi2_ndof":37,
+  "xiccpp_vtx_chi2_distance":7,
+  "xiccpp_dira":0.999,
 }
 # ------------------- LimitTreeFill(can be closed with region) -------------------
 #region LimitsTree
@@ -524,9 +524,9 @@ for event in events: # loop through all events
           kill_counter(is_xiccpp_signal,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
           continue
         xiccpp_charges = (xiccpp_pion1.charge(),xiccpp_pion2.charge(),xiccpp_kaon.charge(),lambdac.charge())
-        if fermions and xiccpp_charges != (1,1,-1,1):
+        if (fermions is True) and xiccpp_charges != (1,1,-1,1):
           continue
-        elif not fermions and xiccpp_charges != (-1,-1,1,-1):
+        elif (fermions is False) and xiccpp_charges != (-1,-1,1,-1):
           continue
 
         if ilambdac_pt + Vxiccpp_kaon_pt + Vxiccpp_pion1_pt + Vxiccpp_pion2_pt < limits_dict['xiccpp_combined_momentum'] :
