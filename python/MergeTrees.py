@@ -12,8 +12,8 @@ from os.path import isfile, join
 # Inputs
 basedir = "/home/user294/Documents/selections/python"
 num_range = []
-for i in range(0,50,2):
-    num_range.append(f"{i}:{i+2}")
+for i in range(0,500,5):
+    num_range.append(f"{i}:{i+5}")
 
 
 #region MERGE TREES
@@ -54,10 +54,10 @@ for file_path in onlyfiles:
 
 ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
 
-OutTree = OutChain.CopyTree("xiccpp_mass!=0")
-RunPTree = RunPChain.CopyTree("xiccpp_mass!=0")
-RunLTree = RunLChain.CopyTree("xiccpp_mass!=0")
-RunDTree = RunDChain.CopyTree("xiccpp_mass!=0")
+OutTree = OutChain.CopyTree("")
+RunPTree = RunPChain.CopyTree("")
+RunLTree = RunLChain.CopyTree("")
+RunDTree = RunDChain.CopyTree("")
 OutTree.SetName("Outputs")
 RunPTree.SetName("RunParams")
 RunLTree.SetName("RunLimits")

@@ -36,7 +36,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
     '''
     
     #will create a general condor out folder that stores all the results and details
-    jobDir = f"/home/user293/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
+    jobDir = f"/home/user294/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
 
     os.makedirs(jobDir,exist_ok=True,)
     #now empty dir if there is anything in there!
@@ -306,10 +306,10 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
         ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
 
-        OutTree = OutChain.CopyTree("xiccpp_mass!=0")
-        RunPTree = RunPChain.CopyTree("xiccpp_mass!=0")
-        RunLTree = RunLChain.CopyTree("xiccpp_mass!=0")
-        RunDTree = RunDChain.CopyTree("xiccpp_mass!=0")
+        OutTree = OutChain.CopyTree()
+        RunPTree = RunPChain.CopyTree()
+        RunLTree = RunLChain.CopyTree()
+        RunDTree = RunDChain.CopyTree()
         OutTree.SetName("Outputs")
         RunPTree.SetName("RunParams")
         RunLTree.SetName("RunLimits")
@@ -408,11 +408,11 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
-    program = "OptimiserBatch"
+    program = "XisRun"
     comp = "NonLocal"
-    size = "Small"
-    files_per_run = 2
-    tot_num_files = 50
+    size = "Large"
+    files_per_run = 5
+    tot_num_files = 500
     rand_seed = None
 
     try:
@@ -455,6 +455,6 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
         try: 
             for p in process_store:
                 p.kill()
-            subprocess.run(["condor_rm", "user293"], check=True)
+            subprocess.run(["condor_rm", "user294"], check=True)
         except NameError:
             print("No Processes to Kill")
