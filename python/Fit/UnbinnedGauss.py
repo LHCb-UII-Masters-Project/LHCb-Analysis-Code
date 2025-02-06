@@ -98,7 +98,7 @@ with LHCbStyle() as lbs:
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
     ROOT.gStyle.SetLineScalePS(1.2)
     frame1.GetYaxis().SetTitle("Entries/ (10 MeV/c^{2})")
-    frame1.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
+    frame1.GetXaxis().SetTitle("m(Xi_{cc}^{pp}) [MeV/c^{2}]")
     frame1.GetYaxis().SetTitleOffset(0.9)
     frame1.GetXaxis().SetTitleOffset(1)
     frame1.GetYaxis().SetTitleFont(62) 
@@ -120,12 +120,7 @@ with LHCbStyle() as lbs:
     legend.SetTextFont(62)  # Helvetica, normal
     legend.SetTextSize(0.045)  # Adjust text size as needed
     legend.AddEntry("data", "Data", "lep")  # Points with error bars
-    legend.AddEntry("sig+bkg", "Total", "l")  # Solid blue line
-    # Dummy lines for correct styles in the legend
-    dummy_bkg_line = ROOT.TLine()
-    dummy_bkg_line.SetLineColor(ROOT.kMagenta)
-    dummy_bkg_line.SetLineStyle(ROOT.kDashed)
-    legend.AddEntry(dummy_bkg_line, "Background", "l")  # Green dashed line
+    legend.AddEntry("sig", "Signal", "l")  # Solid blue line
     dummy_sig_line = ROOT.TLine()
     dummy_sig_line.SetLineColor(ROOT.kRed)
     dummy_sig_line.SetLineStyle(ROOT.kDotted)
@@ -144,7 +139,7 @@ with LHCbStyle() as lbs:
     c.cd(2)
     ROOT.gPad.SetLeftMargin(0.15)
     frame2.GetYaxis().SetTitle("Pulls")
-    frame2.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
+    frame2.GetXaxis().SetTitle("m(Xi_{cc}}^{pp}) [MeV/c^{2}]")
     frame2.GetYaxis().SetTitleOffset(0.65)
     frame2.GetXaxis().SetTitleOffset(1)
     frame2.GetYaxis().SetTitleSize(0.06) # Increase this value to make the font size larger
