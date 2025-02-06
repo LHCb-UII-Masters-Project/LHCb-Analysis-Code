@@ -242,6 +242,7 @@ tree.Write()
 run_tree.Write()
 summary.Write()
 fit_result.Write("fit_result")
+fit_initial_guess_tree.Write()
 # Close the ROOT file
 output_file.Close()
 # -------------------------- Workspace Writing-----------------------------------
