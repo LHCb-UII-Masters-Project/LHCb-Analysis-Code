@@ -64,7 +64,7 @@ RunLTree.SetName("RunLimits")
 RunDTree.SetName("RunDiagnostics")
 
 # Full output file name given here
-output_file = ROOT.TFile(f"{basedir}/Outputs/XisToLambdas/{str(OutTree.GetEntries())}.root", "RECREATE")
+output_file = ROOT.TFile(f"{basedir}/Outputs/XisToLambdas/TS_{str(OutTree.GetEntries())}_Time_ {time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())}.root", "RECREATE")
 # Writes to the output file
 output_file.cd()
 OutTree.Write("Outputs")
