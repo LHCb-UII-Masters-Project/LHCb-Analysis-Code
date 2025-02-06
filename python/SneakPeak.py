@@ -69,7 +69,7 @@ xiccpp_signal_hist_post.SetXTitle("Xiccpp Signal Mass Post Checks")
 xiccpp_signal_hist_post.SetYTitle("Counts")
 
 
-xiccpp_signal_hist_pre = TH1D("xiccpp_signal_hist_pre", "Xiccpp Signal Pre", number_of_bins, min(filtered_xiccpp_signal_data_post), max(filtered_xiccpp_signal_data_post))
+xiccpp_signal_hist_pre = TH1D("xiccpp_signal_hist_pre", "Xiccpp Signal Pre", number_of_bins, min(filtered_xiccpp_signal_data_pre), max(filtered_xiccpp_signal_data_pre))
 for dp in filtered_xiccpp_signal_data_pre:
     xiccpp_signal_hist_pre.Fill(dp)
 xiccpp_signal_hist_pre.SetTitle("Xiccpp Signal Pre Checks")
@@ -91,7 +91,7 @@ lambdac_signal_hist_post.SetTitle("Lambdac Signal Post Checks")
 lambdac_signal_hist_post.SetXTitle("Lambdac Signal Mass Post Checks")
 lambdac_signal_hist_post.SetYTitle("Counts")
 
-lambdac_signal_hist_pre = TH1D("lambdac_signal_pre", "Lambdac Signal Pre", number_of_bins, min(filtered_lambdac_signal_data_post), max(filtered_lambdac_signal_data_post))
+lambdac_signal_hist_pre = TH1D("lambdac_signal_pre", "Lambdac Signal Pre", number_of_bins, min(filtered_lambdac_signal_data_pre), max(filtered_lambdac_signal_data_pre))
 for dp in filtered_lambdac_signal_data_pre:
     lambdac_signal_hist_pre.Fill(dp)
 lambdac_signal_hist_pre.SetTitle("Lambdac Signal Pre Checks")
@@ -101,8 +101,8 @@ lambdac_signal_hist_pre.SetYTitle("Counts")
 
 
 with LHCbStyle() as lbs:
-    c = ROOT.TCanvas("rf201_composite", "rf201_composite", 800, 6000)
-    c.Divide(2,3)
+    c = ROOT.TCanvas("rf201_composite", "rf201_composite", 800, 4000)
+    c.Divide(2,2)
     # First pad
     c.cd(1)
     xiccpp_hist.Draw("HIST")
@@ -110,17 +110,17 @@ with LHCbStyle() as lbs:
     c.cd(2)
     xiccpp_signal_hist_post.Draw("HIST")
 
-    c.cd(3)
-    xiccpp_signal_hist_pre.Draw("HIST")
+    #c.cd(3)
+    #xiccpp_signal_hist_pre.Draw("HIST")
 
-    c.cd(4)
+    c.cd(3)
     lambdac_hist.Draw("HIST")
     
-    c.cd(5)
+    c.cd(4)
     lambdac_signal_hist_post.Draw("HIST")
 
-    c.cd(6)
-    lambdac_signal_hist_pre.Draw("HIST")
+    #c.cd(6)
+    #lambdac_signal_hist_pre.Draw("HIST")
     
     c.cd()
     c.Update()
