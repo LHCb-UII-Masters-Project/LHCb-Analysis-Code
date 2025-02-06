@@ -18,16 +18,16 @@ run_diag = root_file.Get("RunDiagnostics")
 branches = [
     "lambdac_signal_combined_momentum_kills", "lambdac_bkg_combined_momentum_kills",
     "lambdac_mass_limit_signal_kills", "lambdac_mass_limit_bkg_kills",
-    "lambdac_final_mass_cut_signal_kills", "lambdac_final_mass_cut_bkg_kills",
     "lambdac_vtx_chi2_ndof_signal_kills", "lambdac_vtx_chi2_ndof_bkg_kills",
     "lambdac_vtx_chi2_distance_sig_kills", "lambdac_vtx_chi2_distance_bac_kills",
     "lambdac_vtx_dira_sig_kills", "lambdac_vtx_dira_bac_kills",
+    "lambdac_final_mass_cut_signal_kills", "lambdac_final_mass_cut_bkg_kills",
     "xi_charge_conservation_signal_kills", "xi_charge_conservation_bkg_kills",
-    "xi_vtx_chi2_ndof_sig_kills", "xi_vtx_chi2_ndof_bkg_kills",
     "xi_signal_minimum_momentum_kills", "xi_bkg_minimum_momentum_kills",
+    "xi_mass_sig_kills", "xi_mass_bkg_kills",
+    "xi_vtx_chi2_ndof_sig_kills", "xi_vtx_chi2_ndof_bkg_kills",
     "xi_vtx_chi2_distance_sig_kills", "xi_chi2_disatance_bac_kills",
-    "xi_vtx_dira_sig_kills", "xi_vtx_dira_bkg_kills",
-    "xi_mass_sig_kills", "xi_mass_bkg_kills"
+    "xi_vtx_dira_sig_kills", "xi_vtx_dira_bkg_kills"
 ]
 
 # Create dictionaries to store values and set branch addresses
@@ -49,8 +49,13 @@ max_values = {branch: np.max(values[branch]) for branch in branches}
 
 # Print results
 print("Results:")
+lambda_branch = False
 for i in range(0, len(branches), 2):
+    if str(branches[i])[::-1][-2:] == "ix" and (lambda_branch is False):
+        print("-------------------------------------------------")
+        lambda_branch = True
     print(f"{branches[i]}: {max_values[branches[i]]} : {max_values[branches[i+1]]}")
+
 
 # Close file
 root_file.Close()

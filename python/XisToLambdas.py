@@ -366,20 +366,21 @@ mass_dict = {
   "lambdac":2286.46}
 
 limits_dict = {
+  "lambdac_combined_momentum":3000,
+  "lambdac_mass_minimum": mass_dict['lambdac'] - 150,
+  "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
   "lambdac_vtx_chi2_ndof":10,
   "lambdac_vtx_chi2_distance":16,
   "lambdac_vtx_dira":0.9,
+  "lambdac_final_mass_minimum": mass_dict['lambdac'] - 80,
+  "lambdac_final_mass_maximum":mass_dict['lambdac'] + 80,
+
+  "xiccpp_combined_momentum":2000,
+  "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
+  "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400,
   "xiccpp_vtx_chi2_ndof":30,
   "xiccpp_vtx_chi2_distance":1,
   "xiccpp_dira":0.9,
-  "lambdac_combined_momentum":3000,
-  "xiccpp_combined_momentum":2000,
-  "lambdac_mass_minimum": mass_dict['lambdac'] - 150,
-  "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
-  "lambdac_final_mass_minimum": mass_dict['lambdac'] - 80,
-  "lambdac_final_mass_maximum":mass_dict['lambdac'] + 80,
-  "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
-  "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400
 }
 # ------------------- LimitTreeFill(can be closed with region) -------------------
 #region LimitsTree
