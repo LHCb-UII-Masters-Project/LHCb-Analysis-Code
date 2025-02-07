@@ -1,4 +1,4 @@
-#---------------------------------Imports---------------------------------------------------
+#---------------------------------Imports------------------------------------------
 import ROOT
 from Variables import *
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
@@ -14,7 +14,7 @@ from lhcbstyle import LHCbStyle
 from datetime import datetime
 import time
 import argparse
-#--------------------------------File Inputs---------------------------------------------------
+#--------------------------------File Inputs---------------------------------------
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
 args = parser.parse_args()
@@ -48,7 +48,7 @@ data = ROOT.RooDataSet("data", "dataset with x", ROOT.RooArgSet(x))
 for dp in unbinned_data: # change to filtered data for filtering
     x.setVal(dp)
     data.add(ROOT.RooArgSet(x))
-# --------------------------- Variables and PDF Declerations -----------------------------------
+# --------------------------- Variables and PDF Declerations -----------
 mu = ROOT.RooRealVar("mu1", "mean of CB1", variables['mu']['value'], variables['mu']['min'], variables['mu']['max'])  # Gaussian core mean estimate
 #mu.setConstant(True)
 sigma = ROOT.RooRealVar("sigma1", "std of core gaussian 1", variables['sigma']['value'], variables['sigma']['min'], variables['sigma']['max'])  # Gaussian core std estimate
@@ -82,7 +82,7 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
 number_of_bins = 50
 frame1 = x.frame()
 frame1.SetTitle("")
-data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins))
+data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
 model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
 model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kMagenta),ROOT.RooFit.LineStyle(ROOT.kDashed))
 model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
