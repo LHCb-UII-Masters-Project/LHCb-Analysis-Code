@@ -49,13 +49,57 @@ max_values = {branch: np.max(values[branch]) for branch in branches}
 
 # Print results
 print("Results:")
-lambda_branch = False
+xi_branch = False
+signal_killed = 0
 for i in range(0, len(branches), 2):
-    if str(branches[i])[::-1][-2:] == "ix" and (lambda_branch is False):
+    if str(branches[i])[::-1][-2:] == "ix" and (xi_branch is False):
         print("-------------------------------------------------")
-        lambda_branch = True
+        xi_branch = True
     print(f"{branches[i]}: {max_values[branches[i]]} : {max_values[branches[i+1]]}")
+    signal_killed += max_values[branches[i]]
 
 
 # Close file
 root_file.Close()
+
+
+## Quick Purity and Eff
+
+root_file = TFile.Open(args.input_file, "READ") 
+run_diag = root_file.Get("RunDiagnostics")
+
+branches = [
+    "xiccpp_mass",
+    "lambdac_is_signal_mass_pre_selections",
+    "lambdac_is_signal_mass_post_selections",
+    "xiccpp_is_signal_mass_pre_selections",
+    "xiccpp_is_bkg_mass_pre_selections",
+    "xiccpp_is_signal_mass_post_selections",
+    "xiccpp_is_bkg_mass_post_selections"
+
+]
+
+# Create dictionaries to store values and set branch addresses
+values = {branch: [] for branch in branches}
+buffers = {branch: np.array([0], dtype=np.float32) for branch in branches}
+
+for branch in branches:
+    run_diag.SetBranchAddress(branch, buffers[branch])
+
+# Loop over tree entries to extract values
+n_entries = run_diag.GetEntries()
+for i in range(n_entries):
+    run_diag.GetEntry(i)
+    for branch in branches:
+        values[branch].append(buffers[branch][0])
+
+purity = len([val for val in values["xiccpp_is_signal_mass_post_selections"] if val > 0]) / len([val for val in values["xiccpp_mass"] if val > 0])
+efficiency = len([val for val in values["xiccpp_mass"] if val > 0]) / n_entries
+
+print(f"Purity = {purity}")
+print(f"Efficiency = {efficiency}")
+
+signal_survived = len([val for val in values["xiccpp_is_signal_mass_post_selections"] if val > 0])
+
+print(f"Signal Killed: {signal_killed}")
+print(f"Signal Survived: {signal_survived}")

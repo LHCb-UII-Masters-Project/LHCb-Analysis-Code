@@ -329,8 +329,8 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         output_file.Close()
 
         # Deletes the trees that made up the now combined tree
-        #for file_path in str_chain:
-        #    os.remove(file_path)
+        for file_path in str_chain:
+            os.remove(file_path)
         
         print(f"Made Tree")
 
@@ -356,12 +356,10 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
             # Uses ret to wait if local
             for index, ret in enumerate(wait_id):
                 ret.wait()
-                time.sleep(1)
         else:
             # Uses condor_wait to wait if on condor
             for index, numbers in enumerate(p_vals):
                 subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
-                time.sleep(1)
 
         end_time = time.time()
 
@@ -411,8 +409,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "XisRun"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 7
-    tot_num_files = 497
+    files_per_run = 10
+    tot_num_files = 500
     rand_seed = None
 
     try:
