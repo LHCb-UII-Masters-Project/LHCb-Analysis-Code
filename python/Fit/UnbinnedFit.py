@@ -24,8 +24,10 @@ args = parser.parse_args()
 input_directory = os.path.dirname(args.input_file)
 if args.particle == "xiccpp":
     particle_mass = 3.622
+    x_label = "m(#Xi_{c}^{+}) [MeV/c^{2}]"
 if args.particle == "lambdac":
     particle_mass = 2.287
+    x_label = "m(#Lambda_{c}^{+}) [MeV/c^{2}]"
 #-------------------------------Tree Reading---------------------------------------
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("RunParams")
@@ -90,6 +92,7 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
 number_of_bins = 35
 sig_lower = particle_mass - 5*variables['sigma']['value']
 sig_higher = particle_mass + 5*variables['sigma']['value']
+energy_range = (sig_higher - sig_lower)/35
 x.setRange("myRange", sig_lower, sig_higher)
 frame1 = x.frame(ROOT.RooFit.Range("myRange"))
 frame1.SetTitle("")
@@ -121,8 +124,8 @@ with LHCbStyle() as lbs:
     ROOT.gPad.SetLeftMargin(0.15)
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
     ROOT.gStyle.SetLineScalePS(1.2)
-    frame1.GetYaxis().SetTitle("Entries/(9keV/c^{2})")
-    frame1.GetXaxis().SetTitle("m(#Lambda_{c}^{+}) [MeV/c^{2}]")
+    frame1.GetYaxis().SetTitle(f"Entries/({energy_range}keV/c^{2})")
+    frame1.GetXaxis().SetTitle(x_label)
     frame1.GetYaxis().SetTitleOffset(0.9)
     frame1.GetXaxis().SetTitleOffset(1)
     frame1.GetYaxis().SetTitleFont(62) 
