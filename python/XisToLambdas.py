@@ -421,7 +421,7 @@ for event in events: # loop through all events
     current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
 # ------------------- ParticleLists -------------------
-  displaced_tracks = ROOT.select( event.Particles, event.Vertices, 370, 2000,4.5) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
+  displaced_tracks = ROOT.select( event.Particles, event.Vertices, 230, 2750,4.0) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   good_pions = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Pion']] # all pi+
   good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Kaon']] # all k^-
   good_protons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Proton']] # all proton^+
@@ -437,8 +437,8 @@ for event in events: # loop through all events
   # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
-  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 230, 1000, 4 ) if  abs(track.trueID) == particle_dict['Pion']]
-  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 440, 2500, 2 ) if  abs(track.trueID) == particle_dict['Kaon']] # needs changing from bs to xi limits
+  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 160, 1250, 1.5 ) if  abs(track.trueID) == particle_dict['Pion']]
+  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 370, 3500, 0.5 ) if  abs(track.trueID) == particle_dict['Kaon']] # needs changing from bs to xi limits
   chiccpp_pions_kaons_container =  ROOT.combine( xiccpp_pions, xiccpp_pions, xiccpp_kaons, doca_cut, 3, 2, 1)
   Num_protons_detected[0] += len(good_protons)
   Num_pions_detected[0] += len(good_pions)
