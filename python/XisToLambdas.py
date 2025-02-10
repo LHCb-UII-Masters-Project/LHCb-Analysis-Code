@@ -337,6 +337,12 @@ def kill_counter(condition,tree_branch1,tree_branch2):
     tree_branch1[0] += 1
   else:
     tree_branch2[0] += 1 
+
+def remain_counter(is_flag,tree_branch1,tree_branch2):
+  if is_flag:
+    tree_branch1[0] += 1
+  else:
+    tree_branch2[0] += 1
 # ------------------- Dictionaries -------------------
 particle_dict = {
   "Kaon":321,
@@ -447,7 +453,9 @@ for event in events: # loop through all events
       if ilambdac_proton_pt + ilambdac_kaon_pt + ilambdac_pion_pt < limits_dict["lambdac_combined_momentum"]:
         kill_counter(is_lambdac_signal,lambdac_signal_combined_momentum_kills,lambdac_bkg_combined_momentum_kills)
         continue # insufficient momentum to create a phi, discard
-      if abs(proton.charge() + lambdac_kaon.charge() + pion.charge()) !=1: 
+      remain_counter(is_lambdac_signal,lambdac_signal_combined_momentum_remaining,lambdac_bkg_combined_momentum_remaining)
+      if abs(proton.charge() + lambdac_kaon.charge() + pion.charge()) !=1:
+        kill_counter(is_lambdac_signal,lambdac_signal_charge_kills,lambdac_bkg_charge_kills)
         continue
       lambdac_charges = (proton.charge(), lambdac_kaon.charge(), pion.charge())
       if lambdac_charges == (1, -1, 1):
@@ -456,6 +464,7 @@ for event in events: # loop through all events
         fermions = False
       else:
         continue
+      remain_counter(is_lambdac_signal,lambdac_signal_combined_momentum_remaining,lambdac_bkg_combined_momentum_remaining)
       #endregion LambdacOutputTreeFill
       lambdac_vtx = ROOT.uVertex( [proton,lambdac_kaon,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # Should make reverse case as well
@@ -465,24 +474,24 @@ for event in events: # loop through all events
       if lambdac.mass < limits_dict["lambdac_mass_minimum"] or lambdac.mass  > limits_dict["lambdac_mass_maximum"] :
         kill_counter(is_lambdac_signal,lambdac_mass_limit_signal_kills,lambdac_mass_limit_bkg_kills)
         continue # insufficient mass to create D particle, discard
-      
+      remain_counter(is_lambdac_signal,lambdac_mass_limit_signal_remaining,lambdac_mass_limit_bkg_remaining)
       lambdac_chi2ndof = lambdac_vtx_chi2_ndof_v[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
       if lambdac_chi2ndof > limits_dict["lambdac_vtx_chi2_ndof"] :
         kill_counter(is_lambdac_signal,lambdac_vtx_chi2_ndof_signal_kills,lambdac_vtx_chi2_ndof_bkg_kills)
         continue # if the chi2/ndf is not acceptable, disgard possible particle
-      
+      remain_counter(is_lamdac_signal,lambdac_vtx_chi2_ndof_signal_remaining,lambdac_vtx_chi2_ndof_bkg_remaining)
       pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
       lambdac_chi2distance = lambdac_vtx_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
       lambdac_dira = lambdac_vtx_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
-      
       if lambdac_chi2distance < limits_dict['lambdac_vtx_chi2_distance'] : 
         kill_counter(is_lambdac_signal,lambdac_vtx_chi2_distance_sig_kills,lambdac_vtx_chi2_distance_bac_kills)
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
-      
+      remain_counter(is_lambdac_signal,lambdac_vtx_chi2_distance_sig_remaining,lambdac_vtx_chi2_distance_bkg_remaining)
       if lambdac_dira  < limits_dict['lambdac_vtx_dira'] : 
         kill_counter(is_lambdac_signal,lambdac_vtx_dira_sig_kills,lambdac_vtx_dira_bac_kills)
         continue # if the cos of the angle between momenta is less than 0.9 discard
+      remain_counter(is_lambdac_signal,lambdac_vtx_dira_sig_remaining,lambdac_vtx_dira_bkg_remaining)
       # ------------------- LambdacOutputs -------------------
       if is_lambdac_signal and bool(lambdac.mass):
         lambdac_is_signal_mass_post_selections[0] = lambdac.mass
@@ -492,9 +501,11 @@ for event in events: # loop through all events
       if (lambdac.mass<limits_dict['lambdac_final_mass_minimum']) or (lambdac.mass>limits_dict["lambdac_final_mass_maximum"]):
         kill_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_kills,lambdac_final_mass_cut_bkg_kills)
         continue
+      remain_counter(is_lambdac_signal,lambdac_vtx_dira_sig_remaining,lambdac_vtx_dira_bkg_remaining)
       # ------------------- xiccppReconstruction -------------------
       for xiccpp_pion1,xiccpp_pion2,xiccpp_kaon,chiccpp_pions_kaons,chiccpp_pion_kaons_container_vtx in chiccpp_pions_kaons_container:
         if xiccpp_kaon == lambdac_kaon or xiccpp_pion1 == pion or xiccpp_pion2 == pion:
+          kill_counter(is_xiccpp_signal,xiccpp_miss_combo_sig_kills,xiccpp_miss_combo_bkg_kills)
           continue
         #region xiccppTreeFill
         Vxiccpp_pion1_pt = xiccpp_pion1_pt[0] = xiccpp_pion1.pt()
@@ -505,20 +516,21 @@ for event in events: # loop through all events
         xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
         #endregion xiccppTreeFill
         is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++']) and is_parent(xiccpp_pion1, event,particle_dict['xicc++']) and is_parent(xiccpp_pion2, event,particle_dict['xicc++']) and is_parent(xiccpp_kaon, event,particle_dict['xicc++'])
-        
+        remain_counter(is_xiccpp_signal,xiccpp_miss_combo_sig_remaining,xiccpp_miss_combo_bkg_remaining)
         if abs(xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2): 
           kill_counter(is_xiccpp_signal,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
           continue
+        remain_counter(is_xiccpp_signal,xi_charge_conservation_signal_remaining,xi_charge_conservation_bkg_remaining)
         xiccpp_charges = (xiccpp_pion1.charge(),xiccpp_pion2.charge(),xiccpp_kaon.charge(),lambdac.charge())
         if (fermions is True) and xiccpp_charges != (1,1,-1,1):
           continue
         elif (fermions is False) and xiccpp_charges != (-1,-1,1,-1):
           continue
-
+        remain_counter(is_xiccpp_signal,xi_charge_charge_sig_remaining,xi_charge_bkg_remaining)
         if ilambdac_pt + Vxiccpp_kaon_pt + Vxiccpp_pion1_pt + Vxiccpp_pion2_pt < limits_dict['xiccpp_combined_momentum'] :
           kill_counter(is_xiccpp_signal,xi_signal_minimum_momentum_kills,xi_bkg_minimum_momentum_kills)
           continue # insufficient momentum to create a phi, discard
-        
+        remain_counter(is_xiccpp_signal,xi_sig_minimum_momentum_remaining,xi_bkg_minimum_momentum_remaining)
         xiccpp_vtx = ROOT.uVertex( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
         xiccpp = ROOT.uParticle( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
         if is_xiccpp_signal and bool(xiccpp.mass):
@@ -529,23 +541,23 @@ for event in events: # loop through all events
         if (xiccpp.mass<limits_dict['xiccpp_mass_minimum']) or (xiccpp.mass>limits_dict['xiccpp_mass_maximum']):
           kill_counter(is_xiccpp_signal,xi_mass_sig_kills,xi_mass_bkg_kills)
           continue
-        
+        remain_counter(is_xiccpp_signal,xi_mass_sig_remaining,xi_mass_bkg_remaining)
         xiccpp_chi2ndof = xiccpp_vtx_chi2_ndof[0] = xiccpp_vtx.chi2 / xiccpp_vtx.ndof
         if xiccpp_chi2ndof > limits_dict['xiccpp_vtx_chi2_ndof'] : 
           kill_counter(is_xiccpp_signal,xi_vtx_chi2_ndof_sig_kills,xi_vtx_chi2_ndof_bkg_kills)
           continue # if the chi2/ndf is not acceptable, disgard possible particle
-        
+        remain_counter(is_xiccpp_signal,xi_vtx_chi2_ndof_sig_remaining,xi_vtx_chi2_ndof_bkg_remaining)
         xiccpp_pv  = xiccpp.bpv_4d( event.Vertices )
         xiccpp_chi2distance = xi_vtx_chi2_distance[0] = xiccpp_vtx.chi2_distance(xiccpp_pv) 
         xiccpp_dira = xi_vtx_dira[0] = dira_bpv(xiccpp,event.Vertices,max_timing)
-
         if xiccpp_chi2distance < limits_dict['xiccpp_vtx_chi2_distance'] :
-          kill_counter(is_xiccpp_signal,xi_vtx_chi2_distance_sig_kills,xi_chi2_disatance_bac_kills)
+          kill_counter(is_xiccpp_signal,xi_vtx_chi2_distance_sig_kills,xi_chi2_disatance_bkg_kills)
           continue 
-        
+        remain_counter(is_xiccpp_signal,xi_vtx_chi2_distance_sig_remaining,xi_chi2_disatance_bkg_remaining)
         if xiccpp_dira < limits_dict['xiccpp_dira'] :
           kill_counter(is_xiccpp_signal,xi_vtx_dira_sig_kills,xi_vtx_dira_bkg_kills)
           continue
+        remain_counter(is_xiccpp_signal,xi_vtx_dira_sig_remaining,xi_vtx_dira_bkg_remaining)
         # ------------------- xiccppOutputs -------------------
         xiccpp_signal_binary_flag[0] = 1 if is_xiccpp_signal is True else 0
         entry += 1 # entry is the event being examined
