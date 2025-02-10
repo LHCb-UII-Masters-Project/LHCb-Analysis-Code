@@ -88,7 +88,7 @@ frame1 = x.frame(ROOT.RooFit.Range("myRange"))
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
 model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
-model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kMagenta))
+model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kMagenta),ROOT.RooFit.LineStyle(ROOT.kDashed))
 model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
 chi2 = frame1.chiSquare("sig+bkg", "data",9)
 hpull = frame1.pullHist("data", "sig+bkg")
