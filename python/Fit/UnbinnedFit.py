@@ -29,8 +29,10 @@ root_file.Close()
 #Use RDataFrame to access the data 
 rdf = ROOT.RDataFrame(outputs) 
 # Convert the bs_mass branch to a Numpy array
-xiccpp_data = rdf.AsNumpy()["xiccpp_mass"]
-unbinned_data = xiccpp_data[xiccpp_data > 1]
+xiccpp_data = rdf.AsNumpy()["lambdac_mass"]
+lambda_5sig_lower = 2286.46 - 6.5* 2.476
+lambda_5sig_higher = 2286.46 + 6.5* 2.476
+unbinned_data = xiccpp_data[(xiccpp_data > lambda_5sig_lower) & (xiccpp_data < lambda_5sig_higher)]
 total_entries = outputs.GetEntries()
 timing = array('f', [0])
 PID_pion = array('f', [0])
@@ -50,7 +52,6 @@ for dp in unbinned_data: # change to filtered data for filtering
     data.add(ROOT.RooArgSet(x))
 # --------------------------- Variables and PDF Declerations -----------
 mu = ROOT.RooRealVar("mu1", "mean of CB1", variables['mu']['value'], variables['mu']['min'], variables['mu']['max'])  # Gaussian core mean estimate
-#mu.setConstant(True)
 sigma = ROOT.RooRealVar("sigma1", "std of core gaussian 1", variables['sigma']['value'], variables['sigma']['min'], variables['sigma']['max'])  # Gaussian core std estimate
 alphaL = ROOT.RooRealVar("alphaL", "cut off gauss left", variables['alphaL']['value'], variables['alphaL']['min'], variables['alphaL']['max'])  # Gaussian core limit 1 estimate
 alphaR = ROOT.RooRealVar("alphaR", "cut off gauss right", variables['alphaR']['value'], variables['alphaR']['min'], variables['alphaR']['max'])  # Gaussian core limit 2 estimate
@@ -79,7 +80,7 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.Optimize(True),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
-number_of_bins = 50
+number_of_bins = 35
 frame1 = x.frame()
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
@@ -110,8 +111,8 @@ with LHCbStyle() as lbs:
     ROOT.gPad.SetLeftMargin(0.15)
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
     ROOT.gStyle.SetLineScalePS(1.2)
-    frame1.GetYaxis().SetTitle("Entries/ (10 MeV/c^{2})")
-    frame1.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
+    frame1.GetYaxis().SetTitle("Entries/(9keV/c^{2})")
+    frame1.GetXaxis().SetTitle("m(#Lambda_{c}^{+}) [MeV/c^{2}]")
     frame1.GetYaxis().SetTitleOffset(0.9)
     frame1.GetXaxis().SetTitleOffset(1)
     frame1.GetYaxis().SetTitleFont(62) 
@@ -157,7 +158,7 @@ with LHCbStyle() as lbs:
     c.cd(2)
     ROOT.gPad.SetLeftMargin(0.15)
     frame2.GetYaxis().SetTitle("Pulls")
-    frame2.GetXaxis().SetTitle("m(B_{s}^{0}) [GeV/c^{2}]")
+    frame2.GetXaxis().SetTitle("m(#Lambda_{c}^{+}) [MeV/c^{2}]")
     frame2.GetYaxis().SetTitleOffset(0.65)
     frame2.GetXaxis().SetTitleOffset(1)
     frame2.GetYaxis().SetTitleSize(0.06) # Increase this value to make the font size larger
