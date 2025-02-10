@@ -100,7 +100,8 @@ line.SetLineColor(ROOT.kBlue)
 origin_file_path = root_file.GetName()
 origin_file_name = os.path.basename(origin_file_path)
 origin_file_name_reduced = origin_file_name.replace(".root", "")
-current_time = time.strftime("%H-%M-%S_%d-%m-%Y", time.localtime())
+current_time = time.strftime("%d-%m-%H:%M:%S", time.localtime())
+os.makedirs(f"{input_directory}/{current_time}_{origin_file_name_reduced}", exist_ok=True)
 # --------------------------- Plotting -----------------------------------
 with LHCbStyle() as lbs:
     c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
@@ -177,9 +178,9 @@ with LHCbStyle() as lbs:
     c.cd()
     c.Update()
     c.Draw()
-    c.SaveAs(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.pdf","pdf 800")
+    c.SaveAs(f"{input_directory}/{current_time}_{origin_file_name_reduced}/FitT.pdf","pdf 800")
 
-output_file = ROOT.TFile(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.root", "RECREATE")
+output_file = ROOT.TFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/FitT.root", "RECREATE")
 c.Write()
 #-------------------------------------------Main Tree Initialisation----------------------------------------------
 tree = ROOT.TTree("fit_parameters", "Fit Parameters Tree")
@@ -326,5 +327,5 @@ w.Import(run_tree)
 w.Import(outputs)
 w.Import(fit_result)
 w.Import(timing_int)
-w.writeToFile(f"{input_directory}/WSPACE_{current_time}_{origin_file_name_reduced}")
+w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE")
 w.Print()
