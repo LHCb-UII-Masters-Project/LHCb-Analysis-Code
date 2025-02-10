@@ -29,6 +29,37 @@ variables = {
               'min': 3000, 'max': 4700}
 }
 
+"""Lambdac Variables
+variables = {
+    'mu': {'value': 2286*0.001, 
+           'min': 1000*0.001, 'max': 4000*0.001},
+    
+    'sigma': {'value': 2.521*0.001, 
+              'min': 2*0.001, 'max': 3*0.001},
+    
+    'alphaL': {'value': 1.61, 
+               'min': 1.4, 'max': 2.0},
+    
+    'alphaR': {'value': 1.36,
+               'min': 1.0, 'max': 2.0},
+    
+    'nL': {'value': 7, 
+           'min': 5, 'max': 9},
+    
+    'nR': {'value': 5.932, 
+           'min': 4, 'max': 7},
+    
+    'decay_constant': {'value':-0.001 
+                       , 'min': -0.1, 'max': -0.00001},
+    
+    'nbkg': {'value': 305.9, 
+             'min': 100, 'max': 600},
+    
+    'nsig': {'value': 4208,
+              'min': 3000, 'max': 4700}
+}
+"""
+
 # Create the ROOT TTree
 fit_initial_guess_tree = ROOT.TTree("fit_initial_guess", "fit_initial_guess_tree")
 
