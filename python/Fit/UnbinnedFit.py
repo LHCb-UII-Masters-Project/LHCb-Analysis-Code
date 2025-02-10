@@ -81,18 +81,18 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
 number_of_bins = 35
-frame1 = x.frame()
-frame1.SetTitle("")
 sig_lower = 2286.46 - 5* 2.476
 sig_higher = 2286.46 + 5* 2.476
 x.setRange("myRange", sig_lower, sig_higher);
-data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2),ROOT.RooFit.Range("myRange"))
-model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid),ROOT.RooFit.Range("myRange"))
-model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kMagenta),ROOT.RooFit.LineStyle(ROOT.kDashed),ROOT.RooFit.Range("myRange"))
-model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.LineStyle(ROOT.kDotted),ROOT.RooFit.Range("myRange"))  # Overall DCB
+frame1 = x.frame(ROOT.RooFit.Range("myRange"))
+frame1.SetTitle("")
+data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
+model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
+model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kMagenta))
+model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
 chi2 = frame1.chiSquare("sig+bkg", "data",9)
 hpull = frame1.pullHist("data", "sig+bkg")
-frame2 = x.frame()
+frame2 = x.frame(ROOT.RooFit.Range("myRange"))
 frame2.SetTitle("")
 frame2.addPlotable(hpull, "P")
 line = ROOT.TLine(frame2.GetXaxis().GetXmin(), 0, frame2.GetXaxis().GetXmax(), 0)
