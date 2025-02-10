@@ -29,9 +29,9 @@ root_file.Close()
 #Use RDataFrame to access the data 
 rdf = ROOT.RDataFrame(outputs) 
 # Convert the bs_mass branch to a Numpy array
-xiccpp_data = rdf.AsNumpy()["lambdac_mass"]
-lambda_5sig_lower = 2286.46 - 6.5* 2.476
-lambda_5sig_higher = 2286.46 + 6.5* 2.476
+xiccpp_data = rdf.AsNumpy()["lambdac_mass"]*0.001
+lambda_5sig_lower = 2286.46*0.001 - 6.5* 2.476*0.001
+lambda_5sig_higher = 2286.46*0.001 + 6.5* 2.476*0.001
 unbinned_data = xiccpp_data[(xiccpp_data > lambda_5sig_lower) & (xiccpp_data < lambda_5sig_higher)]
 total_entries = outputs.GetEntries()
 timing = array('f', [0])
@@ -81,8 +81,8 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
 number_of_bins = 35
-sig_lower = 2286.46 - 5* 2.476
-sig_higher = 2286.46 + 5* 2.476
+sig_lower = 2286.46*0.001 - 5 * 2.476*0.001
+sig_higher = 2286.46*0.001 + 5 * 2.476*0.001
 x.setRange("myRange", sig_lower, sig_higher);
 frame1 = x.frame(ROOT.RooFit.Range("myRange"))
 frame1.SetTitle("")
