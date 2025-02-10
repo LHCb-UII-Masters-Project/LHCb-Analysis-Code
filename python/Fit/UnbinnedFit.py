@@ -18,7 +18,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
 parser.add_argument("particle", type=str, help="Provide the particle for fitting")
-parser.add_argument("fit_range", type=int, help="sigma for fit range")
+parser.add_argument("fit_range", type=str, help="sigma for fit range")
 
 args = parser.parse_args()
 input_directory = os.path.dirname(args.input_file)
@@ -38,9 +38,9 @@ root_file.Close()
 #Use RDataFrame to access the data 
 rdf = ROOT.RDataFrame(outputs) 
 # Convert the bs_mass branch to a Numpy array
-xiccpp_data = rdf.AsNumpy()["lambdac_mass"]
-lower_fit_range = particle_mass - args.fit_range* variables['sigma']['value']
-upper_fit_range = particle_mass + args.fit_range* variables['sigma']['value']
+xiccpp_data = rdf.AsNumpy()["lambdac_mass"]*0.001
+lower_fit_range = particle_mass - float(args.fit_range)*(variables['sigma']['value'])
+upper_fit_range = particle_mass + float(args.fit_range)*(variables['sigma']['value'])
 unbinned_data = xiccpp_data[(xiccpp_data > lower_fit_range) & (xiccpp_data < upper_fit_range)]
 total_entries = outputs.GetEntries()
 timing = array('f', [0])
@@ -89,9 +89,10 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.Optimize(True),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
+fitted_sigma = fit_result.floatParsFinal().find("sigma1").getVal()
 number_of_bins = 35
-sig_lower = particle_mass - 5*variables['sigma']['value']
-sig_higher = particle_mass + 5*variables['sigma']['value']
+sig_lower = particle_mass - 5*fitted_sigma
+sig_higher = particle_mass + 5*fitted_sigma
 energy_range = (sig_higher - sig_lower)/35
 x.setRange("myRange", sig_lower, sig_higher)
 frame1 = x.frame(ROOT.RooFit.Range("myRange"))
@@ -125,7 +126,7 @@ with LHCbStyle() as lbs:
     ROOT.gPad.SetLeftMargin(0.15)
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
     ROOT.gStyle.SetLineScalePS(1.2)
-    frame1.GetYaxis().SetTitle(f"Entries/({energy_range}keV/c^{2})")
+    frame1.GetYaxis().SetTitle(f"Entries/ ({round(energy_range,4)} MeV/c^{{2}})")
     frame1.GetXaxis().SetTitle(x_label)
     frame1.GetYaxis().SetTitleOffset(0.9)
     frame1.GetXaxis().SetTitleOffset(1)
