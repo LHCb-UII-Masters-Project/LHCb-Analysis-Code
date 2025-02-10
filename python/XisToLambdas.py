@@ -70,6 +70,7 @@ sig_kills_vars = {}
 bkg_kills_vars = {}
 sig_remain_vars = {}
 bkg_remain_vars = {}
+RunDiagnosticsVars= {}
 
 base_branches = [
     "lambdac_combined_momentum",
@@ -100,6 +101,7 @@ for base_name in base_branches:
     RunDiagnostics.Branch(f"{base_name}_sig_remain", sig_kills_vars[f"{base_name}_sig_remain"], f"{base_name}_sig_remain/F")
     RunDiagnostics.Branch(f"{base_name}_bkg_remain", sig_kills_vars[f"{base_name}_bkg_remain"], f"{base_name}_bkg_remain/F")
 
+RunDiagnosticsVars = sig_kills_vars + bkg_kills_vars + sig_remain_vars + bkg_remain_vars
 RunDiagnostics.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 
 lambdac_is_signal_mass_pre_selections = array('f', [0])
