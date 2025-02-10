@@ -84,18 +84,22 @@ lambdac_vtx_chi2_ndof_bkg_kills = array('f', [0])
 RunDiagnostics.Branch('lambdac_vtx_chi2_ndof_bkg_kills',lambdac_vtx_chi2_ndof_bkg_kills , 'lambdac_vtx_chi2_ndof_bkg_kills/F')
 lambdac_vtx_chi2_distance_sig_kills = array('f', [0])
 RunDiagnostics.Branch('lambdac_vtx_chi2_distance_sig_kills', lambdac_vtx_chi2_distance_sig_kills, 'lambdac_vtx_chi2_distance_sig_kills/F')
-lambdac_vtx_chi2_distance_bac_kills = array('f', [0])
-RunDiagnostics.Branch('lambdac_vtx_chi2_distance_bac_kills', lambdac_vtx_chi2_distance_bac_kills, 'lambdac_vtx_chi2_distance_bac_kills/F')
+lambdac_vtx_chi2_distance_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_distance_bkg_kills', lambdac_vtx_chi2_distance_bkg_kills, 'lambdac_vtx_chi2_distance_bkg_kills/F')
 lambdac_vtx_dira_sig_kills = array('f', [0])
 RunDiagnostics.Branch('lambdac_vtx_dira_sig_kills', lambdac_vtx_dira_sig_kills, 'lambdac_vtx_dira_sig_kills/F')
-lambdac_vtx_dira_bac_kills = array('f', [0])
-RunDiagnostics.Branch('lambdac_vtx_dira_bac_kills', lambdac_vtx_dira_bac_kills, 'lambdac_vtx_dira_bac_kills/F')
+lambdac_vtx_dira_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_dira_bkg_kills', lambdac_vtx_dira_bkg_kills, 'lambdac_vtx_dira_bkg_kills/F')
 xi_charge_conservation_signal_kills = array('f', [0])
 RunDiagnostics.Branch('xi_charge_conservation_signal_kills', xi_charge_conservation_signal_kills, 'xi_charge_conservation_signal_kills/F')
 xi_charge_conservation_bkg_kills = array('f', [0])
 RunDiagnostics.Branch('xi_charge_conservation_bkg_kills', xi_charge_conservation_bkg_kills, 'xi_charge_conservation_bkg_kills/F')
 xi_vtx_chi2_ndof_sig_kills = array('f', [0])
 RunDiagnostics.Branch('xi_vtx_chi2_ndof_sig_kills', xi_vtx_chi2_ndof_sig_kills, 'xi_vtx_chi2_ndof_sig_kills/F')
+lambdac_signal_charge_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_signal_charge_kills', lambdac_signal_charge_kills, 'lambdac_signal_charge_kills/F')
+lambdac_bkg_charge_kills = array('f', [0])
+RunDiagnostics.Branch('lambdac_bkg_charge_kills', lambdac_bkg_charge_kills, 'lambdac_bkg_charge_kills/F')
 xi_vtx_chi2_ndof_bkg_kills = array('f', [0])
 RunDiagnostics.Branch('xi_vtx_chi2_ndof_bkg_kills', xi_vtx_chi2_ndof_bkg_kills, 'xi_vtx_chi2_ndof_bkg_kills/F')
 xi_signal_minimum_momentum_kills = array('f', [0])
@@ -104,8 +108,8 @@ xi_bkg_minimum_momentum_kills = array('f', [0])
 RunDiagnostics.Branch('xi_bkg_minimum_momentum_kills', xi_bkg_minimum_momentum_kills, 'xi_bkg_minimum_momentum_kills/F')
 xi_vtx_chi2_distance_sig_kills = array('f', [0])
 RunDiagnostics.Branch('xi_vtx_chi2_distance_sig_kills', xi_vtx_chi2_distance_sig_kills, 'xi_vtx_chi2_distance_sig_kills/F')
-xi_chi2_disatance_bac_kills = array('f', [0])
-RunDiagnostics.Branch('xi_chi2_disatance_bac_kills', xi_chi2_disatance_bac_kills, 'xi_chi2_disatance_bac_kills/F')
+xi_chi2_disatance_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('xi_chi2_disatance_bkg_kills', xi_chi2_disatance_bkg_kills, 'xi_chi2_disatance_bkg_kills/F')
 xi_vtx_dira_sig_kills = array('f', [0])
 RunDiagnostics.Branch('xi_vtx_dira_sig_kills', xi_vtx_dira_sig_kills, 'xi_vtx_dira_sig_kills/F')
 xi_vtx_dira_bkg_kills = array('f', [0])
@@ -114,6 +118,72 @@ xi_mass_sig_kills = array('f', [0])
 RunDiagnostics.Branch('xi_mass_sig_kills', xi_mass_sig_kills, 'xi_mass_sig_kills/F')
 xi_mass_bkg_kills = array('f', [0])
 RunDiagnostics.Branch('xi_mass_bkg_kills', xi_mass_bkg_kills, 'xi_mass_bkg_kills/F')
+xiccpp_miss_combo_sig_kills = array('f', [0])
+RunDiagnostics.Branch('xiccpp_miss_combo_sig_kills', xiccpp_miss_combo_sig_kills, 'xiccpp_miss_combo_sig_kills/F')
+xiccpp_miss_combo_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('xiccpp_miss_combo_bkg_kills', xiccpp_miss_combo_bkg_kills, 'xiccpp_miss_combo_bkg_kills/F')
+
+lambdac_signal_combined_momentum_remaining = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_signal_combined_momentum_remaining', lambdac_signal_combined_momentum_remaining, 'lambdac_signal_combined_momentum_remaining/F')
+lambdac_bkg_combined_momentum_remaining = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_bkg_combined_momentum_remaining', lambdac_bkg_combined_momentum_remaining, 'lambdac_bkg_combined_momentum_remaining/F')
+lambdac_mass_limit_signal_remaining = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_mass_limit_signal_remaining', lambdac_mass_limit_signal_remaining, 'lambdac_mass_limit_signal_remaining/F')
+lambdac_mass_limit_bkg_remaining = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_mass_limit_bkg_remaining', lambdac_mass_limit_bkg_remaining, 'lambdac_mass_limit_bkg_remaining/F')
+lambdac_final_mass_cut_signal_remaining = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_final_mass_cut_signal_remaining', lambdac_final_mass_cut_signal_remaining, 'lambdac_final_mass_cut_signal_remaining/F')
+lambdac_final_mass_cut_bkg_remaining = array('f', [0]) # Formerly Chi2_ndf_limit
+RunDiagnostics.Branch('lambdac_final_mass_cut_bkg_remaining', lambdac_final_mass_cut_bkg_remaining, 'lambdac_final_mass_cut_bkg_remaining/F')
+lambdac_vtx_chi2_ndof_signal_remaining = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_ndof_signal_remaining', lambdac_vtx_chi2_ndof_signal_remaining, 'lambdac_vtx_chi2_ndof_signal_remaining/F')
+lambdac_vtx_chi2_ndof_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_ndof_bkg_remaining',lambdac_vtx_chi2_ndof_bkg_remaining , 'lambdac_vtx_chi2_ndof_bkg_remaining/F')
+lambdac_vtx_chi2_distance_sig_remaining = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_distance_sig_remaining', lambdac_vtx_chi2_distance_sig_remaining, 'lambdac_vtx_chi2_distance_sig_remaining/F')
+lambdac_vtx_chi2_distance_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_chi2_distance_bkg_remaining', lambdac_vtx_chi2_distance_bkg_remaining, 'lambdac_vtx_chi2_distance_bkg_remaining/F')
+lambdac_vtx_dira_sig_remaining = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_dira_sig_remaining', lambdac_vtx_dira_sig_remaining, 'lambdac_vtx_dira_sig_remaining/F')
+lambdac_vtx_dira_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('lambdac_vtx_dira_bkg_remaining', lambdac_vtx_dira_bkg_remaining, 'lambdac_vtx_dira_bkg_remaining/F')
+xi_charge_conservation_signal_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_charge_conservation_signal_remaining', xi_charge_conservation_signal_remaining, 'xi_charge_conservation_signal_remaining/F')
+xi_charge_conservation_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_charge_conservation_bkg_remaining', xi_charge_conservation_bkg_remaining, 'xi_charge_conservation_bkg_remaining/F')
+xi_vtx_chi2_ndof_sig_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_chi2_ndof_sig_remaining', xi_vtx_chi2_ndof_sig_remaining, 'xi_vtx_chi2_ndof_sig_remaining/F')
+xi_vtx_chi2_ndof_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_chi2_ndof_bkg_remaining', xi_vtx_chi2_ndof_bkg_remaining, 'xi_vtx_chi2_ndof_bkg_remaining/F')
+xi_sig_minimum_momentum_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_sig_minimum_momentum_remaining', xi_sig_minimum_momentum_remaining, 'xi_sig_minimum_momentum_remaining/F')
+xi_bkg_minimum_momentum_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_bkg_minimum_momentum_remaining', xi_bkg_minimum_momentum_remaining, 'xi_bkg_minimum_momentum_remaining/F')
+xi_vtx_chi2_distance_sig_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_chi2_distance_sig_remaining', xi_vtx_chi2_distance_sig_remaining, 'xi_vtx_chi2_distance_sig_remaining/F')
+xi_chi2_disatance_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_chi2_disatance_bkg_remaining', xi_chi2_disatance_bkg_remaining, 'xi_chi2_disatance_bkg_remaining/F')
+xi_vtx_dira_sig_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_dira_sig_remaining', xi_vtx_dira_sig_remaining, 'xi_vtx_dira_sig_remaining/F')
+xi_vtx_dira_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_vtx_dira_bkg_remaining', xi_vtx_dira_bkg_remaining, 'xi_vtx_dira_bkg_remaining/F')
+xi_mass_sig_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_mass_sig_remaining', xi_mass_sig_remaining, 'xi_mass_sig_remaining/F')
+xi_mass_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_mass_bkg_remaining', xi_mass_bkg_remaining, 'xi_mass_bkg_remaining/F')
+lambdac_sig_charge_remaining = array('f', [0])
+RunDiagnostics.Branch('lambdac_sig_charge_remaining', lambdac_sig_charge_remaining, 'lambdac_sig_charge_remaining/F')
+lambdac_bkg_charge_remaining = array('f', [0])
+RunDiagnostics.Branch('lambdac_bkg_charge_remaining', lambdac_bkg_charge_remaining, 'lambdac_bkg_charge_remaining/F')
+xiccpp_miss_combo_sig_remaining = array('f', [0])
+RunDiagnostics.Branch('xiccpp_miss_combo_sig_remaining', xiccpp_miss_combo_sig_remaining, 'xiccpp_miss_combo_sig_remaining/F')
+xiccpp_miss_combo_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('xiccpp_miss_combo_bkg_remaining', xiccpp_miss_combo_bkg_remaining, 'xiccpp_miss_combo_bkg_remaining/F')
+xi_charge_sig_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_charge_sig_remaining', xi_charge_sig_remaining, 'xi_charge_sig_remaining/F')
+xi_charge_bkg_remaining = array('f', [0])
+RunDiagnostics.Branch('xi_charge_bkg_remaining', xi_charge_bkg_remaining, 'xi_charge_bkg_remaining/F')
+
 RunDiagnostics.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 
 lambdac_is_signal_mass_pre_selections = array('f', [0])
@@ -274,6 +344,7 @@ def reset_all_branches():
   xiccpp_mass[0] = -1
 
   # Resetting the arrays for the RunDiagnostics tree
+
   lambdac_signal_combined_momentum_kills[0] = -1
   lambdac_bkg_combined_momentum_kills[0] = -1
   lambdac_mass_limit_signal_kills[0] = -1
@@ -283,21 +354,56 @@ def reset_all_branches():
   lambdac_vtx_chi2_ndof_signal_kills[0] = -1
   lambdac_vtx_chi2_ndof_bkg_kills[0] = -1
   lambdac_vtx_chi2_distance_sig_kills[0] = -1
-  lambdac_vtx_chi2_distance_bac_kills[0] = -1
+  lambdac_vtx_chi2_distance_bkg_kills[0] = -1
   lambdac_vtx_dira_sig_kills[0] = -1
-  lambdac_vtx_dira_bac_kills[0] = -1
+  lambdac_vtx_dira_bkg_kills[0] = -1
   xi_charge_conservation_signal_kills[0] = -1
   xi_charge_conservation_bkg_kills[0] = -1
   xi_vtx_chi2_ndof_sig_kills[0] = -1
+  lambdac_signal_charge_kills[0] = -1
+  lambdac_bkg_charge_kills[0] = -1
   xi_vtx_chi2_ndof_bkg_kills[0] = -1
   xi_signal_minimum_momentum_kills[0] = -1
   xi_bkg_minimum_momentum_kills[0] = -1
   xi_vtx_chi2_distance_sig_kills[0] = -1
-  xi_chi2_disatance_bac_kills[0] = -1
+  xi_chi2_disatance_bkg_kills[0] = -1
   xi_vtx_dira_sig_kills[0] = -1
   xi_vtx_dira_bkg_kills[0] = -1
   xi_mass_sig_kills[0] = -1
   xi_mass_bkg_kills[0] = -1
+  xiccpp_miss_combo_sig_kills[0] = -1
+  xiccpp_miss_combo_bkg_kills[0] = -1
+
+  lambdac_signal_combined_momentum_remaining[0] = -1
+  lambdac_bkg_combined_momentum_remaining[0] = -1
+  lambdac_mass_limit_signal_remaining[0] = -1
+  lambdac_mass_limit_bkg_remaining[0] = -1
+  lambdac_final_mass_cut_signal_remaining[0] = -1
+  lambdac_final_mass_cut_bkg_remaining[0] = -1
+  lambdac_vtx_chi2_ndof_signal_remaining[0] = -1
+  lambdac_vtx_chi2_ndof_bkg_remaining[0] = -1
+  lambdac_vtx_chi2_distance_sig_remaining[0] = -1
+  lambdac_vtx_chi2_distance_bkg_remaining[0] = -1
+  lambdac_vtx_dira_sig_remaining[0] = -1
+  lambdac_vtx_dira_bkg_remaining[0] = -1
+  xi_charge_conservation_signal_remaining[0] = -1
+  xi_charge_conservation_bkg_remaining[0] = -1
+  xi_vtx_chi2_ndof_sig_remaining[0] = -1
+  xi_vtx_chi2_ndof_bkg_remaining[0] = -1
+  xi_sig_minimum_momentum_remaining[0] = -1
+  xi_bkg_minimum_momentum_remaining[0] = -1
+  xi_vtx_chi2_distance_sig_remaining[0] = -1
+  xi_chi2_disatance_bkg_remaining[0] = -1
+  xi_vtx_dira_sig_remaining[0] = -1
+  xi_vtx_dira_bkg_remaining[0] = -1
+  xi_mass_sig_remaining[0] = -1
+  xi_mass_bkg_remaining[0] = -1
+  lambdac_sig_charge_remaining[0] = -1
+  lambdac_bkg_charge_remaining[0] = -1
+  xiccpp_miss_combo_sig_remaining[0] = -1
+  xiccpp_miss_combo_bkg_remaining[0] = -1
+  xi_charge_sig_remaining[0] = -1
+  xi_charge_bkg_remaining[0] = -1
   xiccpp_mass[0] = -1
   lambdac_is_signal_mass_pre_selections[0] = -1
   lambdac_is_signal_mass_post_selections[0] = -1
@@ -478,7 +584,7 @@ for event in events: # loop through all events
         fermions = False
       else:
         continue
-      remain_counter(is_lambdac_signal,lambdac_signal_combined_momentum_remaining,lambdac_bkg_combined_momentum_remaining)
+      remain_counter(is_lambdac_signal, lambdac_sig_charge_remaining, lambdac_bkg_charge_remaining)
       #endregion LambdacOutputTreeFill
       lambdac_vtx = ROOT.uVertex( [proton,lambdac_kaon,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # Should make reverse case as well
@@ -493,17 +599,17 @@ for event in events: # loop through all events
       if lambdac_chi2ndof > limits_dict["lambdac_vtx_chi2_ndof"] :
         kill_counter(is_lambdac_signal,lambdac_vtx_chi2_ndof_signal_kills,lambdac_vtx_chi2_ndof_bkg_kills)
         continue # if the chi2/ndf is not acceptable, disgard possible particle
-      remain_counter(is_lamdac_signal,lambdac_vtx_chi2_ndof_signal_remaining,lambdac_vtx_chi2_ndof_bkg_remaining)
+      remain_counter(is_lambdac_signal, lambdac_vtx_chi2_ndof_signal_remaining,lambdac_vtx_chi2_ndof_bkg_remaining)
       pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
       lambdac_chi2distance = lambdac_vtx_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
       lambdac_dira = lambdac_vtx_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
       if lambdac_chi2distance < limits_dict['lambdac_vtx_chi2_distance'] : 
-        kill_counter(is_lambdac_signal,lambdac_vtx_chi2_distance_sig_kills,lambdac_vtx_chi2_distance_bac_kills)
+        kill_counter(is_lambdac_signal,lambdac_vtx_chi2_distance_sig_kills,lambdac_vtx_chi2_distance_bkg_kills)
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
       remain_counter(is_lambdac_signal,lambdac_vtx_chi2_distance_sig_remaining,lambdac_vtx_chi2_distance_bkg_remaining)
       if lambdac_dira  < limits_dict['lambdac_vtx_dira'] : 
-        kill_counter(is_lambdac_signal,lambdac_vtx_dira_sig_kills,lambdac_vtx_dira_bac_kills)
+        kill_counter(is_lambdac_signal,lambdac_vtx_dira_sig_kills,lambdac_vtx_dira_bkg_kills)
         continue # if the cos of the angle between momenta is less than 0.9 discard
       remain_counter(is_lambdac_signal,lambdac_vtx_dira_sig_remaining,lambdac_vtx_dira_bkg_remaining)
       # ------------------- LambdacOutputs -------------------
@@ -540,7 +646,7 @@ for event in events: # loop through all events
           continue
         elif (fermions is False) and xiccpp_charges != (-1,-1,1,-1):
           continue
-        remain_counter(is_xiccpp_signal,xi_charge_charge_sig_remaining,xi_charge_bkg_remaining)
+        remain_counter(is_xiccpp_signal,xi_charge_sig_remaining, xi_charge_bkg_remaining)
         if ilambdac_pt + Vxiccpp_kaon_pt + Vxiccpp_pion1_pt + Vxiccpp_pion2_pt < limits_dict['xiccpp_combined_momentum'] :
           kill_counter(is_xiccpp_signal,xi_signal_minimum_momentum_kills,xi_bkg_minimum_momentum_kills)
           continue # insufficient momentum to create a phi, discard
