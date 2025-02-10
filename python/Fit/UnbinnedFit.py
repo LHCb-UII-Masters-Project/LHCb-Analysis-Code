@@ -17,8 +17,15 @@ import argparse
 #--------------------------------File Inputs---------------------------------------
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
+parser.add_argument("particle", type=str, help="Provide the particle for fitting")
+parser.add_argument("fit_range", type=int, help="sigma for fit range")
+
 args = parser.parse_args()
 input_directory = os.path.dirname(args.input_file)
+if args.particle == "xiccpp":
+    particle_mass = 3.622
+if args.particle == "lambdac":
+    particle_mass = 2.287
 #-------------------------------Tree Reading---------------------------------------
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("RunParams")
@@ -30,9 +37,9 @@ root_file.Close()
 rdf = ROOT.RDataFrame(outputs) 
 # Convert the bs_mass branch to a Numpy array
 xiccpp_data = rdf.AsNumpy()["lambdac_mass"]
-lambda_5sig_lower = 2286.46 - 6.5* 2.476
-lambda_5sig_higher = 2286.46 + 6.5* 2.476
-unbinned_data = xiccpp_data[(xiccpp_data > lambda_5sig_lower) & (xiccpp_data < lambda_5sig_higher)]
+lower_fit_range = particle_mass - args.fit_range* variables['sigma']['value']
+upper_fit_range = particle_mass + args.fit_range* variables['sigma']['value']
+unbinned_data = xiccpp_data[(xiccpp_data > lower_fit_range) & (xiccpp_data < upper_fit_range)]
 total_entries = outputs.GetEntries()
 timing = array('f', [0])
 PID_pion = array('f', [0])
@@ -81,9 +88,9 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
 number_of_bins = 35
-sig_lower = 2286.46 - 5* 2.476
-sig_higher = 2286.46 + 5* 2.476
-x.setRange("myRange", sig_lower, sig_higher);
+sig_lower = particle_mass - 5*variables['sigma']['value']
+sig_higher = particle_mass + 5*variables['sigma']['value']
+x.setRange("myRange", sig_lower, sig_higher)
 frame1 = x.frame(ROOT.RooFit.Range("myRange"))
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
