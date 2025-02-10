@@ -17,8 +17,17 @@ import argparse
 #--------------------------------File Inputs---------------------------------------
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
+parser.add_argument("particle", type=str, help="Provide the particle for fitting")
+parser.add_argument("fit_range", type=int, help="sigma for fit range")
+
 args = parser.parse_args()
 input_directory = os.path.dirname(args.input_file)
+if args.particle == "xiccpp":
+    particle_mass = 3.622
+    x_label = "m(#Xi_{c}^{+}) [MeV/c^{2}]"
+if args.particle == "lambdac":
+    particle_mass = 2.287
+    x_label = "m(#Lambda_{c}^{+}) [MeV/c^{2}]"
 #-------------------------------Tree Reading---------------------------------------
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("RunParams")
@@ -29,10 +38,10 @@ root_file.Close()
 #Use RDataFrame to access the data 
 rdf = ROOT.RDataFrame(outputs) 
 # Convert the bs_mass branch to a Numpy array
-xiccpp_data = rdf.AsNumpy()["lambdac_mass"]*0.001
-lambda_5sig_lower = 2286.46*0.001 - 6.5* 2.476*0.001
-lambda_5sig_higher = 2286.46*0.001 + 6.5* 2.476*0.001
-unbinned_data = xiccpp_data[(xiccpp_data > lambda_5sig_lower) & (xiccpp_data < lambda_5sig_higher)]
+xiccpp_data = rdf.AsNumpy()["lambdac_mass"]
+lower_fit_range = particle_mass - args.fit_range* variables['sigma']['value']
+upper_fit_range = particle_mass + args.fit_range* variables['sigma']['value']
+unbinned_data = xiccpp_data[(xiccpp_data > lower_fit_range) & (xiccpp_data < upper_fit_range)]
 total_entries = outputs.GetEntries()
 timing = array('f', [0])
 PID_pion = array('f', [0])
@@ -81,9 +90,10 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
 number_of_bins = 35
-sig_lower = 2286.46*0.001 - 5 * 2.476*0.001
-sig_higher = 2286.46*0.001 + 5 * 2.476*0.001
-x.setRange("myRange", sig_lower, sig_higher);
+sig_lower = particle_mass - 5*variables['sigma']['value']
+sig_higher = particle_mass + 5*variables['sigma']['value']
+energy_range = (sig_higher - sig_lower)/35
+x.setRange("myRange", sig_lower, sig_higher)
 frame1 = x.frame(ROOT.RooFit.Range("myRange"))
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
@@ -115,8 +125,8 @@ with LHCbStyle() as lbs:
     ROOT.gPad.SetLeftMargin(0.15)
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
     ROOT.gStyle.SetLineScalePS(1.2)
-    frame1.GetYaxis().SetTitle("Entries/(9keV/c^{2})")
-    frame1.GetXaxis().SetTitle("m(#Lambda_{c}^{+}) [MeV/c^{2}]")
+    frame1.GetYaxis().SetTitle(f"Entries/({energy_range}keV/c^{2})")
+    frame1.GetXaxis().SetTitle(x_label)
     frame1.GetYaxis().SetTitleOffset(0.9)
     frame1.GetXaxis().SetTitleOffset(1)
     frame1.GetYaxis().SetTitleFont(62) 
