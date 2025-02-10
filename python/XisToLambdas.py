@@ -66,54 +66,40 @@ RunLimits.Branch('xiccpp_vtx_dira_limit', xiccpp_vtx_dira_limit, 'xiccpp_vtx_dir
 RunLimits.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 # ------------------- RunDiagnosticsTree -------------------
 RunDiagnostics = TTree("RunDiagnostics","RunDiagnostics")
-lambdac_signal_combined_momentum_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('lambdac_signal_combined_momentum_kills', lambdac_signal_combined_momentum_kills, 'lambdac_signal_combined_momentum_kills/F')
-lambdac_bkg_combined_momentum_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('lambdac_bkg_combined_momentum_kills', lambdac_bkg_combined_momentum_kills, 'lambdac_bkg_combined_momentum_kills/F')
-lambdac_mass_limit_signal_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('lambdac_mass_limit_signal_kills', lambdac_mass_limit_signal_kills, 'lambdac_mass_limit_signal_kills/F')
-lambdac_mass_limit_bkg_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('lambdac_mass_limit_bkg_kills', lambdac_mass_limit_bkg_kills, 'lambdac_mass_limit_bkg_kills/F')
-lambdac_final_mass_cut_signal_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('lambdac_final_mass_cut_signal_kills', lambdac_final_mass_cut_signal_kills, 'lambdac_final_mass_cut_signal_kills/F')
-lambdac_final_mass_cut_bkg_kills = array('f', [0]) # Formerly Chi2_ndf_limit
-RunDiagnostics.Branch('lambdac_final_mass_cut_bkg_kills', lambdac_final_mass_cut_bkg_kills, 'lambdac_final_mass_cut_bkg_kills/F')
-lambdac_vtx_chi2_ndof_signal_kills = array('f', [0])
-RunDiagnostics.Branch('lambdac_vtx_chi2_ndof_signal_kills', lambdac_vtx_chi2_ndof_signal_kills, 'lambdac_vtx_chi2_ndof_signal_kills/F')
-lambdac_vtx_chi2_ndof_bkg_kills = array('f', [0])
-RunDiagnostics.Branch('lambdac_vtx_chi2_ndof_bkg_kills',lambdac_vtx_chi2_ndof_bkg_kills , 'lambdac_vtx_chi2_ndof_bkg_kills/F')
-lambdac_vtx_chi2_distance_sig_kills = array('f', [0])
-RunDiagnostics.Branch('lambdac_vtx_chi2_distance_sig_kills', lambdac_vtx_chi2_distance_sig_kills, 'lambdac_vtx_chi2_distance_sig_kills/F')
-lambdac_vtx_chi2_distance_bac_kills = array('f', [0])
-RunDiagnostics.Branch('lambdac_vtx_chi2_distance_bac_kills', lambdac_vtx_chi2_distance_bac_kills, 'lambdac_vtx_chi2_distance_bac_kills/F')
-lambdac_vtx_dira_sig_kills = array('f', [0])
-RunDiagnostics.Branch('lambdac_vtx_dira_sig_kills', lambdac_vtx_dira_sig_kills, 'lambdac_vtx_dira_sig_kills/F')
-lambdac_vtx_dira_bac_kills = array('f', [0])
-RunDiagnostics.Branch('lambdac_vtx_dira_bac_kills', lambdac_vtx_dira_bac_kills, 'lambdac_vtx_dira_bac_kills/F')
-xi_charge_conservation_signal_kills = array('f', [0])
-RunDiagnostics.Branch('xi_charge_conservation_signal_kills', xi_charge_conservation_signal_kills, 'xi_charge_conservation_signal_kills/F')
-xi_charge_conservation_bkg_kills = array('f', [0])
-RunDiagnostics.Branch('xi_charge_conservation_bkg_kills', xi_charge_conservation_bkg_kills, 'xi_charge_conservation_bkg_kills/F')
-xi_vtx_chi2_ndof_sig_kills = array('f', [0])
-RunDiagnostics.Branch('xi_vtx_chi2_ndof_sig_kills', xi_vtx_chi2_ndof_sig_kills, 'xi_vtx_chi2_ndof_sig_kills/F')
-xi_vtx_chi2_ndof_bkg_kills = array('f', [0])
-RunDiagnostics.Branch('xi_vtx_chi2_ndof_bkg_kills', xi_vtx_chi2_ndof_bkg_kills, 'xi_vtx_chi2_ndof_bkg_kills/F')
-xi_signal_minimum_momentum_kills = array('f', [0])
-RunDiagnostics.Branch('xi_signal_minimum_momentum_kills', xi_signal_minimum_momentum_kills, 'xi_signal_minimum_momentum_kills/F')
-xi_bkg_minimum_momentum_kills = array('f', [0])
-RunDiagnostics.Branch('xi_bkg_minimum_momentum_kills', xi_bkg_minimum_momentum_kills, 'xi_bkg_minimum_momentum_kills/F')
-xi_vtx_chi2_distance_sig_kills = array('f', [0])
-RunDiagnostics.Branch('xi_vtx_chi2_distance_sig_kills', xi_vtx_chi2_distance_sig_kills, 'xi_vtx_chi2_distance_sig_kills/F')
-xi_chi2_disatance_bac_kills = array('f', [0])
-RunDiagnostics.Branch('xi_chi2_disatance_bac_kills', xi_chi2_disatance_bac_kills, 'xi_chi2_disatance_bac_kills/F')
-xi_vtx_dira_sig_kills = array('f', [0])
-RunDiagnostics.Branch('xi_vtx_dira_sig_kills', xi_vtx_dira_sig_kills, 'xi_vtx_dira_sig_kills/F')
-xi_vtx_dira_bkg_kills = array('f', [0])
-RunDiagnostics.Branch('xi_vtx_dira_bkg_kills', xi_vtx_dira_bkg_kills, 'xi_vtx_dira_bkg_kills/F')
-xi_mass_sig_kills = array('f', [0])
-RunDiagnostics.Branch('xi_mass_sig_kills', xi_mass_sig_kills, 'xi_mass_sig_kills/F')
-xi_mass_bkg_kills = array('f', [0])
-RunDiagnostics.Branch('xi_mass_bkg_kills', xi_mass_bkg_kills, 'xi_mass_bkg_kills/F')
+sig_kills_vars = {}
+bkg_kills_vars = {}
+sig_remain_vars = {}
+bkg_remain_vars = {}
+
+base_branches = [
+    "lambdac_combined_momentum",
+    "lambdac_charge",
+    "lambdac_mass_limit",
+    "lambdac_final_mass_cut",
+    "lambdac_vtx_chi2_ndof",
+    "lambdac_vtx_chi2_distance",
+    "lambdac_vtx_dira",
+    "xi_miss_combo",
+    "xi_charge_conservation",
+    "xi_vtx_chi2_ndof",
+    "xi_minimum_momentum",
+    "xi_vtx_chi2_distance",
+    "xi_vtx_dira",
+    "xi_mass",
+]
+
+# Create "_kills" and "_remain" variables, storing references for later use
+for base_name in base_branches:
+    sig_kills_vars[f"{base_name}_sig_kills"] = array('f', [0])
+    bkg_kills_vars[f"{base_name}_bkg_kills"] = array('f', [0])
+    sig_remain_vars[f"{base_name}_sig_remain"] = array('f', [0])
+    bkg_remain_vars[f"{base_name}_bkg_remain"] = array('f', [0])
+
+    RunDiagnostics.Branch(f"{base_name}_sig_kills", sig_kills_vars[f"{base_name}_sig_kills"], f"{base_name}_sig_kills/F")
+    RunDiagnostics.Branch(f"{base_name}_bkg_kills", bkg_kills_vars[f"{base_name}_bkg_kills"], f"{base_name}_bkg_kills/F")
+    RunDiagnostics.Branch(f"{base_name}_sig_remain", sig_kills_vars[f"{base_name}_sig_remain"], f"{base_name}_sig_remain/F")
+    RunDiagnostics.Branch(f"{base_name}_bkg_remain", sig_kills_vars[f"{base_name}_bkg_remain"], f"{base_name}_bkg_remain/F")
+
 RunDiagnostics.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 
 lambdac_is_signal_mass_pre_selections = array('f', [0])
