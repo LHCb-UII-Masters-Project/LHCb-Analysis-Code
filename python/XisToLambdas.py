@@ -36,8 +36,6 @@ RunParams.Branch('spacial_resolution', spacial_resolution, 'spacial_resolution/F
 com_energy = array('f', [0])
 RunParams.Branch('com_energy', com_energy, 'com_energy/F')
 number_of_xiccpp= array('f', [0])
-xiccpp_mass= array('f', [0])
-RunParams.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 rand_seed[0] = 0
 com_energy[0] = 14
 spacial_resolution[0] = 10
@@ -63,7 +61,6 @@ xiccpp_vtx_chi2_distance_limit = array('f', [0])
 RunLimits.Branch('xiccpp_vtx_chi2_distance_limit', xiccpp_vtx_chi2_distance_limit, 'xiccpp_vtx_chi2_distance_limit/F')
 xiccpp_vtx_dira_limit = array('f', [0])
 RunLimits.Branch('xiccpp_vtx_dira_limit', xiccpp_vtx_dira_limit, 'xiccpp_vtx_dira_limit/F')
-RunLimits.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 # ------------------- RunDiagnosticsTree -------------------
 RunDiagnostics = TTree("RunDiagnostics","RunDiagnostics")
 lambdac_signal_combined_momentum_kills = array('f', [0]) # Formerly Chi2_ndf_limit
@@ -187,13 +184,17 @@ xi_charge_sig_remaining = array('f', [0])
 RunDiagnostics.Branch('xi_charge_sig_remaining', xi_charge_sig_remaining, 'xi_charge_sig_remaining/F')
 xi_charge_bkg_remaining = array('f', [0])
 RunDiagnostics.Branch('xi_charge_bkg_remaining', xi_charge_bkg_remaining, 'xi_charge_bkg_remaining/F')
-
+xiccpp_mass= array('f', [0])
 RunDiagnostics.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 
 lambdac_is_signal_mass_pre_selections = array('f', [0])
 RunDiagnostics.Branch('lambdac_is_signal_mass_pre_selections', lambdac_is_signal_mass_pre_selections, 'lambdac_is_signal_mass_pre_selections/F')
+lambdac_is_bkg_mass_pre_selections = array('f', [0])
+RunDiagnostics.Branch('lambdac_is_bkg_mass_pre_selections', lambdac_is_bkg_mass_pre_selections, 'lambdac_is_bkg_mass_pre_selections/F')
 lambdac_is_signal_mass_post_selections = array('f', [0])
 RunDiagnostics.Branch('lambdac_is_signal_mass_post_selections', lambdac_is_signal_mass_post_selections, 'lambdac_is_signal_mass_post_selections/F')
+lambdac_is_bkg_mass_post_selections = array('f', [0])
+RunDiagnostics.Branch('lambdac_is_bkg_mass_post_selections', lambdac_is_bkg_mass_post_selections, 'lambdac_is_bkg_mass_post_selections/F')
 xiccpp_is_signal_mass_pre_selections = array('f', [0])
 RunDiagnostics.Branch('xiccpp_is_signal_mass_pre_selections', xiccpp_is_signal_mass_pre_selections, 'xiccpp_is_signal_mass_pre_selections/F')
 xiccpp_is_bkg_mass_pre_selections = array('f', [0])
@@ -264,7 +265,6 @@ xi_vtx_dira= array('f', [0])
 Outputs.Branch('xi_vtx_dira', xi_vtx_dira, 'xi_vtx_dira/F')
 number_of_xiccpp= array('f', [0])
 Outputs.Branch('number_of_xiccpp', number_of_xiccpp, 'number_of_xiccpp/F')
-Outputs.Branch('xiccpp_mass', xiccpp_mass, 'xiccpp_mass/F')
 # ------------------- UserInputs -------------------
 def get_arg(index, default, args):  # Arg function that returns relevant arguments and deals with missing args
     try:
@@ -412,7 +412,9 @@ def reset_all_branches():
   """
   xiccpp_mass[0] = -1
   lambdac_is_signal_mass_pre_selections[0] = -1
+  lambdac_is_bkg_mass_pre_selections[0] = -1
   lambdac_is_signal_mass_post_selections[0] = -1
+  lambdac_is_bkg_mass_post_selections[0] = -1
   xiccpp_is_signal_mass_pre_selections[0] = -1
   xiccpp_is_bkg_mass_pre_selections[0] = -1
   xiccpp_is_signal_mass_post_selections[0] = -1
@@ -596,6 +598,10 @@ for event in events: # loop through all events
       lambdac = ROOT.uParticle( [proton,lambdac_kaon,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
       if is_lambdac_signal and bool(lambdac.mass):
         lambdac_is_signal_mass_pre_selections[0] = lambdac.mass
+        lambdac_is_bkg_mass_pre_selections[0] = -1
+      if (is_lambdac_signal is False) and bool(lambdac.mass):
+        lambdac_is_bkg_mass_pre_selections[0] = lambdac.mass
+        lambdac_is_signal_mass_pre_selections[0] = -1
       if lambdac.mass < limits_dict["lambdac_mass_minimum"] or lambdac.mass  > limits_dict["lambdac_mass_maximum"] :
         kill_counter(is_lambdac_signal,lambdac_mass_limit_signal_kills,lambdac_mass_limit_bkg_kills)
         continue # insufficient mass to create D particle, discard
@@ -619,7 +625,11 @@ for event in events: # loop through all events
       remain_counter(is_lambdac_signal,lambdac_vtx_dira_sig_remaining,lambdac_vtx_dira_bkg_remaining)
       # ------------------- LambdacOutputs -------------------
       if is_lambdac_signal and bool(lambdac.mass):
+        lambdac_is_bkg_mass_post_selections[0] = -1
         lambdac_is_signal_mass_post_selections[0] = lambdac.mass
+      if (is_lambdac_signal is False) and bool(lambdac.mass):
+        lambdac_is_bkg_mass_post_selections[0] = lambdac.mass
+        lambdac_is_signal_mass_post_selections[0] = -1
       lambdac_mass[0] = lambdac.mass
       ilambdac_pt = lambdac_pt[0] = lambdac.pt()
       lambdac_eta[0] = lambdac.eta()      
@@ -659,8 +669,10 @@ for event in events: # loop through all events
         xiccpp = ROOT.uParticle( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
         if is_xiccpp_signal and bool(xiccpp.mass):
           xiccpp_is_signal_mass_pre_selections[0] = xiccpp.mass
-        if is_xiccpp_signal is False:
+          xiccpp_is_bkg_mass_pre_selections[0] = -1
+        if (is_xiccpp_signal is False) and bool(xiccpp.mass):
           xiccpp_is_bkg_mass_pre_selections[0] = xiccpp.mass
+          xiccpp_is_signal_mass_pre_selections[0] = -1
 
         if (xiccpp.mass<limits_dict['xiccpp_mass_minimum']) or (xiccpp.mass>limits_dict['xiccpp_mass_maximum']):
           kill_counter(is_xiccpp_signal,xi_mass_sig_kills,xi_mass_bkg_kills)
@@ -686,11 +698,13 @@ for event in events: # loop through all events
         xiccpp_signal_binary_flag[0] = 1 if is_xiccpp_signal is True else 0
         entry += 1 # entry is the event being examined
         number_of_xiccpp[0] = entry
+        xiccpp_mass[0] = xiccpp.mass
         if is_xiccpp_signal and bool(xiccpp.mass):
           xiccpp_is_signal_mass_post_selections[0] = xiccpp.mass
-        xiccpp_mass[0] = xiccpp.mass
+          xiccpp_is_bkg_mass_post_selections[0] = -1
         if (is_xiccpp_signal is False) and bool(xiccpp_mass):
           xiccpp_is_bkg_mass_post_selections[0] = xiccpp.mass
+          xiccpp_is_signal_mass_post_selections[0] = -1
         # ---------------------------------------------------
 # ------------------- TreeFilling -------------------
   fill_trees()
