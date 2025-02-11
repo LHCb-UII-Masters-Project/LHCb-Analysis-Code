@@ -1,12 +1,13 @@
 import os
 import time
 import subprocess
-from os import path, listdir
+from os import path, listdir, makedirs
 import sys
 import ROOT
 from ROOT import TH1D, TChain, TTree, TFile
 from multiprocessing import Process
 import numpy as np
+import csv
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -304,7 +305,46 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
                 RunLChain.Add(file_path)
                 RunDChain.Add(file_path)
 
+                root_file = ROOT.TFile.Open(file_path, "READ") 
+                diagnostics = root_file.Get("RunDiagnostics")
+                diagnostics.SetDirectory(0)
+                root_file.Close()
+
         ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
+
+        branch_sums = {}
+
+        for numbers in num_range:
+            file_path = f"{base_path}{numbers}.root"
+            # Open the ROOT file
+            root_file = ROOT.TFile.Open(file_path)
+            
+            # Retrieve the tree
+            diagnostics = root_file.Get("RunDiagnostics")
+            
+            # Check if the tree is valid and has entries
+            if diagnostics and diagnostics.GetEntries() > 0:
+                n_entries = diagnostics.GetEntries()
+                # Move to the last entry of the tree
+                diagnostics.GetEntry(n_entries - 1)
+                
+                # Loop over all branches in this tree
+                for branch in diagnostics.GetListOfBranches():
+                    branch_name = branch.GetName()
+                    value = getattr(diagnostics, branch_name)
+                    
+                    # Initialize the sum for this branch if it's the first time
+                    if branch_name not in branch_sums:
+                        branch_sums[branch_name] = 0
+                        
+                    # Add the value from the last entry of this tree
+                    branch_sums[branch_name] += value
+            else:
+                print(f"Tree 'RunDiagnostics' is empty or not found in {file_path}")
+            
+            # Close the ROOT file
+            root_file.Close()
+
 
         OutTree = OutChain.CopyTree("")
         RunPTree = RunPChain.CopyTree("")
@@ -316,7 +356,9 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         RunDTree.SetName("RunDiagnostics")
 
         # Full output file name given here
-        output_file = ROOT.TFile(f"{basedir}/Outputs/XisToLambdas/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+        new_dir = f"{basedir}/Outputs/XisToLambdas/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime())
+        makedirs(new_dir)
+        output_file = ROOT.TFile(f"{new_dir}/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
         # Writes to the output file
         output_file.cd()
         OutTree.Write("Outputs")
@@ -333,6 +375,14 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
             os.remove(file_path)
         
         print(f"Made Tree")
+
+        csv_filename = f'{new_dir}/Counters.csv'
+        with open(csv_filename, mode="w", newline="") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=branch_sums.keys())
+            writer.writeheader()         # Write header row with branch names
+            writer.writerow(branch_sums)   # Write the summed values what have I done wrong with my file writing 
+
+        print("Made CSV")
 
         end_time = time.time()
         
@@ -409,8 +459,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "XisRun"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 10
-    tot_num_files = 500
+    files_per_run = 2
+    tot_num_files = 50
     rand_seed = None
 
     try:

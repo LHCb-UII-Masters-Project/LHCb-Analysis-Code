@@ -254,9 +254,10 @@ df = df.assign(
 )
 df = df[branches]
 # Assuming 'df' is your DataFrame with one row and the columns listed above:
+df.to_csv(f"{input_directory}/CutPandE.csv", index = False)
 df_transposed = df.T  # Transpose: rows become columns, columns become rows
 # Reset the index to convert the original column names into a regular column
 df_transposed = df_transposed.reset_index()
 # Rename the columns to "Variable" (for the original column names) and "Value" (for the corresponding data)
 df_transposed.columns = ["Variable", "Value"]
-df_transposed.to_csv(f"{input_directory}/CutChecks.csv",index = False)
+df_transposed.to_csv(f"{input_directory}/TCutPandE.csv",index = False)
