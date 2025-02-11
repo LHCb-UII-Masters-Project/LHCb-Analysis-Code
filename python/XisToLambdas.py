@@ -596,12 +596,14 @@ for event in events: # loop through all events
       lambdac_vtx = ROOT.uVertex( [proton,lambdac_kaon,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # Should make reverse case as well
       lambdac = ROOT.uParticle( [proton,lambdac_kaon,pion] ) # create a candiate particle for reconstruction. using either positive or negative kaon
+
       if is_lambdac_signal and bool(lambdac.mass):
         lambdac_is_signal_mass_pre_selections[0] = lambdac.mass
         lambdac_is_bkg_mass_pre_selections[0] = -1
       if (is_lambdac_signal is False) and bool(lambdac.mass):
         lambdac_is_bkg_mass_pre_selections[0] = lambdac.mass
         lambdac_is_signal_mass_pre_selections[0] = -1
+
       if lambdac.mass < limits_dict["lambdac_mass_minimum"] or lambdac.mass  > limits_dict["lambdac_mass_maximum"] :
         kill_counter(is_lambdac_signal,lambdac_mass_limit_signal_kills,lambdac_mass_limit_bkg_kills)
         continue # insufficient mass to create D particle, discard
