@@ -345,7 +345,6 @@ def eff_model(df):
 def reset_all_branches():
   # Resetting the arrays for the RunParams tree
   number_of_xiccpp[0] = -1
-  xiccpp_mass[0] = -1
 
   # Resetting the arrays for the RunDiagnostics tree
   """
@@ -411,13 +410,13 @@ def reset_all_branches():
   xi_charge_sig_remaining[0] = 0
   xi_charge_bkg_remaining[0] = 0
   """
-  xiccpp_mass[0] = 0
-  lambdac_is_signal_mass_pre_selections[0] = 0
-  lambdac_is_signal_mass_post_selections[0] = 0
-  xiccpp_is_signal_mass_pre_selections[0] = 0
-  xiccpp_is_bkg_mass_pre_selections[0] = 0
-  xiccpp_is_signal_mass_post_selections[0] = 0
-  xiccpp_is_bkg_mass_post_selections[0] = 0
+  xiccpp_mass[0] = -1
+  lambdac_is_signal_mass_pre_selections[0] = -1
+  lambdac_is_signal_mass_post_selections[0] = -1
+  xiccpp_is_signal_mass_pre_selections[0] = -1
+  xiccpp_is_bkg_mass_pre_selections[0] = -1
+  xiccpp_is_signal_mass_post_selections[0] = -1
+  xiccpp_is_bkg_mass_post_selections[0] = -1
 
   # Resetting the arrays for the Outputs tree
   xiccpp_signal_binary_flag[0] = -1
@@ -449,7 +448,6 @@ def reset_all_branches():
   xi_vtx_chi2_distance[0] = -1
   xi_vtx_dira[0] = -1
   number_of_xiccpp[0] = -1
-  xiccpp_mass[0] = -1
 
 def fill_trees():
   RunParams.Fill()
@@ -690,10 +688,9 @@ for event in events: # loop through all events
         number_of_xiccpp[0] = entry
         if is_xiccpp_signal and bool(xiccpp.mass):
           xiccpp_is_signal_mass_post_selections[0] = xiccpp.mass
-        if is_xiccpp_signal is False:
+        xiccpp_mass[0] = xiccpp.mass
+        if (is_xiccpp_signal is False) and bool(xiccpp_mass):
           xiccpp_is_bkg_mass_post_selections[0] = xiccpp.mass
-        if bool(xiccpp.mass):
-          xiccpp_mass[0] = xiccpp.mass
         # ---------------------------------------------------
 # ------------------- TreeFilling -------------------
   fill_trees()
