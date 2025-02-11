@@ -15,7 +15,7 @@ sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
 batching = False
 sys.path.insert(0,basedir)
 
-# --------------------------------- File Inputs ---------------------------------------------------
+# --------------------------------- File Inputs --------------------------------------------------
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_file', type=str, help='Path to the input ROOT file') 
 args = parser.parse_args()
