@@ -261,3 +261,19 @@ df_transposed = df_transposed.reset_index()
 # Rename the columns to "Variable" (for the original column names) and "Value" (for the corresponding data)
 df_transposed.columns = ["Variable", "Value"]
 df_transposed.to_csv(f"{input_directory}/TCutPandE.csv",index = False)
+
+eff_columns = [col for col in list(df.columns) if "efficiency" in col]
+eff_values = df[eff_columns].iloc[0]
+
+purity_columns = [col for col in list(df.columns) if "purity" in col]
+purity_values = df[purity_columns].iloc[0]
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(25, 15))  # Adjust the width and height as needed
+plt.step(purity_values,purity_columns)
+plt.savefig(f"{input_directory}/PurityPlot.png")
+plt.close()
+plt.figure(figsize=(25, 15))  # Adjust the width and height as needed
+plt.step(eff_values,eff_columns)
+plt.savefig(f"{input_directory}/EfficiencyPlot.png")
+plt.close()
