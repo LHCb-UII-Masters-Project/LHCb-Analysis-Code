@@ -6,6 +6,7 @@ import os
 from os import path
 import sys
 import csv
+import pandas as pd
 
 basedir=path.dirname(path.realpath(__file__))
 sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
@@ -18,9 +19,7 @@ parser.add_argument('input_file', type=str, help='Path to the input ROOT file')
 args = parser.parse_args()
 input_directory = os.path.dirname(args.input_file)
 
-# ------------------------------- Tree Reading ---------------------------------------------------
-root_file = TFile.Open(args.input_file, "READ") 
-run_diag = root_file.Get("RunDiagnostics")
+# ------------------------------- Tree Reading --------------------------------------------------
 
 # Dictionary to store extracted values
 branches = [
@@ -100,82 +99,6 @@ branches = [
     "xi_vtx_dira_bkg_remaining",
 ]
 
-# Create dictionaries to store values and set branch addresses
-values = {branch: [] for branch in branches}
-buffers = {branch: np.array([0], dtype=np.float32) for branch in branches}
-
-for branch in branches:
-    run_diag.SetBranchAddress(branch, buffers[branch])
-
-# Loop over tree entries to extract values
-n_entries = run_diag.GetEntries()
-for i in range(n_entries):
-    run_diag.GetEntry(i)
-    for branch in branches:
-        values[branch].append(buffers[branch][0])
-
-# Compute max values
-max_values = {branch: np.max(values[branch]) for branch in branches}
-
-for i in range(0, len(branches), 4):
-  data = [branches[i], 
-  max_values[branches[i]],
-  max_values[branches[i+1]],
-  max_values[branches[i+2]], 
-  max_values[branches[i+3]]]
-
-  # Check if the file exists
-  
-  file_path = f"{basedir}/Outputs/XisToLambdas/KillCounter{(args.input_file)[-13:-5]}.csv"
-  file_exists = path.isfile(file_path)
-  
-  # Open the file in append mode
-  with open(file_path, mode='a', newline='') as file:
-      writer = csv.writer(file)
-
-      # Write header only if the file doesn't exist
-      if not file_exists:
-          writer.writerow(["Branch Name","SigKills", "BkgKills", "SigRemain", "BkgRemain"])
-
-      # Append the data
-      writer.writerow(data)
+df = pd.read_csv(args.input_file, columns = branches)
 
 
-# Close file
-root_file.Close()
-
-## Quick Purity and Eff
-
-root_file = TFile.Open(args.input_file, "READ") 
-run_diag = root_file.Get("RunDiagnostics")
-
-branches = [
-    "xiccpp_mass",
-    "lambdac_is_signal_mass_pre_selections",
-    "lambdac_is_signal_mass_post_selections",
-    "xiccpp_is_signal_mass_pre_selections",
-    "xiccpp_is_bkg_mass_pre_selections",
-    "xiccpp_is_signal_mass_post_selections",
-    "xiccpp_is_bkg_mass_post_selections"
-
-]
-
-# Create dictionaries to store values and set branch addresses
-values = {branch: [] for branch in branches}
-buffers = {branch: np.array([0], dtype=np.float32) for branch in branches}
-
-for branch in branches:
-    run_diag.SetBranchAddress(branch, buffers[branch])
-
-# Loop over tree entries to extract values
-n_entries = run_diag.GetEntries()
-for i in range(n_entries):
-    run_diag.GetEntry(i)
-    for branch in branches:
-        values[branch].append(buffers[branch][0])
-
-purity = len([val for val in values["xiccpp_is_signal_mass_post_selections"] if val > 0]) / len([val for val in values["xiccpp_mass"] if val > 0])
-efficiency = len([val for val in values["xiccpp_mass"] if val > 0]) / n_entries
-
-print(f"Purity = {purity}")
-print(f"Efficiency = {efficiency}")
