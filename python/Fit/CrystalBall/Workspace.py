@@ -1,6 +1,6 @@
 #-----------------------------Imports------------------------------------
 import ROOT
-from Variables import *
+from Variables.Exp import variables, fit_initial_guess_tree
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
 from math import * 
 import sys
