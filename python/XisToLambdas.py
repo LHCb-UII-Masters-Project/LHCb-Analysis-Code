@@ -195,7 +195,7 @@ RunDiagnostics.Branch('lambdac_is_signal_mass_pre_selections', lambdac_is_signal
 lambdac_is_signal_mass_post_selections = array('f', [0])
 RunDiagnostics.Branch('lambdac_is_signal_mass_post_selections', lambdac_is_signal_mass_post_selections, 'lambdac_is_signal_mass_post_selections/F')
 xiccpp_is_signal_mass_pre_selections = array('f', [0])
-RunDiagnostics.Branch('xiccpp_is_signal_mass_pre_selections', xiccpp_is_signal_mass_pre_selections, 'lambdac_is_signal_mass_pre_selections/F')
+RunDiagnostics.Branch('xiccpp_is_signal_mass_pre_selections', xiccpp_is_signal_mass_pre_selections, 'xiccpp_is_signal_mass_pre_selections/F')
 xiccpp_is_bkg_mass_pre_selections = array('f', [0])
 RunDiagnostics.Branch('xiccpp_is_bkg_mass_pre_selections', xiccpp_is_bkg_mass_pre_selections, 'xiccpp_is_bkg_mass_pre_selections/F')
 xiccpp_is_signal_mass_post_selections = array('f', [0])
