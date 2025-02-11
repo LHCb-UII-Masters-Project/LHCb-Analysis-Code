@@ -122,6 +122,10 @@ xiccpp_miss_combo_sig_kills = array('f', [0])
 RunDiagnostics.Branch('xiccpp_miss_combo_sig_kills', xiccpp_miss_combo_sig_kills, 'xiccpp_miss_combo_sig_kills/F')
 xiccpp_miss_combo_bkg_kills = array('f', [0])
 RunDiagnostics.Branch('xiccpp_miss_combo_bkg_kills', xiccpp_miss_combo_bkg_kills, 'xiccpp_miss_combo_bkg_kills/F')
+xi_charge_sig_kills = array('f', [0])
+RunDiagnostics.Branch('xi_charge_sig_kills', xi_charge_sig_kills, 'xi_charge_sig_kills/F')
+xi_charge_bkg_kills = array('f', [0])
+RunDiagnostics.Branch('xi_charge_bkg_kills', xi_charge_bkg_kills, 'xi_charge_bkg_kills/F')
 
 lambdac_signal_combined_momentum_remaining = array('f', [0]) # Formerly Chi2_ndf_limit
 RunDiagnostics.Branch('lambdac_signal_combined_momentum_remaining', lambdac_signal_combined_momentum_remaining, 'lambdac_signal_combined_momentum_remaining/F')
@@ -268,8 +272,8 @@ def get_arg(index, default, args):  # Arg function that returns relevant argumen
     except (IndexError, ValueError, TypeError):
         return default
 args = sys.argv
-lower = get_arg(1, 0, args)  # Default timing argument if not provided
-upper = get_arg(2, 2, args)  # Default timing argument if not provided
+lower = get_arg(1, 0, args)
+upper = get_arg(2, 2, args)
 rand_seed_arg = get_arg(3, int(time.time() * os.getpid()), args)  # Default random seed if not provided
 rand_seed[0] = rand_seed_arg
 max_timing = 0.050 # needs adjusting (temporary line)
@@ -373,6 +377,8 @@ def reset_all_branches():
   xi_mass_bkg_kills[0] = -1
   xiccpp_miss_combo_sig_kills[0] = -1
   xiccpp_miss_combo_bkg_kills[0] = -1
+  xi_charge_sig_kills[0] = -1
+  xi_charge_bkg_kills[0] = -1
 
   lambdac_signal_combined_momentum_remaining[0] = -1
   lambdac_bkg_combined_momentum_remaining[0] = -1
@@ -621,12 +627,13 @@ for event in events: # loop through all events
       if (lambdac.mass<limits_dict['lambdac_final_mass_minimum']) or (lambdac.mass>limits_dict["lambdac_final_mass_maximum"]):
         kill_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_kills,lambdac_final_mass_cut_bkg_kills)
         continue
-      remain_counter(is_lambdac_signal,lambdac_vtx_dira_sig_remaining,lambdac_vtx_dira_bkg_remaining)
+      remain_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_remaining,lambdac_final_mass_cut_bkg_remaining)
       # ------------------- xiccppReconstruction -------------------
       for xiccpp_pion1,xiccpp_pion2,xiccpp_kaon,chiccpp_pions_kaons,chiccpp_pion_kaons_container_vtx in chiccpp_pions_kaons_container:
         if xiccpp_kaon == lambdac_kaon or xiccpp_pion1 == pion or xiccpp_pion2 == pion:
           kill_counter(is_xiccpp_signal,xiccpp_miss_combo_sig_kills,xiccpp_miss_combo_bkg_kills)
           continue
+        remain_counter(is_xiccpp_signal,xiccpp_miss_combo_sig_remaining,xiccpp_miss_combo_bkg_remaining)
         #region xiccppTreeFill
         Vxiccpp_pion1_pt = xiccpp_pion1_pt[0] = xiccpp_pion1.pt()
         xiccpp_pion1_eta[0] = xiccpp_pion1.eta()
@@ -636,15 +643,13 @@ for event in events: # loop through all events
         xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
         #endregion xiccppTreeFill
         is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++']) and is_parent(xiccpp_pion1, event,particle_dict['xicc++']) and is_parent(xiccpp_pion2, event,particle_dict['xicc++']) and is_parent(xiccpp_kaon, event,particle_dict['xicc++'])
-        remain_counter(is_xiccpp_signal,xiccpp_miss_combo_sig_remaining,xiccpp_miss_combo_bkg_remaining)
         if abs(xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2): 
           kill_counter(is_xiccpp_signal,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
           continue
         remain_counter(is_xiccpp_signal,xi_charge_conservation_signal_remaining,xi_charge_conservation_bkg_remaining)
         xiccpp_charges = (xiccpp_pion1.charge(),xiccpp_pion2.charge(),xiccpp_kaon.charge(),lambdac.charge())
-        if (fermions is True) and xiccpp_charges != (1,1,-1,1):
-          continue
-        elif (fermions is False) and xiccpp_charges != (-1,-1,1,-1):
+        if ((fermions is True) and xiccpp_charges != (1,1,-1,1)) or ((fermions is False) and xiccpp_charges != (-1,-1,1,-1)):
+          kill_counter(is_xiccpp_signal,xi_charge_sig_kills, xi_charge_bkg_kills)
           continue
         remain_counter(is_xiccpp_signal,xi_charge_sig_remaining, xi_charge_bkg_remaining)
         if ilambdac_pt + Vxiccpp_kaon_pt + Vxiccpp_pion1_pt + Vxiccpp_pion2_pt < limits_dict['xiccpp_combined_momentum'] :

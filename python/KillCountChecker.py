@@ -16,18 +16,80 @@ run_diag = root_file.Get("RunDiagnostics")
 
 # Dictionary to store extracted values
 branches = [
-    "lambdac_signal_combined_momentum_kills", "lambdac_bkg_combined_momentum_kills",
-    "lambdac_mass_limit_signal_kills", "lambdac_mass_limit_bkg_kills",
-    "lambdac_vtx_chi2_ndof_signal_kills", "lambdac_vtx_chi2_ndof_bkg_kills",
-    "lambdac_vtx_chi2_distance_sig_kills", "lambdac_vtx_chi2_distance_bac_kills",
-    "lambdac_vtx_dira_sig_kills", "lambdac_vtx_dira_bac_kills",
-    "lambdac_final_mass_cut_signal_kills", "lambdac_final_mass_cut_bkg_kills",
-    "xi_charge_conservation_signal_kills", "xi_charge_conservation_bkg_kills",
-    "xi_signal_minimum_momentum_kills", "xi_bkg_minimum_momentum_kills",
-    "xi_mass_sig_kills", "xi_mass_bkg_kills",
-    "xi_vtx_chi2_ndof_sig_kills", "xi_vtx_chi2_ndof_bkg_kills",
-    "xi_vtx_chi2_distance_sig_kills", "xi_chi2_disatance_bac_kills",
-    "xi_vtx_dira_sig_kills", "xi_vtx_dira_bkg_kills"
+    "lambdac_signal_combined_momentum_kills",
+    "lambdac_bkg_combined_momentum_kills",
+    "lambdac_signal_combined_momentum_remaining",
+    "lambdac_bkg_combined_momentum_remaining",
+
+    "lambdac_mass_limit_signal_kills",
+    "lambdac_mass_limit_bkg_kills",
+    "lambdac_mass_limit_signal_remaining",
+    "lambdac_mass_limit_bkg_remaining",
+
+    "lambdac_final_mass_cut_signal_kills",
+    "lambdac_final_mass_cut_bkg_kills",
+    "lambdac_final_mass_cut_signal_remaining",
+    "lambdac_final_mass_cut_bkg_remaining",
+
+    "lambdac_vtx_chi2_ndof_signal_kills",
+    "lambdac_vtx_chi2_ndof_bkg_kills",
+    "lambdac_vtx_chi2_ndof_signal_remaining",
+    "lambdac_vtx_chi2_ndof_bkg_remaining",
+
+    "lambdac_vtx_chi2_distance_sig_kills",
+    "lambdac_vtx_chi2_distance_bkg_kills",
+    "lambdac_vtx_chi2_distance_sig_remaining",
+    "lambdac_vtx_chi2_distance_bkg_remaining",
+
+    "lambdac_vtx_dira_sig_kills",
+    "lambdac_vtx_dira_bkg_kills",
+    "lambdac_vtx_dira_sig_remaining",
+    "lambdac_vtx_dira_bkg_remaining",
+
+    "lambdac_signal_charge_kills",
+    "lambdac_bkg_charge_kills",
+    "lambdac_sig_charge_remaining",
+    "lambdac_bkg_charge_remaining",
+
+    "xi_charge_conservation_signal_kills",
+    "xi_charge_conservation_bkg_kills",
+    "xi_charge_conservation_signal_remaining",
+    "xi_charge_conservation_bkg_remaining",
+
+    "xi_vtx_chi2_ndof_sig_kills",
+    "xi_vtx_chi2_ndof_bkg_kills",
+    "xi_vtx_chi2_ndof_sig_remaining",
+    "xi_vtx_chi2_ndof_bkg_remaining",
+
+    "xi_signal_minimum_momentum_kills",
+    "xi_bkg_minimum_momentum_kills",
+    "xi_sig_minimum_momentum_remaining",
+    "xi_bkg_minimum_momentum_remaining",
+
+    "xi_vtx_chi2_distance_sig_kills",
+    "xi_chi2_disatance_bkg_kills",
+    "xi_vtx_chi2_distance_sig_remaining",
+    "xi_chi2_disatance_bkg_remaining",
+
+    "xi_vtx_dira_sig_kills",
+    "xi_vtx_dira_bkg_kills",
+    "xi_vtx_dira_sig_remaining",
+    "xi_vtx_dira_bkg_remaining",
+
+    "xi_mass_sig_kills",
+    "xi_mass_bkg_kills",
+    "xi_mass_sig_remaining",
+    "xi_mass_bkg_remaining",
+
+    "xiccpp_miss_combo_sig_kills",
+    "xiccpp_miss_combo_bkg_kills",
+    "xiccpp_miss_combo_sig_remaining",
+    "xiccpp_miss_combo_bkg_remaining",
+
+    "xi_charge_sig_kills",
+    "xi_charge_bkg_kills",
+    "xi_charge_sig_remaining",
+    "xi_charge_bkg_remaining",
 ]
 
 # Create dictionaries to store values and set branch addresses
@@ -51,11 +113,11 @@ max_values = {branch: np.max(values[branch]) for branch in branches}
 print("Results:")
 xi_branch = False
 signal_killed = 0
-for i in range(0, len(branches), 2):
+for i in range(0, len(branches), 4):
     if str(branches[i])[::-1][-2:] == "ix" and (xi_branch is False):
         print("-------------------------------------------------")
         xi_branch = True
-    print(f"{branches[i]}: {max_values[branches[i]]} : {max_values[branches[i+1]]}")
+    print(f"{branches[i]}: {max_values[branches[i]]} : {max_values[branches[i+1]]} : {max_values[branches[i+2]]} : {max_values[branches[i+3]]}")
     signal_killed += max_values[branches[i]]
 
 
