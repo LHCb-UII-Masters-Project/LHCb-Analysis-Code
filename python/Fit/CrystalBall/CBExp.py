@@ -40,10 +40,13 @@ root_file.Close()
 #Use RDataFrame to access the data 
 rdf = ROOT.RDataFrame(outputs) 
 # Convert the bs_mass branch to a Numpy array
-xiccpp_data = rdf.AsNumpy()["lambdac_mass"]*0.001
+if args.particle == "xiccpp":
+    df = rdf.AsNumpy()["xiccpp_mass"]*0.001
+elif args.particle == "lambdac":
+    df = rdf.AsNumpy()["lambdac_mass"]*0.001
 lower_fit_range = particle_mass - float(args.fit_range)*(variables['sigma']['value'])
 upper_fit_range = particle_mass + float(args.fit_range)*(variables['sigma']['value'])
-unbinned_data = xiccpp_data[(xiccpp_data > lower_fit_range) & (xiccpp_data < upper_fit_range)]
+unbinned_data = df[(df > lower_fit_range) & (df < upper_fit_range)]
 total_entries = outputs.GetEntries()
 timing = array('f', [0])
 PID_pion = array('f', [0])
@@ -93,10 +96,8 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
 # --------------------------- Plotting Initialisation -----------------------------------
 fitted_sigma = fit_result.floatParsFinal().find("sigma1").getVal()
 number_of_bins = 35
-sig_lower = particle_mass - 5*fitted_sigma
-sig_higher = particle_mass + 5*fitted_sigma
-energy_range = (sig_higher - sig_lower)/35
-x.setRange("myRange", sig_lower, sig_higher)
+energy_range = (upper_fit_range - lower_fit_range)/number_of_bins
+x.setRange("myRange", lower_fit_range, upper_fit_range)
 frame1 = x.frame(ROOT.RooFit.Range("myRange"))
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
