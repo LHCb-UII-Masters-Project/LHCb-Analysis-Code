@@ -1,0 +1,16 @@
+Branch Name,SigKills,BkgKills,SigRemain,BkgRemain
+lambdac_signal_combined_momentum_kills,4.0,49122.0,25.0,82244.0
+lambdac_signal_charge_kills,0.0,0.0,25.0,40895.0
+lambdac_mass_limit_signal_kills,1.0,38695.0,24.0,2200.0
+lambdac_vtx_chi2_ndof_signal_kills,0.0,2010.0,24.0,190.0
+lambdac_vtx_chi2_distance_sig_kills,0.0,3.0,24.0,187.0
+lambdac_vtx_dira_sig_kills,1.0,119.0,23.0,68.0
+lambdac_final_mass_cut_signal_kills,0.0,65.0,23.0,3.0
+xiccpp_miss_combo_sig_kills,0.0,0.0,16.0,67946.0
+xi_charge_conservation_signal_kills,0.0,0.0,16.0,67946.0
+xi_charge_sig_kills,0.0,24060.0,16.0,43886.0
+xi_signal_minimum_momentum_kills,2.0,812.0,14.0,43074.0
+xi_mass_sig_kills,2.0,42556.0,12.0,518.0
+xi_vtx_chi2_ndof_sig_kills,0.0,304.0,12.0,214.0
+xi_vtx_chi2_distance_sig_kills,0.0,0.0,12.0,214.0
+xi_vtx_dira_sig_kills,0.0,4.0,12.0,210.0
