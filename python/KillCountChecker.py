@@ -3,6 +3,14 @@ from ROOT import TFile, TTree
 import argparse
 import numpy as np
 import os
+from os import path
+import sys
+import csv
+
+basedir=path.dirname(path.realpath(__file__))
+sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
+batching = False
+sys.path.insert(0,basedir)
 
 # --------------------------------- File Inputs ---------------------------------------------------
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
@@ -21,15 +29,15 @@ branches = [
     "lambdac_signal_combined_momentum_remaining",
     "lambdac_bkg_combined_momentum_remaining",
 
+    "lambdac_signal_charge_kills",
+    "lambdac_bkg_charge_kills",
+    "lambdac_sig_charge_remaining",
+    "lambdac_bkg_charge_remaining",
+
     "lambdac_mass_limit_signal_kills",
     "lambdac_mass_limit_bkg_kills",
     "lambdac_mass_limit_signal_remaining",
     "lambdac_mass_limit_bkg_remaining",
-
-    "lambdac_final_mass_cut_signal_kills",
-    "lambdac_final_mass_cut_bkg_kills",
-    "lambdac_final_mass_cut_signal_remaining",
-    "lambdac_final_mass_cut_bkg_remaining",
 
     "lambdac_vtx_chi2_ndof_signal_kills",
     "lambdac_vtx_chi2_ndof_bkg_kills",
@@ -46,25 +54,40 @@ branches = [
     "lambdac_vtx_dira_sig_remaining",
     "lambdac_vtx_dira_bkg_remaining",
 
-    "lambdac_signal_charge_kills",
-    "lambdac_bkg_charge_kills",
-    "lambdac_sig_charge_remaining",
-    "lambdac_bkg_charge_remaining",
+    "lambdac_final_mass_cut_signal_kills",
+    "lambdac_final_mass_cut_bkg_kills",
+    "lambdac_final_mass_cut_signal_remaining",
+    "lambdac_final_mass_cut_bkg_remaining",
+
+    "xiccpp_miss_combo_sig_kills",
+    "xiccpp_miss_combo_bkg_kills",
+    "xiccpp_miss_combo_sig_remaining",
+    "xiccpp_miss_combo_bkg_remaining",
 
     "xi_charge_conservation_signal_kills",
     "xi_charge_conservation_bkg_kills",
     "xi_charge_conservation_signal_remaining",
     "xi_charge_conservation_bkg_remaining",
 
-    "xi_vtx_chi2_ndof_sig_kills",
-    "xi_vtx_chi2_ndof_bkg_kills",
-    "xi_vtx_chi2_ndof_sig_remaining",
-    "xi_vtx_chi2_ndof_bkg_remaining",
+    "xi_charge_sig_kills",
+    "xi_charge_bkg_kills",
+    "xi_charge_sig_remaining",
+    "xi_charge_bkg_remaining",
 
     "xi_signal_minimum_momentum_kills",
     "xi_bkg_minimum_momentum_kills",
     "xi_sig_minimum_momentum_remaining",
     "xi_bkg_minimum_momentum_remaining",
+
+    "xi_mass_sig_kills",
+    "xi_mass_bkg_kills",
+    "xi_mass_sig_remaining",
+    "xi_mass_bkg_remaining",
+
+    "xi_vtx_chi2_ndof_sig_kills",
+    "xi_vtx_chi2_ndof_bkg_kills",
+    "xi_vtx_chi2_ndof_sig_remaining",
+    "xi_vtx_chi2_ndof_bkg_remaining",
 
     "xi_vtx_chi2_distance_sig_kills",
     "xi_chi2_disatance_bkg_kills",
@@ -75,21 +98,6 @@ branches = [
     "xi_vtx_dira_bkg_kills",
     "xi_vtx_dira_sig_remaining",
     "xi_vtx_dira_bkg_remaining",
-
-    "xi_mass_sig_kills",
-    "xi_mass_bkg_kills",
-    "xi_mass_sig_remaining",
-    "xi_mass_bkg_remaining",
-
-    "xiccpp_miss_combo_sig_kills",
-    "xiccpp_miss_combo_bkg_kills",
-    "xiccpp_miss_combo_sig_remaining",
-    "xiccpp_miss_combo_bkg_remaining",
-
-    "xi_charge_sig_kills",
-    "xi_charge_bkg_kills",
-    "xi_charge_sig_remaining",
-    "xi_charge_bkg_remaining",
 ]
 
 # Create dictionaries to store values and set branch addresses
@@ -109,21 +117,32 @@ for i in range(n_entries):
 # Compute max values
 max_values = {branch: np.max(values[branch]) for branch in branches}
 
-# Print results
-print("Results:")
-xi_branch = False
-signal_killed = 0
 for i in range(0, len(branches), 4):
-    if str(branches[i])[::-1][-2:] == "ix" and (xi_branch is False):
-        print("-------------------------------------------------")
-        xi_branch = True
-    print(f"{branches[i]}: {max_values[branches[i]]} : {max_values[branches[i+1]]} : {max_values[branches[i+2]]} : {max_values[branches[i+3]]}")
-    signal_killed += max_values[branches[i]]
+  data = [branches[i], 
+  max_values[branches[i]],
+  max_values[branches[i+1]],
+  max_values[branches[i+2]], 
+  max_values[branches[i+3]]]
+
+  # Check if the file exists
+  
+  file_path = f"{basedir}/Outputs/XisToLambdas/KillCounter{(args.input_file)[-13:-5]}.csv"
+  file_exists = path.isfile(file_path)
+  
+  # Open the file in append mode
+  with open(file_path, mode='a', newline='') as file:
+      writer = csv.writer(file)
+
+      # Write header only if the file doesn't exist
+      if not file_exists:
+          writer.writerow(["Branch Name","SigKills", "BkgKills", "SigRemain", "BkgRemain"])
+
+      # Append the data
+      writer.writerow(data)
 
 
 # Close file
 root_file.Close()
-
 
 ## Quick Purity and Eff
 
@@ -160,8 +179,3 @@ efficiency = len([val for val in values["xiccpp_mass"] if val > 0]) / n_entries
 
 print(f"Purity = {purity}")
 print(f"Efficiency = {efficiency}")
-
-signal_survived = len([val for val in values["xiccpp_is_signal_mass_post_selections"] if val > 0])
-
-print(f"Signal Killed: {signal_killed}")
-print(f"Signal Survived: {signal_survived}")
