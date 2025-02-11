@@ -489,15 +489,15 @@ limits_dict = {
   "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
   "lambdac_vtx_chi2_ndof":12,
   "lambdac_vtx_chi2_distance":17,
-  "lambdac_vtx_dira":0.999,
-  "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 6,
-  "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 6,
+  "lambdac_vtx_dira":0.995,
+  "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 5,
+  "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 5,
 
-  "xiccpp_combined_momentum":5800,
+  "xiccpp_combined_momentum":5400,
   "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
   "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400,
-  "xiccpp_vtx_chi2_ndof":40,
-  "xiccpp_vtx_chi2_distance":15,
+  "xiccpp_vtx_chi2_ndof":44,
+  "xiccpp_vtx_chi2_distance":20,
   "xiccpp_dira":0.999,
 }
 # ------------------- LimitTreeFill(can be closed with region) -------------------
@@ -589,6 +589,7 @@ for event in events: # loop through all events
       elif lambdac_charges == (-1, 1, -1):
         fermions = False
       else:
+        kill_counter(is_lambdac_signal,lambdac_signal_charge_kills,lambdac_bkg_charge_kills)
         continue
       remain_counter(is_lambdac_signal, lambdac_sig_charge_remaining, lambdac_bkg_charge_remaining)
       #endregion LambdacOutputTreeFill
