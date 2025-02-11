@@ -89,7 +89,7 @@ alphaR_min.push_back(variables['alphaR']['min'])
 nL_min.push_back(variables['nL']['min'])
 nR_min.push_back(variables['nR']['min'])
 bkg_coef1_min.push_back(variables['bkg_coef1']['min'])
-bkg_coef2_min.push_back(variables['bkg_coe2']['min'])
+bkg_coef2_min.push_back(variables['bkg_coef2']['min'])
 nbkg_min.push_back(variables['nbkg']['min'])
 nsig_min.push_back(variables['nsig']['min'])
 
