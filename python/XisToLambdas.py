@@ -1,4 +1,4 @@
-# ------------------- Imports -------------------
+# ------------------- Imports ---------------------
 import ROOT
 from Selections import load_event_library
 load_event_library()
