@@ -348,76 +348,76 @@ def reset_all_branches():
   xiccpp_mass[0] = -1
 
   # Resetting the arrays for the RunDiagnostics tree
+  """
+  lambdac_signal_combined_momentum_kills[0] = 0
+  lambdac_bkg_combined_momentum_kills[0] = 0
+  lambdac_mass_limit_signal_kills[0] = 0
+  lambdac_mass_limit_bkg_kills[0] = 0
+  lambdac_final_mass_cut_signal_kills[0] = 0
+  lambdac_final_mass_cut_bkg_kills[0] = 0
+  lambdac_vtx_chi2_ndof_signal_kills[0] = 0
+  lambdac_vtx_chi2_ndof_bkg_kills[0] = 0
+  lambdac_vtx_chi2_distance_sig_kills[0] = 0
+  lambdac_vtx_chi2_distance_bkg_kills[0] = 0
+  lambdac_vtx_dira_sig_kills[0] = 0
+  lambdac_vtx_dira_bkg_kills[0] = 0
+  xi_charge_conservation_signal_kills[0] = 0
+  xi_charge_conservation_bkg_kills[0] = 0
+  xi_vtx_chi2_ndof_sig_kills[0] = 0
+  lambdac_signal_charge_kills[0] = 0
+  lambdac_bkg_charge_kills[0] = 0
+  xi_vtx_chi2_ndof_bkg_kills[0] = 0
+  xi_signal_minimum_momentum_kills[0] = 0
+  xi_bkg_minimum_momentum_kills[0] = 0
+  xi_vtx_chi2_distance_sig_kills[0] = 0
+  xi_chi2_disatance_bkg_kills[0] = 0
+  xi_vtx_dira_sig_kills[0] = 0
+  xi_vtx_dira_bkg_kills[0] = 0
+  xi_mass_sig_kills[0] = 0
+  xi_mass_bkg_kills[0] = 0
+  xiccpp_miss_combo_sig_kills[0] = 0
+  xiccpp_miss_combo_bkg_kills[0] = 0
+  xi_charge_sig_kills[0] = 0
+  xi_charge_bkg_kills[0] = 0
 
-  lambdac_signal_combined_momentum_kills[0] = -1
-  lambdac_bkg_combined_momentum_kills[0] = -1
-  lambdac_mass_limit_signal_kills[0] = -1
-  lambdac_mass_limit_bkg_kills[0] = -1
-  lambdac_final_mass_cut_signal_kills[0] = -1
-  lambdac_final_mass_cut_bkg_kills[0] = -1
-  lambdac_vtx_chi2_ndof_signal_kills[0] = -1
-  lambdac_vtx_chi2_ndof_bkg_kills[0] = -1
-  lambdac_vtx_chi2_distance_sig_kills[0] = -1
-  lambdac_vtx_chi2_distance_bkg_kills[0] = -1
-  lambdac_vtx_dira_sig_kills[0] = -1
-  lambdac_vtx_dira_bkg_kills[0] = -1
-  xi_charge_conservation_signal_kills[0] = -1
-  xi_charge_conservation_bkg_kills[0] = -1
-  xi_vtx_chi2_ndof_sig_kills[0] = -1
-  lambdac_signal_charge_kills[0] = -1
-  lambdac_bkg_charge_kills[0] = -1
-  xi_vtx_chi2_ndof_bkg_kills[0] = -1
-  xi_signal_minimum_momentum_kills[0] = -1
-  xi_bkg_minimum_momentum_kills[0] = -1
-  xi_vtx_chi2_distance_sig_kills[0] = -1
-  xi_chi2_disatance_bkg_kills[0] = -1
-  xi_vtx_dira_sig_kills[0] = -1
-  xi_vtx_dira_bkg_kills[0] = -1
-  xi_mass_sig_kills[0] = -1
-  xi_mass_bkg_kills[0] = -1
-  xiccpp_miss_combo_sig_kills[0] = -1
-  xiccpp_miss_combo_bkg_kills[0] = -1
-  xi_charge_sig_kills[0] = -1
-  xi_charge_bkg_kills[0] = -1
-
-  lambdac_signal_combined_momentum_remaining[0] = -1
-  lambdac_bkg_combined_momentum_remaining[0] = -1
-  lambdac_mass_limit_signal_remaining[0] = -1
-  lambdac_mass_limit_bkg_remaining[0] = -1
-  lambdac_final_mass_cut_signal_remaining[0] = -1
-  lambdac_final_mass_cut_bkg_remaining[0] = -1
-  lambdac_vtx_chi2_ndof_signal_remaining[0] = -1
-  lambdac_vtx_chi2_ndof_bkg_remaining[0] = -1
-  lambdac_vtx_chi2_distance_sig_remaining[0] = -1
-  lambdac_vtx_chi2_distance_bkg_remaining[0] = -1
-  lambdac_vtx_dira_sig_remaining[0] = -1
-  lambdac_vtx_dira_bkg_remaining[0] = -1
-  xi_charge_conservation_signal_remaining[0] = -1
-  xi_charge_conservation_bkg_remaining[0] = -1
-  xi_vtx_chi2_ndof_sig_remaining[0] = -1
-  xi_vtx_chi2_ndof_bkg_remaining[0] = -1
-  xi_sig_minimum_momentum_remaining[0] = -1
-  xi_bkg_minimum_momentum_remaining[0] = -1
-  xi_vtx_chi2_distance_sig_remaining[0] = -1
-  xi_chi2_disatance_bkg_remaining[0] = -1
-  xi_vtx_dira_sig_remaining[0] = -1
-  xi_vtx_dira_bkg_remaining[0] = -1
-  xi_mass_sig_remaining[0] = -1
-  xi_mass_bkg_remaining[0] = -1
-  lambdac_sig_charge_remaining[0] = -1
-  lambdac_bkg_charge_remaining[0] = -1
-  xiccpp_miss_combo_sig_remaining[0] = -1
-  xiccpp_miss_combo_bkg_remaining[0] = -1
-  xi_charge_sig_remaining[0] = -1
-  xi_charge_bkg_remaining[0] = -1
-  xiccpp_mass[0] = -1
-  lambdac_is_signal_mass_pre_selections[0] = -1
-  lambdac_is_signal_mass_post_selections[0] = -1
-  xiccpp_is_signal_mass_pre_selections[0] = -1
-  xiccpp_is_bkg_mass_pre_selections[0] = -1
-  xiccpp_is_signal_mass_post_selections[0] = -1
-  xiccpp_is_bkg_mass_post_selections[0] = -1
-
+  lambdac_signal_combined_momentum_remaining[0] = 0
+  lambdac_bkg_combined_momentum_remaining[0] = 0
+  lambdac_mass_limit_signal_remaining[0] = 0
+  lambdac_mass_limit_bkg_remaining[0] = 0
+  lambdac_final_mass_cut_signal_remaining[0] = 0
+  lambdac_final_mass_cut_bkg_remaining[0] = 0
+  lambdac_vtx_chi2_ndof_signal_remaining[0] = 0
+  lambdac_vtx_chi2_ndof_bkg_remaining[0] = 0
+  lambdac_vtx_chi2_distance_sig_remaining[0] = 0
+  lambdac_vtx_chi2_distance_bkg_remaining[0] = 0
+  lambdac_vtx_dira_sig_remaining[0] = 0
+  lambdac_vtx_dira_bkg_remaining[0] = 0
+  xi_charge_conservation_signal_remaining[0] = 0
+  xi_charge_conservation_bkg_remaining[0] = 0
+  xi_vtx_chi2_ndof_sig_remaining[0] = 0
+  xi_vtx_chi2_ndof_bkg_remaining[0] = 0
+  xi_sig_minimum_momentum_remaining[0] = 0
+  xi_bkg_minimum_momentum_remaining[0] = 0
+  xi_vtx_chi2_distance_sig_remaining[0] = 0
+  xi_chi2_disatance_bkg_remaining[0] = 0
+  xi_vtx_dira_sig_remaining[0] = 0
+  xi_vtx_dira_bkg_remaining[0] = 0
+  xi_mass_sig_remaining[0] = 0
+  xi_mass_bkg_remaining[0] = 0
+  lambdac_sig_charge_remaining[0] = 0
+  lambdac_bkg_charge_remaining[0] = 0
+  xiccpp_miss_combo_sig_remaining[0] = 0
+  xiccpp_miss_combo_bkg_remaining[0] = 0
+  xi_charge_sig_remaining[0] = 0
+  xi_charge_bkg_remaining[0] = 0
+  """
+  xiccpp_mass[0] = 0
+  lambdac_is_signal_mass_pre_selections[0] = 0
+  lambdac_is_signal_mass_post_selections[0] = 0
+  xiccpp_is_signal_mass_pre_selections[0] = 0
+  xiccpp_is_bkg_mass_pre_selections[0] = 0
+  xiccpp_is_signal_mass_post_selections[0] = 0
+  xiccpp_is_bkg_mass_post_selections[0] = 0
 
   # Resetting the arrays for the Outputs tree
   xiccpp_signal_binary_flag[0] = -1
@@ -484,12 +484,12 @@ mass_dict = {
   "lambdac":2286.46}
 
 limits_dict = {
-  "lambdac_combined_momentum":3250,
+  "lambdac_combined_momentum":2500,
   "lambdac_mass_minimum": mass_dict['lambdac'] - 150,
   "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
   "lambdac_vtx_chi2_ndof":12,
   "lambdac_vtx_chi2_distance":17,
-  "lambdac_vtx_dira":0.99995,
+  "lambdac_vtx_dira":0.999,
   "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 6,
   "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 6,
 
@@ -630,6 +630,7 @@ for event in events: # loop through all events
       remain_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_remaining,lambdac_final_mass_cut_bkg_remaining)
       # ------------------- xiccppReconstruction -------------------
       for xiccpp_pion1,xiccpp_pion2,xiccpp_kaon,chiccpp_pions_kaons,chiccpp_pion_kaons_container_vtx in chiccpp_pions_kaons_container:
+        is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++']) and is_parent(xiccpp_pion1, event,particle_dict['xicc++']) and is_parent(xiccpp_pion2, event,particle_dict['xicc++']) and is_parent(xiccpp_kaon, event,particle_dict['xicc++'])
         if xiccpp_kaon == lambdac_kaon or xiccpp_pion1 == pion or xiccpp_pion2 == pion:
           kill_counter(is_xiccpp_signal,xiccpp_miss_combo_sig_kills,xiccpp_miss_combo_bkg_kills)
           continue
@@ -642,7 +643,6 @@ for event in events: # loop through all events
         Vxiccpp_kaon_pt= xiccpp_kaon_pt[0] = xiccpp_kaon.pt()
         xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
         #endregion xiccppTreeFill
-        is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++']) and is_parent(xiccpp_pion1, event,particle_dict['xicc++']) and is_parent(xiccpp_pion2, event,particle_dict['xicc++']) and is_parent(xiccpp_kaon, event,particle_dict['xicc++'])
         if abs(xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2): 
           kill_counter(is_xiccpp_signal,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
           continue
