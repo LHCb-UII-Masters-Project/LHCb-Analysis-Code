@@ -26,7 +26,7 @@ args = parser.parse_args()
 input_directory = os.path.dirname(args.input_file)
 if args.particle == "xiccpp":
     particle_mass = 3.622
-    x_label = "m(#Xi_{c}^{+}) [MeV/c^{2}]"
+    x_label = "m(#Xi_{cc}^{++}) [MeV/c^{2}]"
 if args.particle == "lambdac":
     particle_mass = 2.287
     x_label = "m(#Lambda_{c}^{+}) [MeV/c^{2}]"
@@ -34,16 +34,19 @@ if args.particle == "lambdac":
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("RunParams")
 outputs = root_file.Get("Outputs")
+diagnostics = root_file.Get("RunDiagnostics")
 run_tree.SetDirectory(0)
 outputs.SetDirectory(0)
+diagnostics.SetDirectory(0)
 root_file.Close()
 #Use RDataFrame to access the data 
 rdf = ROOT.RDataFrame(outputs) 
+rd_diag = ROOT.RDataFrame(diagnostics)
 # Convert the bs_mass branch to a Numpy array
 if args.particle == "xiccpp":
-    df = rdf.AsNumpy()["xiccpp_mass"]*0.001
+    df = rd_diag.AsNumpy()["xiccpp_mass"]*0.001
 elif args.particle == "lambdac":
-    df = rdf.AsNumpy()["lambdac_mass"]*0.001
+    df = rd_diag.AsNumpy()["lambdac_mass"]*0.001
 lower_fit_range = particle_mass - float(args.fit_range)*(variables['sigma']['value'])
 upper_fit_range = particle_mass + float(args.fit_range)*(variables['sigma']['value'])
 unbinned_data = df[(df > lower_fit_range) & (df < upper_fit_range)]
@@ -95,11 +98,9 @@ fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.Optimize(True),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
-fitted_sigma = fit_result.floatParsFinal().find("sigma1").getVal()
-number_of_bins = 35
+number_of_bins = 30
 energy_range = (upper_fit_range - lower_fit_range)/number_of_bins
-x.setRange("myRange", lower_fit_range, upper_fit_range)
-frame1 = x.frame(ROOT.RooFit.Range("myRange"))
+frame1 = x.frame()
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins),ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
 model.plotOn(frame1,ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
@@ -107,7 +108,7 @@ model.plotOn(frame1, ROOT.RooFit.Components("bkg"),ROOT.RooFit.Name("bkg"), ROOT
 model.plotOn(frame1, ROOT.RooFit.Components("sig"),ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted))  # Overall DCB
 chi2 = frame1.chiSquare("sig+bkg", "data",9)
 hpull = frame1.pullHist("data", "sig+bkg")
-frame2 = x.frame(ROOT.RooFit.Range("myRange"))
+frame2 = x.frame()
 frame2.SetTitle("")
 frame2.addPlotable(hpull, "P")
 line = ROOT.TLine(frame2.GetXaxis().GetXmin(), 0, frame2.GetXaxis().GetXmax(), 0)

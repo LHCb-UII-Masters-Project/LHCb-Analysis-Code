@@ -26,7 +26,7 @@ args = parser.parse_args()
 input_directory = os.path.dirname(args.input_file)
 if args.particle == "xiccpp":
     particle_mass = 3.622
-    x_label = "m(#Xi_{c}^{+}) [MeV/c^{2}]"
+    x_label = "m(#Xi_{cc}^{++}) [MeV/c^{2}]"
 if args.particle == "lambdac":
     particle_mass = 2.287
     x_label = "m(#Lambda_{c}^{+}) [MeV/c^{2}]"
@@ -68,7 +68,6 @@ for dp in unbinned_data: # change to filtered data for filtering
     data.add(ROOT.RooArgSet(x))
 # --------------------------- Variables and PDF Declerations -----------
 mu = ROOT.RooRealVar("mu1", "mean of CB1", variables['mu']['value'], variables['mu']['min'], variables['mu']['max'])  # Gaussian core mean estimate
-mu.setConstant(True)
 sigma = ROOT.RooRealVar("sigma1", "std of core gaussian 1", variables['sigma']['value'], variables['sigma']['min'], variables['sigma']['max'])  # Gaussian core std estimate
 alphaL = ROOT.RooRealVar("alphaL", "cut off gauss left", variables['alphaL']['value'], variables['alphaL']['min'], variables['alphaL']['max'])  # Gaussian core limit 1 estimate
 alphaR = ROOT.RooRealVar("alphaR", "cut off gauss right", variables['alphaR']['value'], variables['alphaR']['min'], variables['alphaR']['max'])  # Gaussian core limit 2 estimate
@@ -85,10 +84,9 @@ fit_result = sig.fitTo(data, ROOT.RooFit.PrintLevel(-1),
                            ROOT.RooFit.Optimize(True),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
-number_of_bins = 35
+number_of_bins = 20
 energy_range = (upper_fit_range - lower_fit_range)/number_of_bins
-x.setRange("myRange", lower_fit_range, upper_fit_range)
-frame1 = x.frame(ROOT.RooFit.Range("myRange"))
+frame1 = x.frame()
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins), ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
 sig.plotOn(frame1,ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
@@ -103,6 +101,7 @@ origin_file_path = root_file.GetName()
 origin_file_name = os.path.basename(origin_file_path)
 origin_file_name_reduced = origin_file_name.replace(".root", "")
 current_time = time.strftime("%H-%M-%S_%d-%m-%Y", time.localtime())
+os.makedirs(f"{input_directory}/{current_time}_{origin_file_name_reduced}", exist_ok=True)
 # --------------------------- Plotting -----------------------------------
 with LHCbStyle() as lbs:
     c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
@@ -116,7 +115,7 @@ with LHCbStyle() as lbs:
     ROOT.gPad.SetLeftMargin(0.15)
     ROOT.gPad.SetLogy() # Turn on logarithmic scale for Y-axis
     ROOT.gStyle.SetLineScalePS(1.2)
-    frame1.GetYaxis().SetTitle("Entries/BinWidth")
+    frame1.GetYaxis().SetTitle(f"Entries/ ({round(energy_range,4)} MeV/c^{{2}})")
     frame1.GetXaxis().SetTitle(x_label)
     frame1.GetYaxis().SetTitleOffset(0.9)
     frame1.GetXaxis().SetTitleOffset(1)
@@ -170,9 +169,10 @@ with LHCbStyle() as lbs:
     c.cd()
     c.Update()
     c.Draw()
-    c.SaveAs(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.pdf","pdf 800")
+    c.SaveAs(f"{input_directory}/{current_time}_{origin_file_name_reduced}/FitT.pdf","pdf 800")
 
-output_file = ROOT.TFile(f"{input_directory}/F_{current_time}_{origin_file_name_reduced}.root", "RECREATE")
+
+output_file = ROOT.TFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/FitT.root", "RECREATE")
 c.Write()
 #-------------------------------------------Main Tree Initialisation----------------------------------------------
 tree = ROOT.TTree("fit_parameters", "Fit Parameters Tree")
@@ -257,5 +257,5 @@ w.Import(run_tree)
 w.Import(outputs)
 w.Import(fit_result)
 w.Import(timing_int)
-w.writeToFile(f"{input_directory}/WSPACE_{current_time}_{origin_file_name_reduced}")
+w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE")
 w.Print()

@@ -1,23 +1,23 @@
 import ROOT
 # Assuming variables.py contains the initial guesses, mins, and maxes
 variables = {
-    'mu': {'value': 2286.46, 
-           'min': 2270, 'max': 4000},
+    'mu': {'value': 3.622, 
+           'min': 3.6, 'max': 3.63},
     
-    'sigma': {'value': 2.476, 
-              'min': 1, 'max': 4},
+    'sigma': {'value': 0.00429, 
+              'min': 0.0030, 'max': 0.0060},
     
-    'alphaL': {'value': 1.6, 
-               'min': 1, 'max': 3},
+    'alphaL': {'value': 2.570, 
+               'min': 1.5, 'max': 3.5},
     
-    'alphaR': {'value': 1.4, 
-               'min': 1, 'max': 2},
+    'alphaR': {'value': 2.501, 
+               'min': 1.5, 'max': 3.5},
     
-    'nL': {'value': 6.3, 
-           'min': 6, 'max': 6.6},
+    'nL': {'value': 1.132, 
+           'min': 0.5, 'max': 2},
     
-    'nR': {'value': 5.7, 
-           'min': 5.3, 'max': 6.1}
+    'nR': {'value': 0.5271, 
+           'min': 0.3, 'max': 1}
     
 }
 

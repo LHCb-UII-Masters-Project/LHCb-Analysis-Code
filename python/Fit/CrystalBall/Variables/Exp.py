@@ -1,32 +1,32 @@
 import ROOT
 # Assuming variables.py contains the initial guesses, mins, and maxes
 variables = {
-    'mu': {'value': 2286*0.001, 
-           'min': 1000*0.001, 'max': 4000*0.001},
+    'mu': {'value': 2.28646, 
+           'min': 2.270, 'max': 2.320},
     
-    'sigma': {'value': 2.521*0.001, 
-              'min': 2*0.001, 'max': 3*0.001},
+    'sigma': {'value': 0.002476, 
+              'min': 0.002, 'max': 0.003},
     
-    'alphaL': {'value': 1.61, 
-               'min': 1.4, 'max': 2.0},
+    'alphaL': {'value': 1.58, 
+               'min': 1.48, 'max': 1.65},
     
-    'alphaR': {'value': 1.36,
-               'min': 1.0, 'max': 2.0},
+    'alphaR': {'value': 1.16, 
+               'min': 1.0, 'max': 1.3},
     
-    'nL': {'value': 7, 
-           'min': 5, 'max': 9},
+    'nL': {'value': 7.4, 
+           'min': 6.0, 'max': 10},
     
-    'nR': {'value': 5.932, 
-           'min': 4, 'max': 7},
+    'nR': {'value': 20.15, 
+           'min': 19, 'max': 21},
     
-    'decay_constant': {'value':-0.001 
-                       , 'min': -0.1, 'max': -0.00001},
+    'decay_constant': {'value':-1.1 
+                       , 'min': -1.3, 'max': -0.9},
     
-    'nbkg': {'value': 305.9, 
-             'min': 100, 'max': 600},
+    'nbkg': {'value': 2983, 
+             'min': 500, 'max': 10000},
     
-    'nsig': {'value': 4208,
-              'min': 3000, 'max': 4700}
+    'nsig': {'value': 12219,
+              'min': 8000, 'max': 18000}
 }
 
 """Lambdac Variables
