@@ -283,7 +283,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
         for numbers in num_range:
             file_path = f"{base_path}{numbers}.root"  # Full path of one relevant file
-            counter = 0
+            # counter = 0
             # Temporariliy comented out for while it works
             # while os.path.exists(file_path) == False and counter < 1:
                 # Trys to repaeat tree creation twice if can't find it
@@ -313,37 +313,42 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
 
         branch_sums = {}
+        all_files_exist = True
 
         for numbers in num_range:
             file_path = f"{base_path}{numbers}.root"
             # Open the ROOT file
-            root_file = ROOT.TFile.Open(file_path)
-            
-            # Retrieve the tree
-            diagnostics = root_file.Get("RunDiagnostics")
-            
-            # Check if the tree is valid and has entries
-            if diagnostics and diagnostics.GetEntries() > 0:
-                n_entries = diagnostics.GetEntries()
-                # Move to the last entry of the tree
-                diagnostics.GetEntry(n_entries - 1)
+            if os.path.exists(file_path):
+                root_file = ROOT.TFile.Open(file_path)
                 
-                # Loop over all branches in this tree
-                for branch in diagnostics.GetListOfBranches():
-                    branch_name = branch.GetName()
-                    value = getattr(diagnostics, branch_name)
+                # Retrieve the tree
+                diagnostics = root_file.Get("RunDiagnostics")
+                
+                # Check if the tree is valid and has entries
+                if diagnostics and diagnostics.GetEntries() > 0:
+                    n_entries = diagnostics.GetEntries()
+                    # Move to the last entry of the tree
+                    diagnostics.GetEntry(n_entries - 1)
                     
-                    # Initialize the sum for this branch if it's the first time
-                    if branch_name not in branch_sums:
-                        branch_sums[branch_name] = 0
+                    # Loop over all branches in this tree
+                    for branch in diagnostics.GetListOfBranches():
+                        branch_name = branch.GetName()
+                        value = getattr(diagnostics, branch_name)
                         
-                    # Add the value from the last entry of this tree
-                    branch_sums[branch_name] += value
+                        # Initialize the sum for this branch if it's the first time
+                        if branch_name not in branch_sums:
+                            branch_sums[branch_name] = 0
+                            
+                        # Add the value from the last entry of this tree
+                        branch_sums[branch_name] += value
+                else:
+                    print(f"Tree 'RunDiagnostics' is empty or not found in {file_path}")
+                
+                # Close the ROOT file
+                root_file.Close()
             else:
-                print(f"Tree 'RunDiagnostics' is empty or not found in {file_path}")
-            
-            # Close the ROOT file
-            root_file.Close()
+                print(f"Missing file: {numbers}")
+                all_files_exist = False
 
 
         OutTree = OutChain.CopyTree("")
@@ -358,7 +363,8 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         # Full output file name given here
         new_dir = f"{basedir}/Outputs/XisToLambdas/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime())
         makedirs(new_dir)
-        output_file = ROOT.TFile(f"{new_dir}/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + ".root", "RECREATE")
+        tree_path = f"{new_dir}/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + ".root"
+        output_file = ROOT.TFile(tree_path, "RECREATE")
         # Writes to the output file
         output_file.cd()
         OutTree.Write("Outputs")
@@ -371,8 +377,17 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         output_file.Close()
 
         # Deletes the trees that made up the now combined tree
-        for file_path in str_chain:
-            os.remove(file_path)
+        if all_files_exist:
+            for file_path in str_chain:
+                os.remove(file_path)
+        else:
+            shame_folder = makedirs(f"{new_dir}/AllTrees")
+            for file_path in str_chain:
+                file_name = os.path.basename(file_path)  # Extracts just the file name
+                new_path = os.path.join(f"{new_dir}/AllTrees", file_name)  # Constructs the new path
+                os.rename(file_path, new_path)  # Moves the file
+
+
         
         print(f"Made Tree")
 
@@ -383,6 +398,12 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
             writer.writerow(branch_sums)   # Write the summed values what have I done wrong with my file writing 
 
         print("Made CSV")
+
+        subprocess.run(['python', f'{basedir}/SneakPeak.py', tree_path])
+        subprocess.run(['python', f'{basedir}/KillCountChecker.py', csv_filename])
+        subprocess.run(['python', f'{basedir}/PandE.py', tree_path])
+
+        print("Made Auxiliaries")
 
         end_time = time.time()
         
@@ -459,8 +480,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "XisRun"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 2
-    tot_num_files = 50
+    files_per_run = 1
+    tot_num_files = 7
     rand_seed = None
 
     try:
