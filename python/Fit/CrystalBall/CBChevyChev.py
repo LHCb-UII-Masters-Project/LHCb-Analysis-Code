@@ -1,6 +1,7 @@
 #---------------------------------Imports------------------------------------------
 import ROOT
 from Variables.ChebyChev import variables, fit_initial_guess_tree
+import Variables.EfficiencyPurity
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile,gInterpreter,gSystem,RooMinimizer
 from math import * 
 import sys
@@ -45,12 +46,22 @@ rd_diag = ROOT.RDataFrame(diagnostics)
 # Convert the bs_mass branch to a Numpy array
 if args.particle == "xiccpp":
     df = rd_diag.AsNumpy()["xiccpp_mass"]*0.001
+    final_signal = rd_diag.AsNumpy()["xiccpp_is_signal_mass_post_selections"]*0.001
+
 elif args.particle == "lambdac":
     df = rd_diag.AsNumpy()["lambdac_mass"]*0.001
+    final_signal = rd_diag.AsNumpy()["lambdac_is_signal_mass_post_selections"]*0.001
 lower_fit_range = particle_mass - float(args.fit_range)*(variables['sigma']['value'])
 upper_fit_range = particle_mass + float(args.fit_range)*(variables['sigma']['value'])
+
 unbinned_data = df[(df > lower_fit_range) & (df < upper_fit_range)]
+filtered_final_signal = final_signal[(final_signal > lower_fit_range) & (final_signal < upper_fit_range)]
 total_entries = outputs.GetEntries()
+purity = len(filtered_final_signal) / len(unbinned_data)
+efficiency = len(unbinned_data) / total_entries
+pur_error = 0
+
+effErr =  Variables.EfficiencyPurity.effError(efficiency,total_entries)
 timing = array('f', [0])
 PID_pion = array('f', [0])
 PID_kaon= array('f', [0])
@@ -351,3 +362,8 @@ w.Import(fit_result)
 w.Import(timing_int)
 w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE")
 w.Print()
+
+with open(f"{input_directory}/{current_time}_{origin_file_name_reduced}/PurityEfficiency.txt", "w") as file:
+    file.write(f"Purity = {purity}\n")
+    file.write(f"Efficiency = {efficiency} +- {effErr}\n")
+    file.write(f"results for {(args.fit_range)} sigma")
