@@ -347,7 +347,9 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
                 # Close the ROOT file
                 root_file.Close()
             else:
+                print("________________________")
                 print(f"Missing file: {numbers}")
+                print("________________________")
                 all_files_exist = False
 
 
