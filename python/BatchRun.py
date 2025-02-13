@@ -8,6 +8,8 @@ from ROOT import TH1D, TChain, TTree, TFile
 from multiprocessing import Process
 import numpy as np
 import csv
+from collections import defaultdict
+import pandas as pd
 
 
 def runThisScriptOnCondor(scriptPath,batchJobName,extraArgs="",subJobName=None,
@@ -271,7 +273,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         #endregion RUN SCRIPT
 
         #region MERGE TREES
-        base_path = f"{basedir}/Outputs/XisToLambdas/Tree"
+        base_path = f"{basedir}/Outputs/XisToLambdas"
         # Sets base path to where trees are expected
         OutChain = ROOT.TChain("Outputs")
         RunPChain = ROOT.TChain("RunParams")
@@ -281,21 +283,9 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         # lambdac_hist_sum = None
         # Initialises chain for tree, chain for tree names and hist for combining
 
+        all_files_exist = True
         for numbers in num_range:
-            file_path = f"{base_path}{numbers}.root"  # Full path of one relevant file
-            # counter = 0
-            # Temporariliy comented out for while it works
-            # while os.path.exists(file_path) == False and counter < 1:
-                # Trys to repaeat tree creation twice if can't find it
-                #before_colon, after_colon = numbers.split(":")
-                #upper = int(after_colon)
-                #lower = int(before_colon)
-                #print(f"Redoing {lower}:{upper} redo {counter}")
-                #redo_id = runThisScriptOnCondor(scriptPath, batchJobName, subJobName=numbers, extraSetupCommands=pre_run, 
-                #                          extraArgs=f"{lower} {upper} {run_args}", is_local=local)
-                #subprocess.run(['condor_wait', f'{redo_id}.log'])
-                #counter += 1
-                #time.sleep(3)
+            file_path = f"{base_path}/Tree{numbers}.root"  # Full path of one relevant file
 
             if os.path.exists(file_path):
                 # If repeats are successful or it existed to begin with:
@@ -309,47 +299,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
                 diagnostics = root_file.Get("RunDiagnostics")
                 diagnostics.SetDirectory(0)
                 root_file.Close()
-
-        ## f"hadd {longFILENAME} {' '.join(str_chain)}"    
-
-        branch_sums = {}
-        all_files_exist = True
-
-        for numbers in num_range:
-            file_path = f"{base_path}{numbers}.root"
-            # Open the ROOT file
-            if os.path.exists(file_path):
-                root_file = ROOT.TFile.Open(file_path)
-                
-                # Retrieve the tree
-                diagnostics = root_file.Get("RunDiagnostics")
-                
-                # Check if the tree is valid and has entries
-                if diagnostics and diagnostics.GetEntries() > 0:
-                    n_entries = diagnostics.GetEntries()
-                    # Move to the last entry of the tree
-                    diagnostics.GetEntry(n_entries - 1)
-                    
-                    # Loop over all branches in this tree
-                    for branch in diagnostics.GetListOfBranches():
-                        branch_name = branch.GetName()
-                        value = getattr(diagnostics, branch_name)
-                        
-                        # Initialize the sum for this branch if it's the first time
-                        if branch_name not in branch_sums:
-                            branch_sums[branch_name] = 0
-                            
-                        # Add the value from the last entry of this tree
-                        branch_sums[branch_name] += value
-                else:
-                    print(f"Tree 'RunDiagnostics' is empty or not found in {file_path}")
-                
-                # Close the ROOT file
-                root_file.Close()
             else:
-                print("________________________")
-                print(f"Missing file: {numbers}")
-                print("________________________")
                 all_files_exist = False
 
 
@@ -388,16 +338,37 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
                 file_name = os.path.basename(file_path)  # Extracts just the file name
                 new_path = os.path.join(f"{new_dir}/AllTrees", file_name)  # Constructs the new path
                 os.rename(file_path, new_path)  # Moves the file
-
-
-        
         print(f"Made Tree")
 
-        csv_filename = f'{new_dir}/Counters.csv'
-        with open(csv_filename, mode="w", newline="") as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=branch_sums.keys())
-            writer.writeheader()         # Write header row with branch names
-            writer.writerow(branch_sums)   # Write the summed values what have I done wrong with my file writing 
+        counters = defaultdict(lambda: {"sig_kills": 0, "bkg_kills": 0, "sig_remains": 0, "bkg_remains": 0})
+        csv_list = []
+        for numbers in num_range:
+            filename = f"{basedir}/Outputs/XisToLambdas/Counters{numbers}.csv"
+            csv_list.append(filename)
+            with open(filename, mode="r") as file:
+                reader = csv.DictReader(file)  # Reads CSV as a dictionary
+                for row in reader:
+                    key = row["cut"]
+                    counters[key]["sig_kills"] += int(row["sig_kills"])
+                    counters[key]["bkg_kills"] += int(row["bkg_kills"])
+                    counters[key]["sig_remains"] += int(row["sig_remains"])
+                    counters[key]["bkg_remains"] += int(row["bkg_remains"])
+
+        # Write the combined results to a new CSV file
+        csv_filename = f"{new_dir}/Counters.csv"
+        df = pd.DataFrame.from_dict(counters, orient="index")
+        df.reset_index(inplace=True)
+        df.rename(columns={"index": "cut", "sig_kills": "sig_kills", "bkg_kills": "bkg_kills", "sig_remain": "sig_remains", "bkg_remain": "bkg_remains"}, inplace=True)
+        df.to_csv(csv_filename, index=False)
+
+        if all_files_exist:
+            for file_path in csv_list:
+                os.remove(file_path)
+        else:
+            for file_path in csv_list:
+                file_name = os.path.basename(file_path)  # Extracts just the file name
+                new_path = os.path.join(f"{new_dir}/AllTrees", file_name)  # Constructs the new path
+                os.rename(file_path, new_path)  # Moves the file
 
         print("Made CSV")
 
@@ -482,8 +453,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "XisRun"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 1
-    tot_num_files = 7
+    files_per_run = 2
+    tot_num_files = 20
     rand_seed = None
 
     try:
