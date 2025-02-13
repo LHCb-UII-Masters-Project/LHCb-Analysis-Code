@@ -286,7 +286,8 @@ counter_keys = [
   "xi_mass",
   "xi_vtx_chi2_ndof",
   "xi_vtx_chi2_distance",
-  "xi_vtx_dira"
+  "xi_vtx_dira",
+  "xi_final_mass"
 ]
 
 counters = {}
@@ -458,12 +459,12 @@ limits_dict = {
   "lambdac_mass_minimum": mass_dict['lambdac'] - 150,
   "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
   "lambdac_vtx_chi2_ndof":11.5,
-  "lambdac_vtx_chi2_distance":16,
-  "lambdac_vtx_dira":0.999,
+  "lambdac_vtx_chi2_distance":14,
+  "lambdac_vtx_dira":0.99,
   "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 5,
   "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 5,
 
-  "xiccpp_combined_momentum":4800,
+  "xiccpp_combined_momentum":3000,
   "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
   "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400,
   "xiccpp_vtx_chi2_ndof":45,
@@ -679,6 +680,9 @@ for event in events: # loop through all events
         if (is_xiccpp_signal is False) and bool(xiccpp_mass):
           xiccpp_is_bkg_mass_post_selections[0] = xiccpp.mass
           xiccpp_is_signal_mass_post_selections[0] = -1
+        if (xiccpp.mass > 6 * 4.29) or (xiccpp.mass < 6 * 4.29): # 6 sigma mass cut?
+          kill_counter(is_xiccpp_signal, "xi_final_mass")
+        remain_counter(is_xiccpp_signal, "xi_final_mass")
         # ---------------------------------------------------
 # ------------------- TreeFilling -------------------
   fill_trees()

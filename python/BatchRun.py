@@ -374,7 +374,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
         subprocess.run(['python', f'{basedir}/SneakPeak.py', tree_path])
         subprocess.run(['python', f'{basedir}/KillCountChecker.py', csv_filename])
-        subprocess.run(['python', f'{basedir}/PandE.py', tree_path])
+        #subprocess.run(['python', f'{basedir}/PandE.py', tree_path])
 
         print("Made Auxiliaries")
 
@@ -454,7 +454,7 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     comp = "NonLocal"
     size = "Large"
     files_per_run = 2
-    tot_num_files = 20
+    tot_num_files = 50
     rand_seed = None
 
     try:

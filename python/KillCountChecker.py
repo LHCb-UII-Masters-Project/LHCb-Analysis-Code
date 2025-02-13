@@ -47,8 +47,12 @@ df.to_csv(updated_csv_path, index=False)
 print(f"Updated CSV saved to: {updated_csv_path}")
 
 # Filter data for lambdac and xi cuts
-df_lambdac = df[df["cut"].str.startswith("lambdac")]
-df_xi = df[df["cut"].str.startswith("xi")]
+df_lambdac = df[df["cut"].str.startswith("lambdac")].copy()
+df_xi = df[df["cut"].str.startswith("xi")].copy()
+
+# Remove prefixes for lambdac and xi
+df_lambdac.loc[:, "cut"] = df_lambdac["cut"].str.replace("lambdac_", "", regex=False)
+df_xi.loc[:, "cut"] = df_xi["cut"].str.replace("xi_", "", regex=False)
 
 # Plot for lambdac cuts
 x_labels_lambdac = df_lambdac["cut"]
@@ -68,7 +72,7 @@ plt.title("Absolute Efficiency & Purity vs Cuts (lambdac)")
 plt.grid(axis="y", linestyle="--", alpha=0.7)
 
 plt.tight_layout()
-plt.savefig(f"{input_directory}/EfficiencyPlot_lambdac.png")
+plt.savefig(f"{input_directory}/LcEPPlot.png")
 plt.close()
 
 # Plot for xi cuts
@@ -89,5 +93,5 @@ plt.title("Absolute Efficiency & Purity vs Cuts (xi)")
 plt.grid(axis="y", linestyle="--", alpha=0.7)
 
 plt.tight_layout()
-plt.savefig(f"{input_directory}/EfficiencyPlot_xi.png")
+plt.savefig(f"{input_directory}/XiEPPlot.png")
 plt.close()
