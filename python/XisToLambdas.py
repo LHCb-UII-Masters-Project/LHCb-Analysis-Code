@@ -15,6 +15,8 @@ import os
 from array import array
 import re
 import sys
+import csv
+import pandas as pd
 from itertools import combinations
 start_time = time.time()
 # ------------------- RunParamsTree -------------------
@@ -266,6 +268,37 @@ Outputs.Branch('xi_vtx_dira', xi_vtx_dira, 'xi_vtx_dira/F')
 number_of_xiccpp= array('f', [0])
 Outputs.Branch('number_of_xiccpp', number_of_xiccpp, 'number_of_xiccpp/F')
 # ------------------- UserInputs -------------------
+
+counter_keys = [
+  "displaced_track_cuts",
+  "lambdac_combined_momentum",
+  "lambdac_charge",
+  "lambdac_mass_limit",
+  "lambdac_vtx_chi2_ndof",
+  "lambdac_vtx_chi2_distance",
+  "lambdac_vtx_dira",
+  "lambdac_final_mass_cut",
+  "xi_track_cuts",
+  "xi_miss_combo",
+  "xi_charge_conservation",
+  "xi_charge",
+  "xi_minimum_momentum",
+  "xi_mass",
+  "xi_vtx_chi2_ndof",
+  "xi_vtx_chi2_distance",
+  "xi_vtx_dira"
+]
+
+counters = {}
+
+for key in counter_keys:
+    counters[key] = {
+        "sig_kills": 0,
+        "bkg_kills": 0,
+        "sig_remains": 0,
+        "bkg_remains": 0
+    }
+
 def get_arg(index, default, args):  # Arg function that returns relevant arguments and deals with missing args
     try:
         return int(args[index])
@@ -347,69 +380,6 @@ def reset_all_branches():
   number_of_xiccpp[0] = -1
 
   # Resetting the arrays for the RunDiagnostics tree
-  """
-  lambdac_signal_combined_momentum_kills[0] = 0
-  lambdac_bkg_combined_momentum_kills[0] = 0
-  lambdac_mass_limit_signal_kills[0] = 0
-  lambdac_mass_limit_bkg_kills[0] = 0
-  lambdac_final_mass_cut_signal_kills[0] = 0
-  lambdac_final_mass_cut_bkg_kills[0] = 0
-  lambdac_vtx_chi2_ndof_signal_kills[0] = 0
-  lambdac_vtx_chi2_ndof_bkg_kills[0] = 0
-  lambdac_vtx_chi2_distance_sig_kills[0] = 0
-  lambdac_vtx_chi2_distance_bkg_kills[0] = 0
-  lambdac_vtx_dira_sig_kills[0] = 0
-  lambdac_vtx_dira_bkg_kills[0] = 0
-  xi_charge_conservation_signal_kills[0] = 0
-  xi_charge_conservation_bkg_kills[0] = 0
-  xi_vtx_chi2_ndof_sig_kills[0] = 0
-  lambdac_signal_charge_kills[0] = 0
-  lambdac_bkg_charge_kills[0] = 0
-  xi_vtx_chi2_ndof_bkg_kills[0] = 0
-  xi_signal_minimum_momentum_kills[0] = 0
-  xi_bkg_minimum_momentum_kills[0] = 0
-  xi_vtx_chi2_distance_sig_kills[0] = 0
-  xi_chi2_disatance_bkg_kills[0] = 0
-  xi_vtx_dira_sig_kills[0] = 0
-  xi_vtx_dira_bkg_kills[0] = 0
-  xi_mass_sig_kills[0] = 0
-  xi_mass_bkg_kills[0] = 0
-  xiccpp_miss_combo_sig_kills[0] = 0
-  xiccpp_miss_combo_bkg_kills[0] = 0
-  xi_charge_sig_kills[0] = 0
-  xi_charge_bkg_kills[0] = 0
-
-  lambdac_signal_combined_momentum_remaining[0] = 0
-  lambdac_bkg_combined_momentum_remaining[0] = 0
-  lambdac_mass_limit_signal_remaining[0] = 0
-  lambdac_mass_limit_bkg_remaining[0] = 0
-  lambdac_final_mass_cut_signal_remaining[0] = 0
-  lambdac_final_mass_cut_bkg_remaining[0] = 0
-  lambdac_vtx_chi2_ndof_signal_remaining[0] = 0
-  lambdac_vtx_chi2_ndof_bkg_remaining[0] = 0
-  lambdac_vtx_chi2_distance_sig_remaining[0] = 0
-  lambdac_vtx_chi2_distance_bkg_remaining[0] = 0
-  lambdac_vtx_dira_sig_remaining[0] = 0
-  lambdac_vtx_dira_bkg_remaining[0] = 0
-  xi_charge_conservation_signal_remaining[0] = 0
-  xi_charge_conservation_bkg_remaining[0] = 0
-  xi_vtx_chi2_ndof_sig_remaining[0] = 0
-  xi_vtx_chi2_ndof_bkg_remaining[0] = 0
-  xi_sig_minimum_momentum_remaining[0] = 0
-  xi_bkg_minimum_momentum_remaining[0] = 0
-  xi_vtx_chi2_distance_sig_remaining[0] = 0
-  xi_chi2_disatance_bkg_remaining[0] = 0
-  xi_vtx_dira_sig_remaining[0] = 0
-  xi_vtx_dira_bkg_remaining[0] = 0
-  xi_mass_sig_remaining[0] = 0
-  xi_mass_bkg_remaining[0] = 0
-  lambdac_sig_charge_remaining[0] = 0
-  lambdac_bkg_charge_remaining[0] = 0
-  xiccpp_miss_combo_sig_remaining[0] = 0
-  xiccpp_miss_combo_bkg_remaining[0] = 0
-  xi_charge_sig_remaining[0] = 0
-  xi_charge_bkg_remaining[0] = 0
-  """
   xiccpp_mass[0] = -1
   lambdac_is_signal_mass_pre_selections[0] = -1
   lambdac_is_bkg_mass_pre_selections[0] = -1
@@ -458,17 +428,17 @@ def fill_trees():
   Outputs.Fill()
   reset_all_branches()
 
-def kill_counter(condition,tree_branch1,tree_branch2):
+def kill_counter(condition,counter_key):
   if condition:
-    tree_branch1[0] += 1
+    counters[counter_key]["sig_kills"] += 1
   else:
-    tree_branch2[0] += 1 
+    counters[counter_key]["bkg_kills"] += 1
 
-def remain_counter(is_flag,tree_branch1,tree_branch2):
-  if is_flag:
-    tree_branch1[0] += 1
+def remain_counter(condition,counter_key):
+  if condition:
+    counters[counter_key]["sig_remains"] += 1
   else:
-    tree_branch2[0] += 1
+    counters[counter_key]["bkg_remains"] += 1
 # ------------------- Dictionaries -------------------
 particle_dict = {
   "Kaon":321,
@@ -484,16 +454,16 @@ mass_dict = {
   "lambdac":2286.46}
 
 limits_dict = {
-  "lambdac_combined_momentum":2500,
+  "lambdac_combined_momentum":2000,
   "lambdac_mass_minimum": mass_dict['lambdac'] - 150,
   "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
   "lambdac_vtx_chi2_ndof":11.5,
   "lambdac_vtx_chi2_distance":16,
-  "lambdac_vtx_dira":0.995,
+  "lambdac_vtx_dira":0.999,
   "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 5,
   "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 5,
 
-  "xiccpp_combined_momentum":5200,
+  "xiccpp_combined_momentum":4800,
   "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
   "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400,
   "xiccpp_vtx_chi2_ndof":45,
@@ -576,12 +546,13 @@ for event in events: # loop through all events
       #endregion LambdacOutputTreeFill
       
       is_lambdac_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++'])
+      remain_counter(is_lambdac_signal, "displaced_track_cuts")
       if ilambdac_proton_pt + ilambdac_kaon_pt + ilambdac_pion_pt < limits_dict["lambdac_combined_momentum"]:
-        kill_counter(is_lambdac_signal,lambdac_signal_combined_momentum_kills,lambdac_bkg_combined_momentum_kills)
+        kill_counter(is_lambdac_signal,"lambdac_combined_momentum")
         continue # insufficient momentum to create a phi, discard
-      remain_counter(is_lambdac_signal,lambdac_signal_combined_momentum_remaining,lambdac_bkg_combined_momentum_remaining)
+      remain_counter(is_lambdac_signal,"lambdac_combined_momentum")
       if abs(proton.charge() + lambdac_kaon.charge() + pion.charge()) !=1:
-        kill_counter(is_lambdac_signal,lambdac_signal_charge_kills,lambdac_bkg_charge_kills)
+        kill_counter(is_lambdac_signal,"lambdac_charge")
         continue
       lambdac_charges = (proton.charge(), lambdac_kaon.charge(), pion.charge())
       if lambdac_charges == (1, -1, 1):
@@ -589,9 +560,9 @@ for event in events: # loop through all events
       elif lambdac_charges == (-1, 1, -1):
         fermions = False
       else:
-        kill_counter(is_lambdac_signal,lambdac_signal_charge_kills,lambdac_bkg_charge_kills)
+        kill_counter(is_lambdac_signal,"lambdac_charge")
         continue
-      remain_counter(is_lambdac_signal, lambdac_sig_charge_remaining, lambdac_bkg_charge_remaining)
+      remain_counter(is_lambdac_signal, "lambdac_charge")
       #endregion LambdacOutputTreeFill
       lambdac_vtx = ROOT.uVertex( [proton,lambdac_kaon,pion] ) # create a new vertex, using momentum of the first kaon or second kaon and a pion as
       # Should make reverse case as well
@@ -605,26 +576,26 @@ for event in events: # loop through all events
         lambdac_is_signal_mass_pre_selections[0] = -1
 
       if lambdac.mass < limits_dict["lambdac_mass_minimum"] or lambdac.mass  > limits_dict["lambdac_mass_maximum"] :
-        kill_counter(is_lambdac_signal,lambdac_mass_limit_signal_kills,lambdac_mass_limit_bkg_kills)
+        kill_counter(is_lambdac_signal,"lambdac_mass_limit")
         continue # insufficient mass to create D particle, discard
-      remain_counter(is_lambdac_signal,lambdac_mass_limit_signal_remaining,lambdac_mass_limit_bkg_remaining)
+      remain_counter(is_lambdac_signal,"lambdac_mass_limit")
       lambdac_chi2ndof = lambdac_vtx_chi2_ndof_v[0] = lambdac_vtx.chi2 / lambdac_vtx.ndof
       if lambdac_chi2ndof > limits_dict["lambdac_vtx_chi2_ndof"] :
-        kill_counter(is_lambdac_signal,lambdac_vtx_chi2_ndof_signal_kills,lambdac_vtx_chi2_ndof_bkg_kills)
+        kill_counter(is_lambdac_signal,"lambdac_vtx_chi2_ndof")
         continue # if the chi2/ndf is not acceptable, disgard possible particle
-      remain_counter(is_lambdac_signal, lambdac_vtx_chi2_ndof_signal_remaining,lambdac_vtx_chi2_ndof_bkg_remaining)
+      remain_counter(is_lambdac_signal, "lambdac_vtx_chi2_ndof")
       pv  = lambdac.bpv_4d( event.Vertices ) # pv: possible vertex, finds best possible vertex for the considered
       lambdac_chi2distance = lambdac_vtx_chi2_distance[0] = lambdac_vtx.chi2_distance(pv)
       lambdac_dira = lambdac_vtx_dira[0] = dira_bpv(lambdac,event.Vertices,max_timing)
       if lambdac_chi2distance < limits_dict['lambdac_vtx_chi2_distance'] : 
-        kill_counter(is_lambdac_signal,lambdac_vtx_chi2_distance_sig_kills,lambdac_vtx_chi2_distance_bkg_kills)
+        kill_counter(is_lambdac_signal,"lambdac_vtx_chi2_distance")
         continue # if the product of the Chi squareds of the particle and the vertex
       # is greater than 50, discard
-      remain_counter(is_lambdac_signal,lambdac_vtx_chi2_distance_sig_remaining,lambdac_vtx_chi2_distance_bkg_remaining)
+      remain_counter(is_lambdac_signal,"lambdac_vtx_chi2_distance")
       if lambdac_dira  < limits_dict['lambdac_vtx_dira'] : 
-        kill_counter(is_lambdac_signal,lambdac_vtx_dira_sig_kills,lambdac_vtx_dira_bkg_kills)
+        kill_counter(is_lambdac_signal,"lambdac_vtx_dira")
         continue # if the cos of the angle between momenta is less than 0.9 discard
-      remain_counter(is_lambdac_signal,lambdac_vtx_dira_sig_remaining,lambdac_vtx_dira_bkg_remaining)
+      remain_counter(is_lambdac_signal,"lambdac_vtx_dira")
       # ------------------- LambdacOutputs -------------------
       if is_lambdac_signal and bool(lambdac.mass):
         lambdac_is_bkg_mass_post_selections[0] = -1
@@ -636,16 +607,17 @@ for event in events: # loop through all events
       ilambdac_pt = lambdac_pt[0] = lambdac.pt()
       lambdac_eta[0] = lambdac.eta()      
       if (lambdac.mass<limits_dict['lambdac_final_mass_minimum']) or (lambdac.mass>limits_dict["lambdac_final_mass_maximum"]):
-        kill_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_kills,lambdac_final_mass_cut_bkg_kills)
+        kill_counter(is_lambdac_signal,"lambdac_final_mass_cut")
         continue
-      remain_counter(is_lambdac_signal,lambdac_final_mass_cut_signal_remaining,lambdac_final_mass_cut_bkg_remaining)
+      remain_counter(is_lambdac_signal,"lambdac_final_mass_cut")
       # ------------------- xiccppReconstruction -------------------
       for xiccpp_pion1,xiccpp_pion2,xiccpp_kaon,chiccpp_pions_kaons,chiccpp_pion_kaons_container_vtx in chiccpp_pions_kaons_container:
         is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++']) and is_parent(xiccpp_pion1, event,particle_dict['xicc++']) and is_parent(xiccpp_pion2, event,particle_dict['xicc++']) and is_parent(xiccpp_kaon, event,particle_dict['xicc++'])
+        remain_counter(is_xiccpp_signal, "xi_track_cuts")
         if xiccpp_kaon == lambdac_kaon or xiccpp_pion1 == pion or xiccpp_pion2 == pion:
-          kill_counter(is_xiccpp_signal,xiccpp_miss_combo_sig_kills,xiccpp_miss_combo_bkg_kills)
+          kill_counter(is_xiccpp_signal,"xi_miss_combo")
           continue
-        remain_counter(is_xiccpp_signal,xiccpp_miss_combo_sig_remaining,xiccpp_miss_combo_bkg_remaining)
+        remain_counter(is_xiccpp_signal,"xi_miss_combo")
         #region xiccppTreeFill
         Vxiccpp_pion1_pt = xiccpp_pion1_pt[0] = xiccpp_pion1.pt()
         xiccpp_pion1_eta[0] = xiccpp_pion1.eta()
@@ -655,18 +627,18 @@ for event in events: # loop through all events
         xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
         #endregion xiccppTreeFill
         if abs(xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2): 
-          kill_counter(is_xiccpp_signal,xi_charge_conservation_signal_kills,xi_charge_conservation_bkg_kills)
+          kill_counter(is_xiccpp_signal,"xi_charge_conservation")
           continue
-        remain_counter(is_xiccpp_signal,xi_charge_conservation_signal_remaining,xi_charge_conservation_bkg_remaining)
+        remain_counter(is_xiccpp_signal,"xi_charge_conservation")
         xiccpp_charges = (xiccpp_pion1.charge(),xiccpp_pion2.charge(),xiccpp_kaon.charge(),lambdac.charge())
         if ((fermions is True) and xiccpp_charges != (1,1,-1,1)) or ((fermions is False) and xiccpp_charges != (-1,-1,1,-1)):
-          kill_counter(is_xiccpp_signal,xi_charge_sig_kills, xi_charge_bkg_kills)
+          kill_counter(is_xiccpp_signal,"xi_charge")
           continue
-        remain_counter(is_xiccpp_signal,xi_charge_sig_remaining, xi_charge_bkg_remaining)
+        remain_counter(is_xiccpp_signal,"xi_charge")
         if ilambdac_pt + Vxiccpp_kaon_pt + Vxiccpp_pion1_pt + Vxiccpp_pion2_pt < limits_dict['xiccpp_combined_momentum'] :
-          kill_counter(is_xiccpp_signal,xi_signal_minimum_momentum_kills,xi_bkg_minimum_momentum_kills)
+          kill_counter(is_xiccpp_signal,"xi_minimum_momentum")
           continue # insufficient momentum to create a phi, discard
-        remain_counter(is_xiccpp_signal,xi_sig_minimum_momentum_remaining,xi_bkg_minimum_momentum_remaining)
+        remain_counter(is_xiccpp_signal,"xi_minimum_momentum")
         xiccpp_vtx = ROOT.uVertex( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
         xiccpp = ROOT.uParticle( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
         if is_xiccpp_signal and bool(xiccpp.mass):
@@ -677,25 +649,25 @@ for event in events: # loop through all events
           xiccpp_is_signal_mass_pre_selections[0] = -1
 
         if (xiccpp.mass<limits_dict['xiccpp_mass_minimum']) or (xiccpp.mass>limits_dict['xiccpp_mass_maximum']):
-          kill_counter(is_xiccpp_signal,xi_mass_sig_kills,xi_mass_bkg_kills)
+          kill_counter(is_xiccpp_signal,"xi_mass")
           continue
-        remain_counter(is_xiccpp_signal,xi_mass_sig_remaining,xi_mass_bkg_remaining)
+        remain_counter(is_xiccpp_signal,"xi_mass")
         xiccpp_chi2ndof = xiccpp_vtx_chi2_ndof[0] = xiccpp_vtx.chi2 / xiccpp_vtx.ndof
         if xiccpp_chi2ndof > limits_dict['xiccpp_vtx_chi2_ndof'] : 
-          kill_counter(is_xiccpp_signal,xi_vtx_chi2_ndof_sig_kills,xi_vtx_chi2_ndof_bkg_kills)
+          kill_counter(is_xiccpp_signal,"xi_vtx_chi2_ndof")
           continue # if the chi2/ndf is not acceptable, disgard possible particle
-        remain_counter(is_xiccpp_signal,xi_vtx_chi2_ndof_sig_remaining,xi_vtx_chi2_ndof_bkg_remaining)
+        remain_counter(is_xiccpp_signal,"xi_vtx_chi2_ndof")
         xiccpp_pv  = xiccpp.bpv_4d( event.Vertices )
         xiccpp_chi2distance = xi_vtx_chi2_distance[0] = xiccpp_vtx.chi2_distance(xiccpp_pv) 
         xiccpp_dira = xi_vtx_dira[0] = dira_bpv(xiccpp,event.Vertices,max_timing)
         if xiccpp_chi2distance < limits_dict['xiccpp_vtx_chi2_distance'] :
-          kill_counter(is_xiccpp_signal,xi_vtx_chi2_distance_sig_kills,xi_chi2_disatance_bkg_kills)
+          kill_counter(is_xiccpp_signal,"xi_vtx_chi2_distance")
           continue 
-        remain_counter(is_xiccpp_signal,xi_vtx_chi2_distance_sig_remaining,xi_chi2_disatance_bkg_remaining)
+        remain_counter(is_xiccpp_signal,"xi_vtx_chi2_distance")
         if xiccpp_dira < limits_dict['xiccpp_dira'] :
-          kill_counter(is_xiccpp_signal,xi_vtx_dira_sig_kills,xi_vtx_dira_bkg_kills)
+          kill_counter(is_xiccpp_signal,"xi_vtx_dira")
           continue
-        remain_counter(is_xiccpp_signal,xi_vtx_dira_sig_remaining,xi_vtx_dira_bkg_remaining)
+        remain_counter(is_xiccpp_signal,"xi_vtx_dira")
         # ------------------- xiccppOutputs -------------------
         xiccpp_signal_binary_flag[0] = 1 if is_xiccpp_signal is True else 0
         entry += 1 # entry is the event being examined
@@ -719,5 +691,10 @@ file.WriteObject(RunLimits, "RunLimits")
 file.WriteObject(RunDiagnostics, "RunDiagnostics")
 file.Close()
 # ---------------------------------------------------
+
+csv_filename = f"{basedir}/Outputs/XisToLambdas/Counters{lower}:{upper}.csv"
+df = pd.DataFrame(counters)
+df.to_csv(csv_filename, index = False)
+
 end_time = time.time()
 print(f"RUNTIME: {(end_time-start_time)/60} minuites")
