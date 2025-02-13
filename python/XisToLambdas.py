@@ -693,8 +693,8 @@ file.Close()
 # ---------------------------------------------------
 
 csv_filename = f"{basedir}/Outputs/XisToLambdas/Counters{lower}:{upper}.csv"
-df = pd.DataFrame(counters)
-df.to_csv(csv_filename, index = False)
+df = pd.DataFrame.from_dict(counters, orient = 'index', columns = ['sig_kills', 'bkg_kills', 'sig_remains', 'bkg_remains'])
+df.to_csv(csv_filename)
 
 end_time = time.time()
 print(f"RUNTIME: {(end_time-start_time)/60} minuites")
