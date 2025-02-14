@@ -310,7 +310,7 @@ lower = get_arg(1, 0, args)
 upper = get_arg(2, 2, args)
 rand_seed_arg = get_arg(3, int(time.time() * os.getpid()), args)  # Default random seed if not provided
 rand_seed[0] = rand_seed_arg
-max_timing = 0.050 # needs adjusting (temporary line)
+max_timing = 0.30 # needs adjusting (temporary line)
 if path.dirname(path.realpath(__file__))[-6:] == "python": # Checks if path ends in "python"
   basedir=path.dirname(path.realpath(__file__))
   sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
@@ -458,18 +458,20 @@ limits_dict = {
   "lambdac_combined_momentum":2000,
   "lambdac_mass_minimum": mass_dict['lambdac'] - 150,
   "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
-  "lambdac_vtx_chi2_ndof":11.5,
+  "lambdac_vtx_chi2_ndof":6,
   "lambdac_vtx_chi2_distance":14,
-  "lambdac_vtx_dira":0.99,
+  "lambdac_vtx_dira":0.9,
   "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 5,
   "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 5,
 
-  "xiccpp_combined_momentum":3000,
+  "xiccpp_combined_momentum":0,
   "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
   "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400,
-  "xiccpp_vtx_chi2_ndof":45,
-  "xiccpp_vtx_chi2_distance":20,
-  "xiccpp_dira":0.999,
+  "xiccpp_vtx_chi2_ndof":47,
+  "xiccpp_vtx_chi2_distance":16,
+  "xiccpp_dira":0,
+  "xiccpp_final_mass_minimum" : mass_dict['xiccpp'] - 6 * 4.29,
+  "xiccpp_final_mass_maximum" : mass_dict['xiccpp'] + 6 * 4.29,
 }
 # ------------------- LimitTreeFill(can be closed with region) -------------------
 #region LimitsTree
@@ -665,7 +667,7 @@ for event in events: # loop through all events
           kill_counter(is_xiccpp_signal,"xi_vtx_chi2_distance")
           continue 
         remain_counter(is_xiccpp_signal,"xi_vtx_chi2_distance")
-        if xiccpp_dira < limits_dict['xiccpp_dira'] :
+        if xiccpp_dira < limits_dict['xiccpp_dira'] and True is False: # Disabiling bc it's such a bad cut
           kill_counter(is_xiccpp_signal,"xi_vtx_dira")
           continue
         remain_counter(is_xiccpp_signal,"xi_vtx_dira")
@@ -680,7 +682,9 @@ for event in events: # loop through all events
         if (is_xiccpp_signal is False) and bool(xiccpp_mass):
           xiccpp_is_bkg_mass_post_selections[0] = xiccpp.mass
           xiccpp_is_signal_mass_post_selections[0] = -1
-        if (xiccpp.mass > 6 * 4.29) or (xiccpp.mass < 6 * 4.29): # 6 sigma mass cut?
+        if (xiccpp.mass > limits_dict['xiccpp_final_mass_maximum']):
+          kill_counter(is_xiccpp_signal, "xi_final_mass")
+        if (xiccpp.mass < limits_dict['xiccpp_final_mass_minimum']):
           kill_counter(is_xiccpp_signal, "xi_final_mass")
         remain_counter(is_xiccpp_signal, "xi_final_mass")
         # ---------------------------------------------------
