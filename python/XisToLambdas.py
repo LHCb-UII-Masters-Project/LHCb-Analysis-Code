@@ -467,8 +467,8 @@ limits_dict = {
   "xiccpp_combined_momentum":0,
   "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
   "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400,
-  "xiccpp_vtx_chi2_ndof":47,
-  "xiccpp_vtx_chi2_distance":16,
+  "xiccpp_vtx_chi2_ndof":48,
+  "xiccpp_vtx_chi2_distance":18,
   "xiccpp_dira":0,
   "xiccpp_final_mass_minimum" : mass_dict['xiccpp'] - 6 * 4.29,
   "xiccpp_final_mass_maximum" : mass_dict['xiccpp'] + 6 * 4.29,
@@ -686,7 +686,8 @@ for event in events: # loop through all events
           kill_counter(is_xiccpp_signal, "xi_final_mass")
         if (xiccpp.mass < limits_dict['xiccpp_final_mass_minimum']):
           kill_counter(is_xiccpp_signal, "xi_final_mass")
-        remain_counter(is_xiccpp_signal, "xi_final_mass")
+        else:
+          remain_counter(is_xiccpp_signal, "xi_final_mass")
         # ---------------------------------------------------
 # ------------------- TreeFilling -------------------
   fill_trees()
