@@ -310,7 +310,7 @@ lower = get_arg(1, 0, args)
 upper = get_arg(2, 2, args)
 rand_seed_arg = get_arg(3, int(time.time() * os.getpid()), args)  # Default random seed if not provided
 rand_seed[0] = rand_seed_arg
-max_timing = 0.30 # needs adjusting (temporary line)
+max_timing = 0.05 # needs adjusting (temporary line)
 if path.dirname(path.realpath(__file__))[-6:] == "python": # Checks if path ends in "python"
   basedir=path.dirname(path.realpath(__file__))
   sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
@@ -455,20 +455,20 @@ mass_dict = {
   "lambdac":2286.46}
 
 limits_dict = {
-  "lambdac_combined_momentum":2000,
-  "lambdac_mass_minimum": mass_dict['lambdac'] - 150,
-  "lambdac_mass_maximum": mass_dict['lambdac'] + 150,
+  "lambdac_combined_momentum":0,
+  "lambdac_mass_minimum": mass_dict['lambdac'] - 60,
+  "lambdac_mass_maximum": mass_dict['lambdac'] + 60,
   "lambdac_vtx_chi2_ndof":6,
   "lambdac_vtx_chi2_distance":14,
-  "lambdac_vtx_dira":0.9,
+  "lambdac_vtx_dira":0,
   "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 5,
   "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 5,
 
   "xiccpp_combined_momentum":0,
-  "xiccpp_mass_minimum": mass_dict['xiccpp'] - 400,
-  "xiccpp_mass_maximum": mass_dict['xiccpp'] + 400,
-  "xiccpp_vtx_chi2_ndof":48,
-  "xiccpp_vtx_chi2_distance":18,
+  "xiccpp_mass_minimum": mass_dict['xiccpp'] - 90,
+  "xiccpp_mass_maximum": mass_dict['xiccpp'] + 90,
+  "xiccpp_vtx_chi2_ndof":3,
+  "xiccpp_vtx_chi2_distance":16,
   "xiccpp_dira":0,
   "xiccpp_final_mass_minimum" : mass_dict['xiccpp'] - 6 * 4.29,
   "xiccpp_final_mass_maximum" : mass_dict['xiccpp'] + 6 * 4.29,
