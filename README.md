@@ -3,8 +3,6 @@
 ## Debug Lines/ Meeting Questions
 
 ## PLOT ZONE
->![signalrelativetobkg1](https://github.com/user-attachments/assets/c6bb8a84-cc96-4af3-ab72-19cd08d4d4f0)
-![sigrelativetobkg2](https://github.com/user-attachments/assets/3fcdbdc0-58eb-4253-aecb-6feb452eda79)
 
 >
 >
