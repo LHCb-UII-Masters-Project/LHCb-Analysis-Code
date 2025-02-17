@@ -63,7 +63,7 @@ unbinned_data = df[(df > lower_fit_range) & (df < upper_fit_range)]
 filtered_final_signal = final_signal[(final_signal > lower_fit_range) & (final_signal < upper_fit_range)]
 total_entries = outputs.GetEntries()
 purity = len(filtered_final_signal) / len(unbinned_data)
-efficiency = len(unbinned_data) / total_entries
+efficiency = len(filtered_final_signal) / total_entries
 
 effErr =  Variables.EfficiencyPurity.effError(efficiency,total_entries)
 PurityErr = Variables.EfficiencyPurity.PurityError(sig_array,bkg_array)
