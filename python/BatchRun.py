@@ -382,6 +382,149 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         
         #endregion MERGE TREES
 
+    elif program == "EuanSignal":
+        #region RUN SCRIPT
+
+        # Define arguments for RunThisScript
+        scriptPath = f"{basedir}/EuanSignal/XisToLambdasSignal.py"
+        batchJobName = "BatchRun_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + "_PID_" + str(os.getpid())[3:]
+        # PID included as batched jobs start at same time
+        pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+
+        wait_id = []  # Holds the return that can be used to make program wait for completion
+        num_range = []  # List of strings [0:5, 5:10 ,...]
+        for i in range(0,tot_num_files, files_per_run):
+            # print(f"{i}:{i+files_per_run}")
+            
+            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}", is_local=local))
+            # Runs with all arguments passed, inlcuding if to run local or on Condor
+            num_range.append(f"{i}:{i+files_per_run}")
+
+        if local is True:
+            # Uses ret to wait if local
+            for index, ret in enumerate(wait_id):
+                print(f"Waiting for files {num_range[index]} to be processed...")
+                ret.wait()
+                time.sleep(1)
+        else:
+            # Uses condor_wait to wait if on condor
+            for index, numbers in enumerate(num_range):
+                print(f"Waiting for files {numbers} to be processed...")
+                subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
+                time.sleep(1)
+
+        #endregion RUN SCRIPT
+
+        #region MERGE TREES
+        base_path = f"{basedir}/Outputs/EuanSignal"
+        # Sets base path to where trees are expected
+        OutChain = ROOT.TChain("Outputs")
+        RunPChain = ROOT.TChain("RunParams")
+        RunLChain = ROOT.TChain("RunLimits")
+        RunDChain = ROOT.TChain("RunDiagnostics")
+        str_chain = []  # List of filepaths for os.removing later
+        # lambdac_hist_sum = None
+        # Initialises chain for tree, chain for tree names and hist for combining
+
+        all_files_exist = True
+        for numbers in num_range:
+            file_path = f"{base_path}/Tree{numbers}.root"  # Full path of one relevant file
+
+            if os.path.exists(file_path):
+                # If repeats are successful or it existed to begin with:
+                str_chain.append(file_path)
+                OutChain.Add(file_path)
+                RunPChain.Add(file_path)
+                RunLChain.Add(file_path)
+                RunDChain.Add(file_path)
+
+                root_file = ROOT.TFile.Open(file_path, "READ") 
+                diagnostics = root_file.Get("RunDiagnostics")
+                diagnostics.SetDirectory(0)
+                root_file.Close()
+            else:
+                all_files_exist = False
+
+
+        OutTree = OutChain.CopyTree("")
+        RunPTree = RunPChain.CopyTree("")
+        RunLTree = RunLChain.CopyTree("")
+        RunDTree = RunDChain.CopyTree("")
+        OutTree.SetName("Outputs")
+        RunPTree.SetName("RunParams")
+        RunLTree.SetName("RunLimits")
+        RunDTree.SetName("RunDiagnostics")
+
+        # Full output file name given here
+        new_dir = f"{basedir}/Outputs/EuanSignal/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime())
+        makedirs(new_dir)
+        tree_path = f"{new_dir}/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + ".root"
+        output_file = ROOT.TFile(tree_path, "RECREATE")
+        # Writes to the output file
+        output_file.cd()
+        OutTree.Write("Outputs")
+        RunPTree.Write("RunParams")
+        RunLTree.Write("RunLimits")
+        RunDTree.Write("RunDiagnostics")
+
+        # Close the output file
+        output_file.Write()
+        output_file.Close()
+
+        # Deletes the trees that made up the now combined tree
+        if all_files_exist:
+            for file_path in str_chain:
+                os.remove(file_path)
+        else:
+            shame_folder = makedirs(f"{new_dir}/AllTrees")
+            for file_path in str_chain:
+                file_name = os.path.basename(file_path)  # Extracts just the file name
+                new_path = os.path.join(f"{new_dir}/AllTrees", file_name)  # Constructs the new path
+                os.rename(file_path, new_path)  # Moves the file
+        print(f"Made Tree")
+
+        counters = defaultdict(lambda: {"sig_kills": 0, "bkg_kills": 0, "sig_remains": 0, "bkg_remains": 0})
+        csv_list = []
+        for numbers in num_range:
+            filename = f"{basedir}/Outputs/EuanSignal/Counters{numbers}.csv"
+            csv_list.append(filename)
+            with open(filename, mode="r") as file:
+                reader = csv.DictReader(file)  # Reads CSV as a dictionary
+                for row in reader:
+                    key = row["cut"]
+                    counters[key]["sig_kills"] += int(row["sig_kills"])
+                    counters[key]["bkg_kills"] += int(row["bkg_kills"])
+                    counters[key]["sig_remains"] += int(row["sig_remains"])
+                    counters[key]["bkg_remains"] += int(row["bkg_remains"])
+
+        # Write the combined results to a new CSV file
+        csv_filename = f"{new_dir}/Counters.csv"
+        df = pd.DataFrame.from_dict(counters, orient="index")
+        df.reset_index(inplace=True)
+        df.rename(columns={"index": "cut", "sig_kills": "sig_kills", "bkg_kills": "bkg_kills", "sig_remain": "sig_remains", "bkg_remain": "bkg_remains"}, inplace=True)
+        df.to_csv(csv_filename, index=False)
+
+        if all_files_exist:
+            for file_path in csv_list:
+                os.remove(file_path)
+        else:
+            for file_path in csv_list:
+                file_name = os.path.basename(file_path)  # Extracts just the file name
+                new_path = os.path.join(f"{new_dir}/AllTrees", file_name)  # Constructs the new path
+                os.rename(file_path, new_path)  # Moves the file
+
+        print("Made CSV")
+
+        subprocess.run(['python', f'{basedir}/SneakPeak.py', tree_path])
+        subprocess.run(['python', f'{basedir}/KillCountChecker.py', csv_filename])
+        #subprocess.run(['python', f'{basedir}/PandE.py', tree_path])
+
+        print("Made Auxiliaries")
+
+        end_time = time.time()
+        
+        #endregion MERGE TREES
+
     elif program == "Optimiser":
 
         wait_id = []
