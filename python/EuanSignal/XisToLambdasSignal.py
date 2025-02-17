@@ -689,7 +689,7 @@ for event in events: # loop through all events
 # ------------------- TreeFilling -------------------
   fill_trees()
 # ------------------- FileWriting -------------------
-file = TFile(f"{basedir}/Outputs/XisToLambdas/Tree{lower}:{upper}.root", "RECREATE")
+file = TFile(f"{basedir}/Outputs/EuanSignal/Tree{lower}:{upper}.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
 file.WriteObject(Outputs, "Outputs")
 file.WriteObject(RunParams, "RunParams")
@@ -698,7 +698,7 @@ file.WriteObject(RunDiagnostics, "RunDiagnostics")
 file.Close()
 # ---------------------------------------------------
 
-csv_filename = f"{basedir}/Outputs/XisToLambdas/Counters{lower}:{upper}.csv"
+csv_filename = f"{basedir}/Outputs/EuanSignal/XisToLambdas/Counters{lower}:{upper}.csv"
 df = pd.DataFrame.from_dict(counters, orient="index")
 df.reset_index(inplace=True)
 df.rename(columns={"index": "cut", "sig_kills": "sig_kills", "bkg_kills": "bkg_kills", "sig_remain": "sig_remains", "bkg_remain": "bkg_remains"}, inplace=True)
