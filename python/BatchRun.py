@@ -419,7 +419,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         for min_ipChi2_4d in np.linspace(0,7, 15):
             for min_p in range(500, 4000, 250):
                 run_args = f"{num_files} {min_min_pt} {max_min_pt} {pt_interval} {min_p} {min_ipChi2_4d}"
-                wait_id.append(runThisScriptOnCondor(f"{basedir}/TrackSelectionBatch.py", f"BatchOptimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
+                wait_id.append(runThisScriptOnCondor(f"{basedir}/NewTrackSelectorBatch.py", f"BatchOptimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
                 time.sleep(1)
                 p_vals.append(str(min_p))
 

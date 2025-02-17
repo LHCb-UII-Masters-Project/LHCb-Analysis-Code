@@ -103,10 +103,10 @@ DisplacedTracksScatter = axs[0]
 XiccppPionScatter = axs[1]
 XiccppKaonScatter = axs[2]
 # Plot for Xiccpp (top-left and top-right)
-DisplacedTracksScatter.scatter(data = idata, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='black', label='DisplacedTracks')
-DisplacedTracksScatter.scatter(data = paper_lc_values, x = "XiccppEfficiency", y = "XiccppPurity", s=60, color='red', label='DisplacedPaperValues')
+DisplacedTracksScatter.scatter(data = idata, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='black', label='All Values')
+DisplacedTracksScatter.scatter(data = paper_lc_values, x = "XiccppEfficiency", y = "XiccppPurity", s=60, color='blue', label='Literature Values')
 #DisplacedTracksScatter.scatter(data = paper_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=60, color='blue', label='XiPaperValues')
-DisplacedTracksScatter.scatter(data = chosen_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=60, color='magenta', label='DisplacedChosenValues')
+DisplacedTracksScatter.scatter(data = chosen_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=60, color='magenta', label='Selected Value')
 # Annotate each point
 # Annotate each point
 """
@@ -122,7 +122,7 @@ for i, row in idata_unique.iterrows():
 
 DisplacedTracksScatter.set_xlabel("Efficiency")
 DisplacedTracksScatter.set_ylabel("Purity")
-DisplacedTracksScatter.set_title("Efficiency vs Purity for DisplacedTracks")
+DisplacedTracksScatter.set_title(r"Efficiency vs Purity for $\Lambda_{c}^{+}$ Daughter Track Cuts")
 DisplacedTracksScatter.grid(alpha=0.3)
 DisplacedTracksScatter.legend()
 #xspace = 0.0025  # You can change this value to set the spacing of ticks
@@ -131,10 +131,10 @@ DisplacedTracksScatter.legend()
 #DisplacedTracksScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Pion (middle-left and middle-right)
-XiccppPionScatter.scatter(data = idata , x = "PionEfficiency",y = "PionPurity", s = 30, color='black', label='BachelorPions')
+XiccppPionScatter.scatter(data = idata , x = "PionEfficiency",y = "PionPurity", s = 30, color='black', label='All Values')
 #XiccppPionScatter.scatter(data = paper_lc_values, x = "PionEfficiency", y = "PionPurity", s=60, color='red', label='LcPaperValuesPions')
-XiccppPionScatter.scatter(data = paper_xi_values, x = "PionEfficiency", y = "PionPurity", s=60, color='blue', label='XiPaperValuesPions')
-XiccppPionScatter.scatter(data = chosen_xipi_values, x = "PionEfficiency", y = "PionPurity", s=60, color='magenta', label='XiChosenValuesPions')
+XiccppPionScatter.scatter(data = paper_xi_values, x = "PionEfficiency", y = "PionPurity", s=60, color='blue', label='Literature Values')
+XiccppPionScatter.scatter(data = chosen_xipi_values, x = "PionEfficiency", y = "PionPurity", s=60, color='magenta', label='Selected Value')
 
 """
 for i, row in pion_zoomed.iterrows():
@@ -149,7 +149,7 @@ for i, row in pion_zoomed.iterrows():
 
 XiccppPionScatter.set_xlabel("Efficiency")
 XiccppPionScatter.set_ylabel("Purity")
-XiccppPionScatter.set_title("Efficiency vs Purity for xiccpp_pions")
+XiccppPionScatter.set_title("Efficiency vs Purity for $\Xi_{cc}^{++}$ Daughter Bachelor Pions")
 XiccppPionScatter.grid(alpha=0.3)
 XiccppPionScatter.legend()
 
@@ -159,10 +159,10 @@ XiccppPionScatter.legend()
 #XiccppPionScatter.xaxis.set_major_locator(ticker.MultipleLocator(xspace))
 
 # Plot for Kaon (bottom-left and bottom-right)
-XiccppKaonScatter.scatter(data = idata , x = "KaonEfficiency",y = "KaonPurity", s = 30, color='black', label='BachelorKaons')
+XiccppKaonScatter.scatter(data = idata , x = "KaonEfficiency",y = "KaonPurity", s = 30, color='black', label='All Values')
 #XiccppKaonScatter.scatter(data = paper_lc_values, x = "KaonEfficiency", y = "KaonPurity", s=60, color='red', label='LcPaperValuesKaons')
-XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=60, color='blue', label='XiPaperValuesKaons')
-XiccppKaonScatter.scatter(data = chosen_xik_values, x = "KaonEfficiency", y = "KaonPurity", s=60, color='magenta', label='XiChosenValuesKaons')
+XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=60, color='blue', label='Literature Values')
+XiccppKaonScatter.scatter(data = chosen_xik_values, x = "KaonEfficiency", y = "KaonPurity", s=60, color='magenta', label='Selected Value')
 
 """
 for i, row in kaon_zoomed.iterrows():
@@ -177,7 +177,7 @@ for i, row in kaon_zoomed.iterrows():
 
 XiccppKaonScatter.set_xlabel("Efficiency")
 XiccppKaonScatter.set_ylabel("Purity")
-XiccppKaonScatter.set_title("Efficiency vs Purity for xiccpp_kaons")
+XiccppKaonScatter.set_title("Efficiency vs Purity for $\Xi_{cc}^{++}$ Daughter Bachelor Kaons")
 XiccppKaonScatter.grid(alpha=0.3)
 XiccppKaonScatter.legend()
 #xspace = 0.025  # You can change this value to set the spacing of ticks
