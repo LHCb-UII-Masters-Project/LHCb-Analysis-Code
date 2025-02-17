@@ -30,7 +30,8 @@ input_directory = os.path.dirname(args.input_file)
 # ------------------------------- Tree Reading --------------------------------------------------
 # Load CSV file
 csv_path = args.input_file  # Update this path if necessary
-df = pd.read_csv(csv_path)
+raw_df = pd.read_csv(csv_path)
+df = [cut for i, cut in enumerate(raw_df) if i not in {1,2,3,9,10,11,12}]
 num_events = int(extract_middle(input_directory))
 
 # Compute Efficiency and Purity
@@ -68,7 +69,7 @@ ax2.plot(x_labels_lambdac, df_lambdac["AbsPurity"], marker="s", linestyle="--", 
 ax2.tick_params(axis="y", labelcolor="tab:red")
 
 plt.xticks(rotation=45, ha="right")
-plt.title("Absolute Efficiency & Purity vs Cuts (lambdac)")
+plt.title(r"Absolute Efficiency & Purity for $\Lambda_{c}^{+}$ Cuts")
 plt.grid(axis="y", linestyle="--", alpha=0.7)
 
 plt.tight_layout()
@@ -89,7 +90,7 @@ ax2.plot(x_labels_xi, df_xi["AbsPurity"], marker="s", linestyle="--", color="tab
 ax2.tick_params(axis="y", labelcolor="tab:red")
 
 plt.xticks(rotation=45, ha="right")
-plt.title("Absolute Efficiency & Purity vs Cuts (xi)")
+plt.title(r"Absolute Efficiency & Purity for $\Xi_{cc}^{++}$ Cuts")
 plt.grid(axis="y", linestyle="--", alpha=0.7)
 
 plt.tight_layout()
