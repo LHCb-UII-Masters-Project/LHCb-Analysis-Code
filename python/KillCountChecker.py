@@ -64,7 +64,7 @@ with LHCbStyle() as lbs:
     x_labels_lambdac = x_labels_lambdac.str.replace("Chi2", r"$\\chi^{2}$", regex=True).str.replace("Vtx", "Vertex")
     x_labels_lambdac = x_labels_lambdac.str.replace(" Ndof", "/ndf").str.replace(" Cut", "")
     
-    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig, ax1 = plt.subplots(figsize=(12, 6))
     ax1.set_xlabel("Selection", fontsize=14, fontweight="bold")
     ax1.set_ylabel("Efficiency", color="tab:blue", fontsize=14, fontweight="bold")
     ax1.plot(x_labels_lambdac, df_lambdac["AbsEfficiency"], marker="o", linestyle="-", color="tab:blue", label="Efficiency")
@@ -102,7 +102,7 @@ with LHCbStyle() as lbs:
     x_labels_xi = x_labels_xi.str.replace("Chi2", r"$\\chi^{2}$", regex=True).str.replace("Vtx", "Vertex")
     x_labels_xi = x_labels_xi.str.replace(" Ndof", "/ndf")
 
-    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig, ax1 = plt.subplots(figsize=(12, 6))
     ax1.set_xlabel("Selection", fontsize=14, fontweight="bold")
     ax1.set_ylabel("Efficiency", color="tab:blue", fontsize=14, fontweight="bold")
     ax1.plot(x_labels_xi, df_xi["AbsEfficiency"], marker="o", linestyle="-", color="tab:blue", label="Efficiency")
