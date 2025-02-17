@@ -57,3 +57,14 @@ def effError(efficiency, N, efficType="wilson"):
 
 
     return effErrTypeDict[efficType](efficiency,N)
+
+def PurityError(Nsig_array,Nbkg_array):
+    Nsig = len(Nsig_array)
+    Nbkg = len(Nbkg_array)
+    NsigError = np.sqrt(Nsig)
+    NbkgError = np.sqrt(Nbkg)
+    NsigDerivative = (Nbkg/(Nsig+Nbkg)**2)
+    NbkgDerivative = (-Nsig/(Nsig+Nbkg)**2)
+    NsigComponent = (NsigDerivative*NsigError)**2
+    NbkgComponent = (NbkgDerivative*NbkgError)**2
+    return np.sqrt(NsigComponent + NbkgComponent)
