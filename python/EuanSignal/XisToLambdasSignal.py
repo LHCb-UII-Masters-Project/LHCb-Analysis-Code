@@ -47,7 +47,7 @@ velo_timing[0] = 50
 
 # ------------------- RunLimitsTree -------------------
 RunLimits = ROOT.TTree("RunLimits", "RunLimits")
-lambdac_vtx_chi2_ndof_limit = array('f', [0]) # Formerly Chi2_ndf_limit
+lambdac_vtx_chi2_ndof_limit = array('f', [0])
 RunLimits.Branch('lambdac_vtx_chi2_ndof_limit', lambdac_vtx_chi2_ndof_limit, 'lambdac_vtx_chi2_ndof_limit/F')
 lambdac_combined_momentum_lower_limit = array('f', [0])
 RunLimits.Branch('lambdac_combined_momentum_lower_limit', lambdac_combined_momentum_lower_limit, 'lambdac_combined_momentum_lower_limit/F')
@@ -450,7 +450,7 @@ particle_dict = {
   "xic+": 4232}
 
 mass_dict = {
-  "xiccpp":3621.6,
+  "xiccp":3518.9,
   "lambdac":2286.46}
 
 limits_dict = {
@@ -464,14 +464,14 @@ limits_dict = {
   "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 5,
 
   "xiccpp_combined_momentum":0,
-  "xiccpp_mass_minimum": mass_dict['xiccpp'] - 90,
-  "xiccpp_mass_maximum": mass_dict['xiccpp'] + 90,
+  "xiccpp_mass_minimum": mass_dict['xiccp'] - 90,
+  "xiccpp_mass_maximum": mass_dict['xiccp'] + 90,
   "xiccpp_vtx_chi2_ndof":3,
   "xiccpp_vtx_chi2_distance":16,
   "xiccpp_dira":0,
-  "xiccpp_final_mass_minimum" : mass_dict['xiccpp'] - 6 * 4.29,
-  "xiccpp_final_mass_maximum" : mass_dict['xiccpp'] + 6 * 4.29,
-}
+  "xiccpp_final_mass_minimum" : mass_dict['xiccp'] - 6 * 4.29,
+  "xiccpp_final_mass_maximum" : mass_dict['xiccp'] + 6 * 4.29,
+} # Must change to sigma(Xiccp)
 # ------------------- LimitTreeFill(can be closed with region) -------------------
 #region LimitsTree
 lambdac_vtx_chi2_ndof_limit = limits_dict["lambdac_vtx_chi2_ndof"]
@@ -489,7 +489,7 @@ from MCTools import *
 gInterpreter.AddIncludePath( f'{basedir}/../include')
 gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the python path
 events = TChain("Events") # connects all the events into a single data set
-dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym_10um50ps"
+dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc+/sym_10um50ps"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(lower):int(upper)]
 # Since list is formed in order for every run, this selects the relevant files to be run
@@ -512,8 +512,8 @@ for event in events: # loop through all events
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
 # ------------------- ParticleLists -------------------
   displaced_tracks = ROOT.select( event.Particles, event.Vertices, 230, 2750,4.0) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
-  good_pions = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Pion']] # all pi+
-  good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Kaon']] # all k^-
+  good_pions = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Pion']] # all pi+-
+  good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Kaon']] # all k^-+
   good_protons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Proton']] # all proton^+
   doca_cut = Doca_cut[0] = 0.5 # distance of closest approach cutoff, maximum allowed closest approach for consideration
   nPVs = Num_pv[0] = npvs( event ) # the number of primary verticies in an event
@@ -528,8 +528,8 @@ for event in events: # loop through all events
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
   xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 160, 1250, 1.5 ) if  abs(track.trueID) == particle_dict['Pion']]
-  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 370, 3500, 0.5 ) if  abs(track.trueID) == particle_dict['Kaon']] # needs changing from bs to xi limits
-  chiccpp_pions_kaons_container =  ROOT.combine( xiccpp_pions, xiccpp_pions, xiccpp_kaons, doca_cut, 3, 2, 1)
+  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 370, 3500, 0.5 ) if  abs(track.trueID) == particle_dict['Kaon']]
+  chiccpp_pions_kaons_container =  ROOT.combine( xiccpp_pions, xiccpp_kaons, doca_cut, 3, 2, 1)
   Num_protons_detected[0] += len(good_protons)
   Num_pions_detected[0] += len(good_pions)
   Num_kaons_detected[0] += len(good_kaons)
@@ -547,11 +547,11 @@ for event in events: # loop through all events
       lambdac_pion_ID[0] = abs(pion.trueID)
       #endregion LambdacOutputTreeFill
       
-      is_lambdac_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++'])
+      is_lambdac_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc+']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc+']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc+'])
       remain_counter(is_lambdac_signal, "displaced_track_cuts")
       if ilambdac_proton_pt + ilambdac_kaon_pt + ilambdac_pion_pt < limits_dict["lambdac_combined_momentum"]:
         kill_counter(is_lambdac_signal,"lambdac_combined_momentum")
-        continue # insufficient momentum to create a phi, discard
+        continue
       remain_counter(is_lambdac_signal,"lambdac_combined_momentum")
       if abs(proton.charge() + lambdac_kaon.charge() + pion.charge()) !=1:
         kill_counter(is_lambdac_signal,"lambdac_charge")
@@ -613,36 +613,34 @@ for event in events: # loop through all events
         continue
       remain_counter(is_lambdac_signal,"lambdac_final_mass_cut")
       # ------------------- xiccppReconstruction -------------------
-      for xiccpp_pion1,xiccpp_pion2,xiccpp_kaon,chiccpp_pions_kaons,chiccpp_pion_kaons_container_vtx in chiccpp_pions_kaons_container:
-        is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc++']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc++']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc++']) and is_parent(xiccpp_pion1, event,particle_dict['xicc++']) and is_parent(xiccpp_pion2, event,particle_dict['xicc++']) and is_parent(xiccpp_kaon, event,particle_dict['xicc++'])
+      for xiccpp_pion,xiccpp_kaon,chiccpp_pions_kaons,chiccpp_pion_kaons_container_vtx in chiccpp_pions_kaons_container:
+        is_xiccpp_signal = is_parent(proton, event, particle_dict['lambdac']) and is_Gparent(proton, event, particle_dict['xicc+']) and is_parent(lambdac_kaon, event, particle_dict['lambdac']) and is_Gparent(lambdac_kaon, event, particle_dict['xicc+']) and is_parent(pion, event, particle_dict['lambdac']) and is_Gparent(pion, event, particle_dict['xicc+']) and is_parent(xiccpp_pion, event,particle_dict['xicc+']) and is_parent(xiccpp_kaon, event,particle_dict['xicc+'])
         remain_counter(is_xiccpp_signal, "xi_track_cuts")
-        if xiccpp_kaon == lambdac_kaon or xiccpp_pion1 == pion or xiccpp_pion2 == pion:
+        if xiccpp_kaon == lambdac_kaon or xiccpp_pion == pion:
           kill_counter(is_xiccpp_signal,"xi_miss_combo")
           continue
         remain_counter(is_xiccpp_signal,"xi_miss_combo")
         #region xiccppTreeFill
-        Vxiccpp_pion1_pt = xiccpp_pion1_pt[0] = xiccpp_pion1.pt()
-        xiccpp_pion1_eta[0] = xiccpp_pion1.eta()
-        Vxiccpp_pion2_pt = xiccpp_pion2_pt[0] = xiccpp_pion2.pt()
-        xiccpp_pion2_eta[0] = xiccpp_pion2.eta()
+        Vxiccpp_pion1_pt = xiccpp_pion1_pt[0] = xiccpp_pion.pt()
+        xiccpp_pion1_eta[0] = xiccpp_pion.eta()
         Vxiccpp_kaon_pt= xiccpp_kaon_pt[0] = xiccpp_kaon.pt()
         xiccpp_kaon_eta[0] = xiccpp_kaon.eta()
         #endregion xiccppTreeFill
-        if abs(xiccpp_pion1.charge() + xiccpp_pion2.charge()+xiccpp_kaon.charge() + lambdac.charge() !=2): 
+        if abs(xiccpp_pion.charge() +xiccpp_kaon.charge() + lambdac.charge()) !=1: 
           kill_counter(is_xiccpp_signal,"xi_charge_conservation")
           continue
         remain_counter(is_xiccpp_signal,"xi_charge_conservation")
-        xiccpp_charges = (xiccpp_pion1.charge(),xiccpp_pion2.charge(),xiccpp_kaon.charge(),lambdac.charge())
-        if ((fermions is True) and xiccpp_charges != (1,1,-1,1)) or ((fermions is False) and xiccpp_charges != (-1,-1,1,-1)):
+        xiccpp_charges = (xiccpp_pion.charge(),xiccpp_kaon.charge(),lambdac.charge())
+        if ((fermions is True) and xiccpp_charges != (1,-1,1)) or ((fermions is False) and xiccpp_charges != (-1,1,-1)):
           kill_counter(is_xiccpp_signal,"xi_charge")
           continue
         remain_counter(is_xiccpp_signal,"xi_charge")
-        if ilambdac_pt + Vxiccpp_kaon_pt + Vxiccpp_pion1_pt + Vxiccpp_pion2_pt < limits_dict['xiccpp_combined_momentum'] :
+        if ilambdac_pt + Vxiccpp_kaon_pt + Vxiccpp_pion1_pt < limits_dict['xiccpp_combined_momentum'] :
           kill_counter(is_xiccpp_signal,"xi_minimum_momentum")
           continue # insufficient momentum to create a phi, discard
         remain_counter(is_xiccpp_signal,"xi_minimum_momentum")
-        xiccpp_vtx = ROOT.uVertex( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
-        xiccpp = ROOT.uParticle( [proton, lambdac_kaon, pion, xiccpp_pion1,xiccpp_pion2,xiccpp_kaon] )
+        xiccpp_vtx = ROOT.uVertex( [proton, lambdac_kaon, pion, xiccpp_pion,xiccpp_kaon] )
+        xiccpp = ROOT.uParticle( [proton, lambdac_kaon, pion, xiccpp_pion,xiccpp_kaon] )
         if is_xiccpp_signal and bool(xiccpp.mass):
           xiccpp_is_signal_mass_pre_selections[0] = xiccpp.mass
           xiccpp_is_bkg_mass_pre_selections[0] = -1
