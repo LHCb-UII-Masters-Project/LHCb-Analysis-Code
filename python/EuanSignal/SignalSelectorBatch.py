@@ -15,18 +15,17 @@ particle_dict = {
   "Pion":211,
   "Proton":2212,
   "lambdac":4122,
-  "xicc++":4222,
   "xicc+":4212,
   "xic+": 4232}
 
-if path.dirname(path.realpath(__file__))[-6:] == "python" or path.dirname(path.realpath(__file__))[-6:] == "Signal": # Checks if path ends in "python"
+if path.dirname(path.realpath(__file__))[-6:] == "python" or path.dirname(path.realpath(__file__))[-6:] == "Signal":
   basedir=path.dirname(path.realpath(__file__))
-  sys.path.append(f"{path.dirname(path.realpath(__file__))}/..")
+  sys.path.append(f"{basedir}/..")
   batching = False
   sys.path.insert(0,basedir)
 else:
-  basedir = f"{path.dirname(path.realpath(__file__))}/../../../../.."
-  sys.path.append(f"{path.dirname(path.realpath(__file__))}/../../../../..")
+  basedir = f"{path.dirname(path.realpath(__file__))}/../../../../EuanSignal"
+  sys.path.append(f"{basedir}/..")
   sys.path.insert(0,f"{basedir}/../../../..")
   batching = True
 
@@ -46,7 +45,7 @@ min_ipChi2_4d = float(args[6])
 min_pts = np.linspace(min_min_pt, max_min_pt, int((max_min_pt - min_min_pt)/pt_interval)+1)
 
 # Filepath for the CSV file
-file_path = f"/disk/homedisk/home/user293/Documents/selections/python/Outputs/TrackSelection/BatchLambdacCompIP{min_ipChi2_4d}.csv"
+file_path = f"/disk/homedisk/home/user293/Documents/selections/python/Outputs/TrackSelection/SignalOpt{min_ipChi2_4d}.csv"
 #file_path = f"test.csv"
 
 from MCTools import * 
@@ -89,10 +88,10 @@ for i in range(num_files):
 
 for event in events: # loop through all events
   #Lambdac
-  xiccpp_true_number = [track for track in event.Particles if abs(track.trueID) == particle_dict['xicc++']]
+  xiccpp_true_number = [track for track in event.Particles if abs(track.trueID) == particle_dict['xicc+']]
 
-  true_xiccpp = [track for track in event.Particles if is_from(track,event,particle_dict['xicc++'])]
-  true_xilc_daughters = [track for track in event.Particles if (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lambdac']))]
+  true_xiccpp = [track for track in event.Particles if is_from(track,event,particle_dict['xicc+'])]
+  true_xilc_daughters = [track for track in event.Particles if (is_Gparent(track,event,particle_dict['xicc+']) and is_parent(track,event,particle_dict['lambdac']))]
 
   set_of_displaced_tracks = [ROOT.select( event.Particles, event.Vertices, min_pts[0], min_p,min_ipChi2_4d)]
   for i, pt in enumerate(min_pts):
@@ -100,39 +99,39 @@ for event in events: # loop through all events
       set_of_displaced_tracks.append([track for track in set_of_displaced_tracks[0] if (track.pt() < pt and track.pt() >= min_pts[i-1])])
 
   for i, displaced_tracks in enumerate(set_of_displaced_tracks):
-    xiccpp_tracks = [ track for track in displaced_tracks if is_from(track,event,particle_dict['xicc++'])]
-    xilc_daughter_tracks = [ track for track in displaced_tracks if (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lambdac']))] # all proton^
+    xiccpp_tracks = [ track for track in displaced_tracks if is_from(track,event,particle_dict['xicc+'])]
+    xilc_daughter_tracks = [ track for track in displaced_tracks if (is_Gparent(track,event,particle_dict['xicc+']) and is_parent(track,event,particle_dict['lambdac']))] # all proton^
 
-    background_tracks = [ track for track in displaced_tracks if not is_from(track,event,particle_dict['xicc++'])]
-    xilc_background_tracks = [ track for track in displaced_tracks if not (is_Gparent(track,event,particle_dict['xicc++']) and is_parent(track,event,particle_dict['lambdac']))]
+    background_tracks = [ track for track in displaced_tracks if not is_from(track,event,particle_dict['xicc+'])]
+    xilc_background_tracks = [ track for track in displaced_tracks if not (is_Gparent(track,event,particle_dict['xicc+']) and is_parent(track,event,particle_dict['lambdac']))]
 
     # Bachelor
     true_pions = [track for track in event.Particles if abs(track.trueID) == particle_dict['Pion']]
 
-    true_xiccpp_pions = [track for track in true_pions if is_from(track,event,particle_dict['xicc++'])]
-    true_bachelor_pions = [track for track in true_pions if (is_parent(track,event,particle_dict['xicc++']))]
+    true_xiccpp_pions = [track for track in true_pions if is_from(track,event,particle_dict['xicc+'])]
+    true_bachelor_pions = [track for track in true_pions if (is_parent(track,event,particle_dict['xicc+']))]
     
     pions = [ track for track in displaced_tracks if  abs(track.trueID) == particle_dict['Pion']]
 
-    xiccpp_pions = [ track for track in pions if is_from(track,event,particle_dict['xicc++'])] # all proton^
-    bachelor_pions = [ track for track in pions if (is_parent(track,event,particle_dict['xicc++']))] # all proton^
+    xiccpp_pions = [ track for track in pions if is_from(track,event,particle_dict['xicc+'])] # all proton^
+    bachelor_pions = [ track for track in pions if (is_parent(track,event,particle_dict['xicc+']))] # all proton^
 
-    pion_background = [ track for track in pions if not is_from(track,event,particle_dict['xicc++'])] # all proton^
-    bachelor_pion_background = [ track for track in pions if not (is_parent(track,event,particle_dict['xicc++']))] # all proton^
+    pion_background = [ track for track in pions if not is_from(track,event,particle_dict['xicc+'])] # all proton^
+    bachelor_pion_background = [ track for track in pions if not (is_parent(track,event,particle_dict['xicc+']))] # all proton^
 
     # Bachelor
     true_kaons = [track for track in event.Particles if abs(track.trueID) == particle_dict['Kaon']]
 
-    true_xiccpp_kaons = [track for track in true_kaons if is_from(track,event,particle_dict['xicc++'])]
-    true_bachelor_kaons = [track for track in true_kaons if (is_parent(track,event,particle_dict['xicc++']))]
+    true_xiccpp_kaons = [track for track in true_kaons if is_from(track,event,particle_dict['xicc+'])]
+    true_bachelor_kaons = [track for track in true_kaons if (is_parent(track,event,particle_dict['xicc+']))]
 
     kaons = [ track for track in displaced_tracks if  abs(track.trueID) == particle_dict['Kaon']] # needs changing from bs to xi limits
 
-    xiccpp_kaons = [ track for track in kaons if is_from(track,event,particle_dict['xicc++'])] # all proton^
-    bachelor_kaons = [ track for track in kaons if (is_parent(track,event,particle_dict['xicc++']))]
+    xiccpp_kaons = [ track for track in kaons if is_from(track,event,particle_dict['xicc+'])] # all proton^
+    bachelor_kaons = [ track for track in kaons if (is_parent(track,event,particle_dict['xicc+']))]
 
-    kaon_background = [ track for track in kaons if not  is_from(track,event,particle_dict['xicc++'])] # all proton^
-    bachelor_kaon_background = [ track for track in kaons if not (is_parent(track,event,particle_dict['xicc++']))] # all proton^
+    kaon_background = [ track for track in kaons if not  is_from(track,event,particle_dict['xicc+'])] # all proton^
+    bachelor_kaon_background = [ track for track in kaons if not (is_parent(track,event,particle_dict['xicc+']))] # all proton^
 
     if i == 0:
       for j in range(len(min_pts)):
@@ -188,7 +187,7 @@ for i, pt in enumerate(min_pts):
               xiccpp_total_true_number[0],
               xiccpp_true_tracks[0],
               xilc_true_daughters_tracks[0],
-              xiccpp_total_tracks[i], # Fault
+              xiccpp_total_tracks[i],
               xilc_daughter_total_tracks[i],
               xiccpp_background_tracks[i],
               xilc_background_total_tracks[i],
