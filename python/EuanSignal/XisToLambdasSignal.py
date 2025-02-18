@@ -457,17 +457,17 @@ limits_dict = {
   "lambdac_combined_momentum":0,
   "lambdac_mass_minimum": mass_dict['lambdac'] - 60,
   "lambdac_mass_maximum": mass_dict['lambdac'] + 60,
-  "lambdac_vtx_chi2_ndof":6,
-  "lambdac_vtx_chi2_distance":10,
+  "lambdac_vtx_chi2_ndof":14,
+  "lambdac_vtx_chi2_distance":6,
   "lambdac_vtx_dira":0,
   "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 5,
   "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 5,
 
   "xiccpp_combined_momentum":0,
-  "xiccpp_mass_minimum": mass_dict['xiccp'] - 90,
-  "xiccpp_mass_maximum": mass_dict['xiccp'] + 90,
-  "xiccpp_vtx_chi2_ndof":3,
-  "xiccpp_vtx_chi2_distance":16,
+  "xiccpp_mass_minimum": mass_dict['xiccp'] - 200,
+  "xiccpp_mass_maximum": mass_dict['xiccp'] + 200,
+  "xiccpp_vtx_chi2_ndof":6,
+  "xiccpp_vtx_chi2_distance":2,
   "xiccpp_dira":0,
   "xiccpp_final_mass_minimum" : mass_dict['xiccp'] - 6 * 4.29,
   "xiccpp_final_mass_maximum" : mass_dict['xiccp'] + 6 * 4.29,
@@ -631,7 +631,7 @@ for event in events: # loop through all events
           continue
         remain_counter(is_xiccpp_signal,"xi_charge_conservation")
         xiccpp_charges = (xiccpp_pion.charge(),xiccpp_kaon.charge(),lambdac.charge())
-        if ((fermions is True) and xiccpp_charges != (1,-1,1)) or ((fermions is False) and xiccpp_charges != (-1,1,-1)):
+        if ((fermions is True) and (xiccpp_charges != (1,-1,1))) or ((fermions is False) and (xiccpp_charges != (-1,1,1))):
           kill_counter(is_xiccpp_signal,"xi_charge")
           continue
         remain_counter(is_xiccpp_signal,"xi_charge")
