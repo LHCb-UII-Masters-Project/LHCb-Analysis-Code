@@ -458,7 +458,7 @@ limits_dict = {
   "lambdac_mass_minimum": mass_dict['lambdac'] - 60,
   "lambdac_mass_maximum": mass_dict['lambdac'] + 60,
   "lambdac_vtx_chi2_ndof":6,
-  "lambdac_vtx_chi2_distance":14,
+  "lambdac_vtx_chi2_distance":10,
   "lambdac_vtx_dira":0,
   "lambdac_final_mass_minimum": mass_dict['lambdac'] - 2.476 * 5,
   "lambdac_final_mass_maximum":mass_dict['lambdac'] + 2.476 * 5,
@@ -511,7 +511,7 @@ for event in events: # loop through all events
     current_file_name = events.GetFile().GetName() #  Set file name to be the name of current file
     file_number[0] = get_file_number(current_file_name) #  Changes the file number to the new file number
 # ------------------- ParticleLists -------------------
-  displaced_tracks = ROOT.select( event.Particles, event.Vertices, 230, 2750,4.0) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
+  displaced_tracks = ROOT.select( event.Particles, event.Vertices, 370, 2750,0.5) # select particles, verticies, min_pt, min_p,min_ipChi2_4d
   good_pions = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Pion']] # all pi+-
   good_kaons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Kaon']] # all k^-+
   good_protons = [ track for track in displaced_tracks if abs(track.trueID) == particle_dict['Proton']] # all proton^+
@@ -527,9 +527,9 @@ for event in events: # loop through all events
   # print(f'total number of lambda containers per event {len(lambda_container)}')
   # create all phi candiates, two particles at a distance smaller than the maximum allowed distance, with acceptable chi2ndf and sum
   # to a charge of 0
-  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 160, 1250, 1.5 ) if  abs(track.trueID) == particle_dict['Pion']]
-  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 370, 3500, 0.5 ) if  abs(track.trueID) == particle_dict['Kaon']]
-  chiccpp_pions_kaons_container =  ROOT.combine( xiccpp_pions, xiccpp_kaons, doca_cut, 3, 2, 1)
+  xiccpp_pions = [ track for track in ROOT.select( event.Particles, event.Vertices, 370, 2500, 0.0 ) if  abs(track.trueID) == particle_dict['Pion']]
+  xiccpp_kaons = [ track for track in ROOT.select( event.Particles, event.Vertices, 440, 3500, 0.0 ) if  abs(track.trueID) == particle_dict['Kaon']]
+  chiccpp_pions_kaons_container =  ROOT.combine( xiccpp_pions, xiccpp_kaons, doca_cut, 3, 0)
   Num_protons_detected[0] += len(good_protons)
   Num_pions_detected[0] += len(good_pions)
   Num_kaons_detected[0] += len(good_kaons)
@@ -698,7 +698,7 @@ file.WriteObject(RunDiagnostics, "RunDiagnostics")
 file.Close()
 # ---------------------------------------------------
 
-csv_filename = f"{basedir}/Outputs/EuanSignal/XisToLambdas/Counters{lower}:{upper}.csv"
+csv_filename = f"{basedir}/Outputs/EuanSignal/Counters{lower}:{upper}.csv"
 df = pd.DataFrame.from_dict(counters, orient="index")
 df.reset_index(inplace=True)
 df.rename(columns={"index": "cut", "sig_kills": "sig_kills", "bkg_kills": "bkg_kills", "sig_remain": "sig_remains", "bkg_remain": "bkg_remains"}, inplace=True)

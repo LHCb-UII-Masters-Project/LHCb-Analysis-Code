@@ -18,7 +18,7 @@ new_numerator = True
 font_dict = {"fontsize": 16, "fontweight": "bold"}
 font_prop = FontProperties(size=14, weight="bold")
 
-file = "/home/user293/Documents/selections/python/EuanSignal/EuanSignal4D.csv"
+file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/EuanSignal4D.csv"
 df = pd.read_csv(file)
 
 if new_numerator is True:
@@ -49,29 +49,29 @@ else:
 paper_lc_values = idata.query('MinP == 2000 and MinPT == 200 and MinIPChi2 == 6')
 paper_xi_values = idata.query('MinP == 1000 and MinPT == 500')
 
-chosen_xi_values = idata.query('MinP == 2750 and MinPT == 230 and MinIPChi2 == 4.0')
-chosen_xipi_values = idata.query('MinP == 1250 and MinPT == 160 and MinIPChi2 == 1.5')
-chosen_xik_values = idata.query('MinP == 3500 and MinPT == 370 and MinIPChi2 == 0.5')
+chosen_xi_values = idata.query('MinP == 2750 and MinPT == 370 and MinIPChi2 == 0.5')
+chosen_xipi_values = idata.query('MinP == 2500 and MinPT == 370 and MinIPChi2 == 0.0')
+chosen_xik_values = idata.query('MinP == 3500 and MinPT == 440 and MinIPChi2 == 0.0')
 
 DisplacedTracksDict = {
-  "efficiency_minimum":0.63,
-  "efficiency_maximum":0.65,
-  "purity_minimum":0.014,
-  "purity_maximum":0.017
+  "efficiency_minimum":0.80,
+  "efficiency_maximum":0.85,
+  "purity_minimum":0.005,
+  "purity_maximum":0.01
   }
 
 XiccppPionsDict = {
- "efficiency_minimum":0.32,
-  "efficiency_maximum":0.43,
-  "purity_minimum":0.0052,
-  "purity_maximum":0.006
+ "efficiency_minimum":0.60,
+  "efficiency_maximum":0.67,
+  "purity_minimum":0.0021,
+  "purity_maximum":0.0025
 }
 
 XiccppKaonsDict = {
- "efficiency_minimum":0.6,
-  "efficiency_maximum":0.63,
-  "purity_minimum":0.018,
-  "purity_maximum":0.024
+ "efficiency_minimum":0.78,
+  "efficiency_maximum":0.82,
+  "purity_minimum":0.015,
+  "purity_maximum":0.019
 }
 
 def df_zoom(idata, efficiency_column, purity_column, dictionary):
@@ -152,7 +152,7 @@ for i, row in pion_zoomed.iterrows():
 
 XiccppPionScatter.set_xlabel("Efficiency", fontdict=font_dict)
 XiccppPionScatter.set_ylabel("Purity", fontdict=font_dict)
-XiccppPionScatter.set_title("Efficiency vs Purity for $\Xi_{cc}^{+}$ Daughter Bachelor Pions", fontdict=font_dict)
+XiccppPionScatter.set_title("Efficiency vs Purity for $\Xi_{cc}^{++}$ Daughter Bachelor Pions", fontdict=font_dict)
 XiccppPionScatter.grid(alpha=0.3)
 XiccppPionScatter.legend(prop=font_prop)
 
@@ -180,7 +180,7 @@ for i, row in kaon_zoomed.iterrows():
 
 XiccppKaonScatter.set_xlabel("Efficiency", fontdict=font_dict)
 XiccppKaonScatter.set_ylabel("Purity", fontdict=font_dict)
-XiccppKaonScatter.set_title("Efficiency vs Purity for $\Xi_{cc}^{+}$ Daughter Bachelor Kaons", fontdict=font_dict)
+XiccppKaonScatter.set_title("Efficiency vs Purity for $\Xi_{cc}^{++}$ Daughter Bachelor Kaons", fontdict=font_dict)
 XiccppKaonScatter.grid(alpha=0.3)
 XiccppKaonScatter.legend(prop=font_prop)
 
