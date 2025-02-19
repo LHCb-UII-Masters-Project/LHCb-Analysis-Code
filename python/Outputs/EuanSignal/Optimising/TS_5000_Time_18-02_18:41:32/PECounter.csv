@@ -1,0 +1,13 @@
+cut,sig_kills,bkg_kills,sig_remains,bkg_remains,CutEfficiency,AbsEfficiency,AbsPurity
+displaced_track_cuts,0,0,2017,65081686,1.0,0.4034,3.099086110696559e-05
+lambdac_mass_limit,8,31693977,2004,857071,0.9960238568588469,0.4008,0.0023327416116171464
+lambdac_vtx_chi2_ndof,31,794549,1973,62522,0.9845309381237525,0.3946,0.03059151872238158
+lambdac_vtx_chi2_distance,36,954,1937,61568,0.9817536746071972,0.3874,0.030501535312180143
+lambdac_vtx_dira,1937,61568,0,0,0.0,0.0,
+lambdac_final_mass_cut,0,0,0,0,,0.0,
+xi_track_cuts,0,0,0,0,,0.0,
+xi_mass,0,0,0,0,,0.0,
+xi_vtx_chi2_ndof,0,0,0,0,,0.0,
+xi_vtx_chi2_distance,0,0,0,0,,0.0,
+xi_vtx_dira,0,0,0,0,,0.0,
+xi_final_mass,0,0,0,0,,0.0,
