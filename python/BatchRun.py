@@ -253,7 +253,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         for i in range(0,tot_num_files, files_per_run):
             # print(f"{i}:{i+files_per_run}")
             
-            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}", is_local=local))
+            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {velo_time}", is_local=local))
             # Runs with all arguments passed, inlcuding if to run local or on Condor
             num_range.append(f"{i}:{i+files_per_run}")
 
@@ -285,7 +285,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
         all_files_exist = True
         for numbers in num_range:
-            file_path = f"{base_path}/Tree{numbers}.root"  # Full path of one relevant file
+            file_path = f"{base_path}/Tree{numbers}Velo{velo_time}.root"  # Full path of one relevant file
 
             if os.path.exists(file_path):
                 # If repeats are successful or it existed to begin with:
@@ -315,7 +315,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         # Full output file name given here
         new_dir = f"{basedir}/Outputs/XisToLambdas/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime())
         makedirs(new_dir)
-        tree_path = f"{new_dir}/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + ".root"
+        tree_path = f"{new_dir}/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + f"_Velo_{velo_time}" + ".root"
         output_file = ROOT.TFile(tree_path, "RECREATE")
         # Writes to the output file
         output_file.cd()
@@ -343,7 +343,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         counters = defaultdict(lambda: {"sig_kills": 0, "bkg_kills": 0, "sig_remains": 0, "bkg_remains": 0})
         csv_list = []
         for numbers in num_range:
-            filename = f"{basedir}/Outputs/XisToLambdas/Counters{numbers}.csv"
+            filename = f"{basedir}/Outputs/XisToLambdas/Counters{numbers}Velo{velo_time}.csv"
             csv_list.append(filename)
             with open(filename, mode="r") as file:
                 reader = csv.DictReader(file)  # Reads CSV as a dictionary
@@ -579,6 +579,35 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
         end_time = time.time()
 
+    elif program == "EuanOptimiser":
+
+        wait_id = []
+        p_vals = []
+        num_files = 10
+        pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+        min_min_pt = 160
+        max_min_pt = 160
+        pt_interval = 70
+        for min_ipChi2_4d in np.linspace(0,7, 15):
+            for min_p in range(500, 4000, 250):
+                run_args = f"{num_files} {min_min_pt} {max_min_pt} {pt_interval} {min_p} {min_ipChi2_4d}"
+                wait_id.append(runThisScriptOnCondor(f"{basedir}/EuanSignal/SignalSelectorBatch.py", f"EuanCigOptimiser_{min_ipChi2_4d}_{str(os.getpid())[3:]}", subJobName=f"{min_p}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
+                time.sleep(1)
+                p_vals.append(str(min_p))
+
+        if local is True:
+            # Uses ret to wait if local
+            for index, ret in enumerate(wait_id):
+                ret.wait()
+                time.sleep(1)
+        else:
+            # Uses condor_wait to wait if on condor
+            for index, numbers in enumerate(p_vals):
+                subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
+                time.sleep(1)
+
+        end_time = time.time()
+
     elif program == "Test":
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
         runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run, is_local=local)
@@ -596,9 +625,10 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
     program = "XisRun"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 2
-    tot_num_files = 50
+    files_per_run = 5
+    tot_num_files = 1000
     rand_seed = None
+    velo_time = 100
 
     try:
         if program == "BsRun":
@@ -626,7 +656,7 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
             
         else:
             process_store = []
-            p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files))
+            p = Process(target = macro_batch, args = (program, comp, files_per_run, tot_num_files, "a", "b", velo_time))
             process_store.append(p)
             time.sleep(1)
 
