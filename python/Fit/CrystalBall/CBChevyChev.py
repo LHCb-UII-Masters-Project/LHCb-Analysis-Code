@@ -31,6 +31,9 @@ if args.particle == "xiccpp":
 if args.particle == "lambdac":
     particle_mass = 2.287
     x_label = "m(#Lambda_{c}^{+}) [MeV/c^{2}]"
+if args.particle == "xiccp":
+    particle_mass = 3.5189
+    x_label = "m(#Xi_{cc}^{+}) [MeV/c^{2}]"
 #-------------------------------Tree Reading---------------------------------------
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("RunParams")
@@ -44,14 +47,14 @@ root_file.Close()
 rdf = ROOT.RDataFrame(outputs) 
 rd_diag = ROOT.RDataFrame(diagnostics)
 # Convert the bs_mass branch to a Numpy array
-if args.particle == "xiccpp":
+if args.particle == "xiccpp" or args.particle == "xiccp":
     df = rd_diag.AsNumpy()["xiccpp_mass"]*0.001
     sig_array = rd_diag.AsNumpy()["xiccpp_is_signal_mass_post_selections"]
     bkg_array = rd_diag.AsNumpy()["xiccpp_is_bkg_mass_post_selections"]
     final_signal = rd_diag.AsNumpy()["xiccpp_is_signal_mass_post_selections"]*0.001
 
 elif args.particle == "lambdac":
-    df = rd_diag.AsNumpy()["lambdac_mass"]*0.001
+    df = rdf.AsNumpy()["lambdac_mass"]*0.001
     sig_array = rd_diag.AsNumpy()["lambdac_is_signal_mass_post_selections"]
     bkg_array = rd_diag.AsNumpy()["lambdac_is_bkg_mass_post_selections"]
     final_signal = rd_diag.AsNumpy()["lambdac_is_signal_mass_post_selections"]*0.001
@@ -107,7 +110,7 @@ model = ROOT.RooAddPdf("model", "Signal + Background",ROOT.RooArgSet(bkg,sig),RO
 minos_params = ROOT.RooArgSet(mu,sigma,nsig,nbkg)
 fit_result = model.fitTo(data, ROOT.RooFit.PrintLevel(-1), 
                          ROOT.RooFit.Strategy(2),
-                           ROOT.RooFit.Minimizer("Minuit",'migradimproved'),
+                           ROOT.RooFit.Minimizer("Minuit2"),
                            ROOT.RooFit.Extended(True),
                            ROOT.RooFit.Save(),
                            ROOT.RooFit.Minos(minos_params),
@@ -365,7 +368,7 @@ w.Import(run_tree)
 w.Import(outputs)
 w.Import(fit_result)
 w.Import(timing_int)
-w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE")
+w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE.root")
 w.Print()
 
 with open(f"{input_directory}/{current_time}_{origin_file_name_reduced}/PurityEfficiency.txt", "w") as file:

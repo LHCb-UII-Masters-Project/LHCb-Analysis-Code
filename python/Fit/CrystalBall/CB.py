@@ -30,6 +30,9 @@ if args.particle == "xiccpp":
 if args.particle == "lambdac":
     particle_mass = 2.287
     x_label = "m(#Lambda_{c}^{+}) [MeV/c^{2}]"
+if args.particle == "xiccp":
+    particle_mass = 3.5189
+    x_label = "m(#Xi_{cc}^{+}) [MeV/c^{2}]"
 #-------------------------------Tree Reading---------------------------------------
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("RunParams")
@@ -45,6 +48,8 @@ if args.particle == "xiccpp":
     df = rdf.AsNumpy()["xiccpp_is_signal_mass_post_selections"]*0.001
 elif args.particle == "lambdac":
     df = rdf.AsNumpy()["lambdac_is_signal_mass_post_selections"]*0.001
+if args.particle == "xiccp":
+    df = rdf.AsNumpy()["xiccpp_is_signal_mass_post_selections"]*0.001
 lower_fit_range = particle_mass - float(args.fit_range)*(variables['sigma']['value'])
 upper_fit_range = particle_mass + float(args.fit_range)*(variables['sigma']['value'])
 unbinned_data = df[(df > lower_fit_range) & (df < upper_fit_range)]
@@ -78,14 +83,14 @@ sig = ROOT.RooCrystalBall("sig", "double crystal ball", x, mu, sigma, alphaL, nL
 minos_params = ROOT.RooArgSet(mu,sigma,alphaL,alphaR,nL,nR)
 fit_result = sig.fitTo(data, ROOT.RooFit.PrintLevel(-1), 
                          ROOT.RooFit.Strategy(2),
-                           ROOT.RooFit.Minimizer("Minuit",'migradimproved'),
+                           ROOT.RooFit.Minimizer("Minuit2"),
                            ROOT.RooFit.Save(),
                            ROOT.RooFit.Minos(minos_params),
                            ROOT.RooFit.Optimize(True),
                            ROOT.RooFit.MaxCalls(5000000))
 # --------------------------- Plotting Initialisation -----------------------------------
 number_of_bins = 20
-energy_range = (upper_fit_range - lower_fit_range)/number_of_bins
+energy_range = ((upper_fit_range - lower_fit_range)/number_of_bins)*1000
 frame1 = x.frame()
 frame1.SetTitle("")
 data.plotOn(frame1,ROOT.RooFit.Name("data"),ROOT.RooFit.Binning(number_of_bins), ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
@@ -257,5 +262,5 @@ w.Import(run_tree)
 w.Import(outputs)
 w.Import(fit_result)
 w.Import(timing_int)
-w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE")
+w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE.root")
 w.Print()
