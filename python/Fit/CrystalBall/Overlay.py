@@ -42,8 +42,8 @@ directory_path = f"/home/user294/Documents/selections/python/Fit/Comparison/Over
 os.makedirs(directory_path, exist_ok=True)
 
 ListFill(args.input_files,models,data_sets,x_models)
-DataAndModels(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccp")
-Data(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
-Models(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
-Backgrounds(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
-Signals(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
+DataAndModels(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccp")
+Data(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccpp")
+Models(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccpp")
+Backgrounds(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccpp")
+Signals(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccpp")
