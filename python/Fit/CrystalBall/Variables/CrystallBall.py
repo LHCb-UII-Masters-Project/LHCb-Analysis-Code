@@ -1,23 +1,27 @@
 import ROOT
 # Assuming variables.py contains the initial guesses, mins, and maxes
+mass_dict = {
+  "xiccp":3518.9,
+  "xicp":2467.1,
+  "xiccpp"3.622}
 variables = {
     'mu': {'value': 3.622, 
-           'min': 3.6, 'max': 3.63},
+           'min': 3.56, 'max': 3.7},
     
-    'sigma': {'value': 0.00429, 
-              'min': 0.0030, 'max': 0.0060},
+    'sigma': {'value': 0.002722, 
+              'min': 0.0001, 'max': 1},
     
-    'alphaL': {'value': 2.570, 
-               'min': 1.5, 'max': 3.5},
+    'alphaL': {'value': 1.783, 
+               'min': 0.05, 'max': 3},
     
-    'alphaR': {'value': 2.501, 
-               'min': 1.5, 'max': 3.5},
+    'alphaR': {'value': 1.646, 
+               'min': 0.05, 'max': 3},
     
-    'nL': {'value': 1.132, 
-           'min': 0.5, 'max': 2},
+    'nL': {'value': 4.918, 
+           'min': 0.5, 'max': 6},
     
-    'nR': {'value': 0.5271, 
-           'min': 0.3, 'max': 1}
+    'nR': {'value': 4.888, 
+           'min': 0.5, 'max': 7}
     
 }
 
