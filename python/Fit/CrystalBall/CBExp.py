@@ -360,10 +360,13 @@ w.Import(run_tree)
 w.Import(outputs)
 w.Import(fit_result)
 w.Import(timing_int)
-w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE")
+w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE.root")
 w.Print()
 
 with open(f"{input_directory}/{current_time}_{origin_file_name_reduced}/PurityEfficiency.txt", "w") as file:
     file.write(f"Purity = {purity} +- {PurityErr}\n")
     file.write(f"Efficiency = {efficiency} +- {effErr}\n")
     file.write(f"results for {(args.fit_range)} sigma")
+
+with open(f"{input_directory}/{current_time}_{origin_file_name_reduced}/StoredVariables.py", "w") as file:
+    file.write("variables = " + repr(variables))

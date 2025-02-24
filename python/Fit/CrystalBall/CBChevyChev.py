@@ -31,6 +31,12 @@ if args.particle == "xiccpp":
 if args.particle == "lambdac":
     particle_mass = 2.287
     x_label = "m(#Lambda_{c}^{+}) [MeV/c^{2}]"
+if args.particle == "xicp":
+    particle_mass = 2.4671
+    x_label = "m(#Xi_{c}^{+}) [MeV/c^{2}]"
+if args.particle == "xiccp":
+    particle_mass = 3.5189
+    x_label = "m(#Xi_{cc}^{+}) [MeV/c^{2}]"
 #-------------------------------Tree Reading---------------------------------------
 root_file = ROOT.TFile.Open(args.input_file, "READ") 
 run_tree = root_file.Get("RunParams")
@@ -51,10 +57,21 @@ if args.particle == "xiccpp":
     final_signal = rd_diag.AsNumpy()["xiccpp_is_signal_mass_post_selections"]*0.001
 
 elif args.particle == "lambdac":
-    df = rd_diag.AsNumpy()["lambdac_mass"]*0.001
+    df = rdf.AsNumpy()["lambdac_mass"]*0.001
     sig_array = rd_diag.AsNumpy()["lambdac_is_signal_mass_post_selections"]
     bkg_array = rd_diag.AsNumpy()["lambdac_is_bkg_mass_post_selections"]
     final_signal = rd_diag.AsNumpy()["lambdac_is_signal_mass_post_selections"]*0.001
+
+elif args.particle == "xicp":
+    df = rdf.AsNumpy()["xicp_mass"]*0.001
+    sig_array = rd_diag.AsNumpy()["xicp_is_signal_mass_post_selections"]
+    bkg_array = rd_diag.AsNumpy()["xicp_is_bkg_mass_post_selections"]
+    final_signal = rd_diag.AsNumpy()["xicp_is_signal_mass_post_selections"]*0.001
+elif args.particle == "xiccp":
+    df = rd_diag.AsNumpy()["xiccp_mass"]*0.001
+    sig_array = rd_diag.AsNumpy()["xiccp_is_signal_mass_post_selections"]
+    bkg_array = rd_diag.AsNumpy()["xiccp_is_bkg_mass_post_selections"]
+    final_signal = rd_diag.AsNumpy()["xiccp_is_signal_mass_post_selections"]*0.001
 
 lower_fit_range = particle_mass - float(args.fit_range)*(variables['sigma']['value'])
 upper_fit_range = particle_mass + float(args.fit_range)*(variables['sigma']['value'])
@@ -149,7 +166,7 @@ with LHCbStyle() as lbs:
     ROOT.gStyle.SetLineScalePS(1.2)
     frame1.GetYaxis().SetTitle(f"Entries/ ({round(energy_range,4)} MeV/c^{{2}})")
     frame1.GetXaxis().SetTitle(x_label)
-    frame1.GetYaxis().SetTitleOffset(0.9)
+    frame1.GetYaxis().SetTitleOffset(1.15)
     frame1.GetXaxis().SetTitleOffset(1)
     frame1.GetYaxis().SetTitleFont(62) 
     frame1.GetXaxis().SetTitleFont(62)
@@ -365,10 +382,13 @@ w.Import(run_tree)
 w.Import(outputs)
 w.Import(fit_result)
 w.Import(timing_int)
-w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE")
+w.writeToFile(f"{input_directory}/{current_time}_{origin_file_name_reduced}/WSPACE.root")
 w.Print()
 
 with open(f"{input_directory}/{current_time}_{origin_file_name_reduced}/PurityEfficiency.txt", "w") as file:
     file.write(f"Purity = {purity} +- {PurityErr}\n")
     file.write(f"Efficiency = {efficiency} +- {effErr}\n")
     file.write(f"results for {(args.fit_range)} sigma")
+
+with open(f"{input_directory}/{current_time}_{origin_file_name_reduced}/StoredVariables.py", "w") as file:
+    file.write("variables = " + repr(variables))
