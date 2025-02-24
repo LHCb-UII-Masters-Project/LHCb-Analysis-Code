@@ -492,7 +492,7 @@ events = TChain("Events") # connects all the events into a single data set
 
 max_timing = velo_time/1000
 velo_timing[0] = velo_time
-dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym_10um{velo_time}ps"
+dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc++/sym_new_10um{velo_time}ps"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(lower):int(upper)]
 # Since list is formed in order for every run, this selects the relevant files to be run
