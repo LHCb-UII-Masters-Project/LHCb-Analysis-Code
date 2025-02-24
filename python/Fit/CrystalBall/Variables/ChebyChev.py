@@ -1,23 +1,23 @@
 import ROOT
 # Assuming variables.py contains the initial guesses, mins, and maxes
 variables = {
-    'mu': {'value': 2.287, 
-           'min': 2, 'max': 4},
+    'mu': {'value': 3.622, 
+           'min': 3.6, 'max': 3.67},
     
-    'sigma': {'value': 0.002505, 
-              'min': 0.002, 'max': 0.005},
+    'sigma': {'value': 0.006044, 
+              'min': 0.0036, 'max': 0.01},
     
-    'alphaL': {'value': 1.698, 
-               'min': 1, 'max': 3},
+    'alphaL': {'value': 2.321, 
+               'min': 0.01, 'max': 6},
     
-    'alphaR': {'value': 1.580,
-               'min': 1.0, 'max': 3},
+    'alphaR': {'value': 2.985, 
+               'min': 0.45, 'max': 5},
     
-    'nL': {'value': 6.515, 
-           'min': 1, 'max': 10},
+    'nL': {'value': 1.995, 
+           'min': 0.00001, 'max': 6},
     
-    'nR': {'value': 5.825, 
-           'min': 4, 'max': 10},
+    'nR': {'value': 0.03804, 
+           'min': 0.01, 'max': 4},
     
     'bkg_coef1': {'value':0.1
                        , 'min': -3, 'max': 3},
@@ -25,11 +25,11 @@ variables = {
     'bkg_coef2': {'value':0.1
                      , 'min': -3, 'max': 3},
     
-    'nbkg': {'value': 16692, 
-             'min': 100, 'max': 200000},
+    'nbkg': {'value': 8332, 
+             'min': 1000, 'max': 10000},
     
-    'nsig': {'value': 18235,
-              'min': 100, 'max': 200000}
+    'nsig': {'value': 1170,
+              'min': 400, 'max': 3000}
 }
 
 

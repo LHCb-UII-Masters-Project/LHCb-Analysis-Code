@@ -3,25 +3,25 @@ import ROOT
 mass_dict = {
   "xiccp":3518.9,
   "xicp":2467.1,
-  "xiccpp"3.622}
+  "xiccpp":3.622}
 variables = {
     'mu': {'value': 3.622, 
-           'min': 3.56, 'max': 3.7},
+           'min': 3.6, 'max': 3.67},
     
-    'sigma': {'value': 0.002722, 
-              'min': 0.0001, 'max': 1},
+    'sigma': {'value': 0.006044, 
+              'min': 0.0036, 'max': 0.01},
     
-    'alphaL': {'value': 1.783, 
-               'min': 0.05, 'max': 3},
+    'alphaL': {'value': 2.321, 
+               'min': 0.01, 'max': 6},
     
-    'alphaR': {'value': 1.646, 
-               'min': 0.05, 'max': 3},
+    'alphaR': {'value': 2.985, 
+               'min': 0.45, 'max': 5},
     
-    'nL': {'value': 4.918, 
-           'min': 0.5, 'max': 6},
+    'nL': {'value': 1.995, 
+           'min': 0.00001, 'max': 7},
     
-    'nR': {'value': 4.888, 
-           'min': 0.5, 'max': 7}
+    'nR': {'value': 0.03804, 
+           'min': 0.01, 'max': 4}
     
 }
 
