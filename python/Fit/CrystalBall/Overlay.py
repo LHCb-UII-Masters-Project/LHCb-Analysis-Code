@@ -18,6 +18,8 @@ from Overlay.functions import DataAndModels as DataAndModels
 from Overlay.functions import Data as Data
 from Overlay.functions import Models as Models
 from Overlay.functions import Backgrounds as Backgrounds
+from Overlay.functions import DataHist as DataHist
+from Overlay.functions import DataHistNoError as DataHistNoError
 from Overlay.functions import Signals as Signals
 
 
@@ -38,12 +40,14 @@ nsigs = []
 bkgs = []
 dummy_objects = []
 
-directory_path = f"/home/user294/Documents/selections/python/Fit/Comparison/Overlays/{timings}wide_range"
+directory_path = f"/home/user294/Documents/selections/python/Fit/Comparison/Overlays/{timings}DanFix"
 os.makedirs(directory_path, exist_ok=True)
 
 ListFill(args.input_files,models,data_sets,x_models)
-DataAndModels(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccp")
-Data(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccpp")
-Models(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccpp")
-Backgrounds(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccpp")
-Signals(x_models,models,data_sets,timings,dummy_objects,10,directory_path,"xiccpp")
+DataAndModels(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
+Data(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
+Models(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
+Backgrounds(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
+Signals(x_models,models,data_sets,timings,dummy_objects,20,directory_path,"xiccpp")
+DataHist(x_models,models,data_sets,timings,dummy_objects,30,directory_path,"xiccpp")
+DataHistNoError(x_models,models,data_sets,timings,dummy_objects,30,directory_path,"xiccpp")

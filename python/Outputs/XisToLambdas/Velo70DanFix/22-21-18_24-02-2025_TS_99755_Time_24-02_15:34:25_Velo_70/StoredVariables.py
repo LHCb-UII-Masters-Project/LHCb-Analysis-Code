@@ -1,1 +1,0 @@
-variables = {'mu': {'value': 3.622, 'min': 3.6, 'max': 3.67}, 'sigma': {'value': 0.006044, 'min': 0.0036, 'max': 0.01}, 'alphaL': {'value': 2.321, 'min': 0.01, 'max': 6}, 'alphaR': {'value': 2.985, 'min': 0.45, 'max': 5}, 'nL': {'value': 1.995, 'min': 1e-05, 'max': 7}, 'nR': {'value': 0.03804, 'min': 0.01, 'max': 4}}
