@@ -396,7 +396,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         for i in range(0,tot_num_files, files_per_run):
             # print(f"{i}:{i+files_per_run}")
             
-            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run}", is_local=local))
+            wait_id.append(runThisScriptOnCondor(scriptPath, batchJobName, subJobName=f"{i}:{i+files_per_run}", extraSetupCommands=pre_run, extraArgs=f"{i} {i+files_per_run} {velo_time}", is_local=local))
             # Runs with all arguments passed, inlcuding if to run local or on Condor
             num_range.append(f"{i}:{i+files_per_run}")
 
@@ -428,7 +428,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
         all_files_exist = True
         for numbers in num_range:
-            file_path = f"{base_path}/Tree{numbers}.root"  # Full path of one relevant file
+            file_path = f"{base_path}/Tree{numbers}Velo{velo_time}.root"  # Full path of one relevant file
 
             if os.path.exists(file_path):
                 # If repeats are successful or it existed to begin with:
@@ -458,7 +458,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         # Full output file name given here
         new_dir = f"{basedir}/Outputs/EuanSignal/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime())
         makedirs(new_dir)
-        tree_path = f"{new_dir}/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + ".root"
+        tree_path = f"{new_dir}/TS_{str(OutTree.GetEntries())}_Time_" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + f"Velo{velo_time}" + ".root"
         output_file = ROOT.TFile(tree_path, "RECREATE")
         # Writes to the output file
         output_file.cd()
@@ -486,7 +486,7 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
         counters = defaultdict(lambda: {"sig_kills": 0, "bkg_kills": 0, "sig_remains": 0, "bkg_remains": 0})
         csv_list = []
         for numbers in num_range:
-            filename = f"{basedir}/Outputs/EuanSignal/Counters{numbers}.csv"
+            filename = f"{basedir}/Outputs/EuanSignal/Counters{numbers}Velo{velo_time}.csv"
             csv_list.append(filename)
             with open(filename, mode="r") as file:
                 reader = csv.DictReader(file)  # Reads CSV as a dictionary
@@ -622,13 +622,13 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
-    program = "XisRun"
+    program = "EuanSignal"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 5
-    tot_num_files = 1000
+    files_per_run = 1
+    tot_num_files = 3
     rand_seed = None
-    velo_time = 100
+    velo_time = 200
 
     try:
         if program == "BsRun":

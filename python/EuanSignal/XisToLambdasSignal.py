@@ -308,7 +308,8 @@ def get_arg(index, default, args):  # Arg function that returns relevant argumen
 args = sys.argv
 lower = get_arg(1, 0, args)
 upper = get_arg(2, 2, args)
-rand_seed_arg = get_arg(3, int(time.time() * os.getpid()), args)  # Default random seed if not provided
+velo_time = get_arg(3, 50, args)
+rand_seed_arg = get_arg(4, int(time.time() * os.getpid()), args)  # Default random seed if not provided
 rand_seed[0] = rand_seed_arg
 max_timing = 0.05 # needs adjusting (temporary line)
 if path.dirname(path.realpath(__file__))[-6:] == "python": # Checks if path ends in "python"
@@ -489,7 +490,9 @@ from MCTools import *
 gInterpreter.AddIncludePath( f'{basedir}/../include')
 gSystem.Load( f'{basedir}/../build/libEvent.so') # add the event library to the python path
 events = TChain("Events") # connects all the events into a single data set
-dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc+/sym_10um50ps"
+max_timing = velo_time/1000
+velo_timing[0] = velo_time
+dir=f"/disk/moose/lhcb/djdt/photonics/stackNov24/masters_XiccTest/largeRun_Xicc+/sym_new_10um{velo_time}ps"
 onlyfiles = [f for f in listdir(dir) if path.isfile(path.join(dir, f))]
 onlyfiles = onlyfiles[int(lower):int(upper)]
 # Since list is formed in order for every run, this selects the relevant files to be run
@@ -689,7 +692,7 @@ for event in events: # loop through all events
 # ------------------- TreeFilling -------------------
   fill_trees()
 # ------------------- FileWriting -------------------
-file = TFile(f"{basedir}/Outputs/EuanSignal/Tree{lower}:{upper}.root", "RECREATE")
+file = TFile(f"{basedir}/Outputs/EuanSignal/Tree{lower}:{upper}Velo{velo_time}.root", "RECREATE")
 # Creates temporary tree (deleted when trees are combined)
 file.WriteObject(Outputs, "Outputs")
 file.WriteObject(RunParams, "RunParams")
@@ -698,7 +701,7 @@ file.WriteObject(RunDiagnostics, "RunDiagnostics")
 file.Close()
 # ---------------------------------------------------
 
-csv_filename = f"{basedir}/Outputs/EuanSignal/Counters{lower}:{upper}.csv"
+csv_filename = f"{basedir}/Outputs/EuanSignal/Counters{lower}:{upper}Velo{velo_time}.csv"
 df = pd.DataFrame.from_dict(counters, orient="index")
 df.reset_index(inplace=True)
 df.rename(columns={"index": "cut", "sig_kills": "sig_kills", "bkg_kills": "bkg_kills", "sig_remain": "sig_remains", "bkg_remain": "bkg_remains"}, inplace=True)
