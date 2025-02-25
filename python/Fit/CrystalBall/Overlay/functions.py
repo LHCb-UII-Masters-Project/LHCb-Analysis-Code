@@ -217,10 +217,15 @@ def Models(x_models,models,data_sets,timings,dummy_objects,bins,output_directory
     for i, (model, data) in enumerate(zip(models, data_sets)):
         nEvents = data.sumEntries()  # Total number of events for each dataset
         
-        model.plotOn(frame,
-              ROOT.RooFit.Name(f"model_{i}"),
-              ROOT.RooFit.LineColor(colors[i % len(colors)]),
-              ROOT.RooFit.LineStyle(line_styles[i % len(line_styles)]))
+        data.plotOn(frame,
+                    ROOT.RooFit.Binning(number_of_bins),
+                    ROOT.RooFit.Name(f"data_{i}"),
+                    ROOT.RooFit.Invisible(),
+                    ROOT.RooFit.MarkerStyle(20 + i))
+        model.plotOn(frame, 
+            ROOT.RooFit.Name(f"model_{i}"), ROOT.RooFit.Components("model"),
+            ROOT.RooFit.LineColor(colors[i % len(colors)]),
+            ROOT.RooFit.LineStyle(line_styles[i % len(line_styles)])) 
         
         # Add a single legend entry for both
         legend.AddEntry(frame.findObject(f"model_{i}"), f"{int(timings[i])} ps", "l")
@@ -370,7 +375,7 @@ def Backgrounds(x_models,models,data_sets,timings,dummy_objects,bins,output_dire
         model.plotOn(frame, 
             ROOT.RooFit.Name(f"model_{i}"), ROOT.RooFit.Components("bkg"),
             ROOT.RooFit.LineColor(colors[i % len(colors)]),
-            ROOT.RooFit.LineStyle(line_styles[i % len(line_styles)]))     
+            ROOT.RooFit.LineStyle(line_styles[i % len(line_styles)]))    
         
         # Create a dummy object that mimics both the data and model style.
         # You can use a TGraph or a dummy TH1F. Here’s an example with TGraph:
@@ -522,13 +527,13 @@ def DataHistNoError(x_models,models,data_sets,timings,dummy_objects,bins,output_
         legend.AddEntry(frame.findObject(f"data_{i}"), f"{int(timings[i])} ps", "L")
         frame.GetXaxis().SetLimits(frame.GetXaxis().GetXmin() - 0.001, frame.GetXaxis().GetXmax() + 0.001)
     with LHCbStyle() as lbs:
-        c = ROOT.TCanvas("rf201_composite", "rf201_composite", 800, 600)
+        c = ROOT.TCanvas("rf201_composite", "rf201_composite", 800, 1600)
         latex = ROOT.TLatex() 
         latex.SetNDC() 
         latex.SetTextSize(0.050)  
         latex.SetTextFont(62)
         ROOT.gPad.SetLeftMargin(0.15)
-        ROOT.gPad.SetLogy()  # Logarithmic scale for Y-axis
+        #ROOT.gPad.SetLogy()  # Logarithmic scale for Y-axis
         ROOT.gStyle.SetLineScalePS(1.2)
         # Set axis titles and label sizes
         frame.GetYaxis().SetTitle(f"Entries/ ({round(energy_range,3)} MeV/c^{{2}})")
