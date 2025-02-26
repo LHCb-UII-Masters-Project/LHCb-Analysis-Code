@@ -66,25 +66,25 @@ class GetVariables:
             self.signal = signal
             self.control = control
             
-            self.run2_nsig = 1
-            self.run2_nsig_error = 1
-            self.run2_efficiency = 1
-            self.run2_nbkg = 1
-            self.run2_nbkg_error = 1
+            self.run2_nsig = 1#VALUES NEED UPDATING
+            self.run2_nsig_error = 1#VALUES NEED UPDATING
+            self.run2_efficiency = 1#VALUES NEED UPDATING
+            self.run2_nbkg = 1#VALUES NEED UPDATING
+            self.run2_nbkg_error = 1#VALUES NEED UPDATING
             
-            self.acceptance_control = 1  
-            self.acceptance_control_error = 1
+            self.acceptance_control = 1  #VALUES NEED UPDATING
+            self.acceptance_control_error = 1#VALUES NEED UPDATING
 
-            self.xiccp_signal_acceptance = 1
-            self.xiccp_signal_acceptance_error = 1
-            self.lambdac_signal_acceptance = 1
-            self.lambdac_signal_acceptance_error = 1
+            self.xiccp_signal_acceptance = 1#VALUES NEED UPDATING
+            self.xiccp_signal_acceptance_error = 1#VALUES NEED UPDATING
+            self.lambdac_signal_acceptance = 1#VALUES NEED UPDATING
+            self.lambdac_signal_acceptance_error = 1#VALUES NEED UPDATING
 
-            self.Run2Luminosity = 1
-            self.Run5Luminosity = 1
+            self.Run2Luminosity = 1#VALUES NEED UPDATING
+            self.Run5Luminosity = 1#VALUES NEED UPDATING
 
-            self.BkgPerEvent = 1
-            self.BkgPerEventError = 1
+            self.BkgPerEvent = 1#VALUES NEED UPDATING
+            self.BkgPerEventError = 1#VALUES NEED UPDATING
             
             def CorrectedSignal(self):
                 return (self.signal.nsig / (self.signal.efficiency*self.xiccp_signal_acceptance))
