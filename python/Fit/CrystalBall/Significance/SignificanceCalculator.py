@@ -55,9 +55,11 @@ class GetVariables:
         self.nsig = self.w["nsig"].getVal()
         self.nsig_error_low = self.w["nsig"].getErrorLo()
         self.nsig_error_high = self.w["nsig"].getErrorHi()
+        self.nsig_error_avg = self.w["nsig"].getError()
         self.nbkg = self.w["nbkg"].getVal()
         self.nbkg_error_low = self.w["nbkg"].getErrorLo()
         self.nbkg_error_high = self.w["nbkg"].getErrorHi()
+        self.nbkg_error_avg = self.w["nbkg"].getError()
     
     class Calculate:
         def __init__(self, signal, control):
@@ -70,16 +72,22 @@ class GetVariables:
             self.run2_nbkg = 1
             self.run2_nbkg_error = 1
             
-            self.acceptance_control = 1
+            self.acceptance_control = 1  
             self.acceptance_control_error = 1
-            self.acceptance_signal = 1
-            self.acceptance_signal_error = 1
+
+            self.xiccp_signal_acceptance = 1
+            self.xiccp_signal_acceptance_error = 1
+            self.lambdac_signal_acceptance = 1
+            self.lambdac_signal_acceptance_error = 1
 
             self.Run2Luminosity = 1
             self.Run5Luminosity = 1
+
+            self.BkgPerEvent = 1
+            self.BkgPerEventError = 1
             
             def CorrectedSignal(self):
-                return (self.signal.nsig / (self.signal.efficiency*self.acceptance_signal))
+                return (self.signal.nsig / (self.signal.efficiency*self.xiccp_signal_acceptance))
             
             def CorrectedControl(self):
                 return(self.control.nsig / (self.control.efficiency*self.acceptance_control))
@@ -98,8 +106,13 @@ class GetVariables:
             
             def ScaledR(self):
                 return (self.SimulationR() * self.ControlScaleFactor() * self.LuminosityScaleFactor())
+           
+            
+
 
 if __name__ == "__main__":
     signal =  GetVariables(args.workspace_file_signal, args.efficiency_file_signal)
-    control = GetVariables(args.workspace_file_control, args.efficiency_file_control),
+    control = GetVariables(args.workspace_file_control, args.efficiency_file_control)
+    calc = Calculate(signal, control)
+    scaledR = calc.ScaledR()
 
