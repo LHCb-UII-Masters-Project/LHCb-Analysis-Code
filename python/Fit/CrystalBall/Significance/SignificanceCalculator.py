@@ -139,4 +139,4 @@ if __name__ == "__main__":
         calc = Calculate(signal, control, user="Euan")
         rvalue = calc.Run5Rlimit()
         uncert_rvalue = calc.Run5RlimitError()
-        print(f"Run 5 R Limit for Velo {time} = {rvalue} \pm {uncert_rvalue}")
+        print(f"Run 5 R Limit for Velo {time} = {rvalue:.4g} \u00B1 {uncert_rvalue:.4g}")
