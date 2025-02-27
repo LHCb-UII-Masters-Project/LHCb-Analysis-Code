@@ -12,15 +12,6 @@ import lhcbstyle
 from lhcbstyle import LHCbStyle
 from datetime import datetime
 import time
-import argparse
-
-parser = argparse.ArgumentParser(description='Open multiple ROOT files and process data.')
-parser.add_argument('workspace_file_signal', type=str, help='Paths to the signal workspace')
-parser.add_argument('efficiency_file_signal', type=str, help='Paths to the signal efficiencyPurity,txt file')
-parser.add_argument('workspace_file_control', type=str, help='Paths to the control workspace')
-parser.add_argument('efficiency_file_control', type=str, help='Paths to the control efficiencyPurity,txt file')
-args = parser.parse_args()
-input_directory = os.path.dirname(args.workspace_file_signal)
 
 def ExtractEff(file_path):
     with open(file_path, 'r') as file:
@@ -68,7 +59,8 @@ class Calculate:
         
         self.run2_nsig = 121+153+188
         self.run2_nsig_error = np.sqrt(19**2 + 22**2 + 24**2)
-        self.run2_efficiency = 1#VALUES NEED UPDATING
+        self.run2_efficiency = 1.733 * (10**(-4))
+        self.run2_efficiency_error = 0.038 * (10**(-4))
         self.run2_nbkg = 1#VALUES NEED UPDATING
         self.run2_nbkg_error = 1#VALUES NEED UPDATING
         
@@ -78,47 +70,65 @@ class Calculate:
         if user == "Euan":
             self.xiccp_signal_acceptance =  0.09174444698877948
             self.xiccp_signal_acceptance_error = 0.00038853854575107705
+            self.run2_efficiency_ratio = (1.17 * 1.7 + 1.91 * 1.7  + 1.99 * 2.2) / (1.17 + 1.91 + 1.99)
+            self.run2_efficiency_ratio_error = np.sqrt(((1.7**2)*(0.11**2) + (1.7**2)*(0.11**2) + (2.2**2)*(0.12**2))/(2*(1.7**2)+2.2**2))
+            self.run2_r_limit = 1
+            self.run2_r_limit_error = 0.1 # If this exists?
         else:
             self.xiccp_signal_acceptance = 0.08432470964835002
             self.xiccp_signal_acceptance_error = 0.0003583034556616932
+            self.run2_efficiency_ratio = 1
+            self.run2_r_limit = 1
         # not given and not used
         # self.lambdac_signal_acceptance = 1
         # self.lambdac_signal_acceptance_error = 1
 
         self.Run2Luminosity = 1.7+1.7+2.2
-        self.Run5Luminosity = 1#VALUES NEED UPDATING
+        self.Run5Luminosity = 300 # Check with Dan
 
         # not given and not used
-        # self.BkgPerEvent = 1
-        # self.BkgPerEventError = 1
+        self.BkgPvPerEvent = 39 # Guess
+        self.BkgPVPerEventError = 39 # Guess
         
-        def CorrectedSignal(self):
-            return (self.signal.nsig / (self.signal.efficiency*self.xiccp_signal_acceptance))
-        
-        def CorrectedControl(self):
-            return(self.control.nsig / (self.control.efficiency*self.acceptance_control))
-        
-        def CorrectedRun2(self):
-            return(self.run2_nsig / self.run2_efficiency)
+    def CorrectedSignal(self):
+        return (self.signal.nsig / (self.signal.efficiency*self.xiccp_signal_acceptance))
+    
+    def CorrectedControl(self):
+        return(self.control.nsig / (self.control.efficiency*self.acceptance_control))
+    
+    def CorrectedRun2(self):
+        return(self.run2_nsig / self.run2_efficiency)
 
-        def LuminosityScaleFactor(self):
-            return (self.Run5Luminosity/ self.Run2Luminosity)
+    def LuminosityScaleFactor(self):
+        return (self.Run5Luminosity/ self.Run2Luminosity)
 
-        def ControlScaleFactor(self):
-            return (self.CorrectedControl() / self.CorrectedRun2())
-        
-        def SimulationR(self):
-            return (self.CorrectedSignal() / self.CorrectedControl())
-        
-        def ScaledR(self):
-            return (self.SimulationR() * self.ControlScaleFactor() * self.LuminosityScaleFactor())
-           
-            
+    def ControlScaleFactor(self):
+        return (self.CorrectedControl() / self.CorrectedRun2())
+    
+    def SimulationR(self):
+        return (self.CorrectedSignal() / self.CorrectedControl())
+    
+    def ScaledR(self):
+        return (self.SimulationR() * self.ControlScaleFactor() * self.LuminosityScaleFactor())
+
+    def Alpha(self):
+        return (self.ScaledR() / self.signal.nsig)
+    
+    # 27/2/25
+
+    def Run5EffRatio(self):
+        return (self.signal.efficiency / self.control.efficiency)
+    
+    def Run5Rlimit(self):
+        return (self.run2_r_limit / np.sqrt(self.Run5EffRatio() / self.run2_efficiency_ratio))
 
 
 if __name__ == "__main__":
-    signal =  GetVariables(args.workspace_file_signal, args.efficiency_file_signal)
-    control = GetVariables(args.workspace_file_control, args.efficiency_file_control)
-    calc = Calculate(signal, control, "Euan")
-    scaledR = calc.ScaledR()
 
+    velo_timings = [30,50,70,100,200]
+    for time in velo_timings:
+        signal =  GetVariables(f"/home/user293/Documents/selections/python/Outputs/EuanSignal/Velo{time}/Xi5Sigma/WSPACE.root" , f"/home/user293/Documents/selections/python/Outputs/EuanSignal/Velo{time}/Xi5Sigma/PurityEfficiency.txt")
+        control = GetVariables(f"/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo{time}DanFix/xiccpp_5_sigma/WSPACE.root", f"/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo200DanFix/xiccpp_5_sigma/PurityEfficiency.txt")
+        calc = Calculate(signal, control, user="Euan")
+        rvalue = calc.Run5Rlimit()
+        print(f"Run 5 R Limit for Velo {time} = {rvalue}")
