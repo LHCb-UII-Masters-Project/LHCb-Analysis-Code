@@ -61,51 +61,57 @@ class GetVariables:
         self.nbkg_error_high = self.w["nbkg"].getErrorHi()
         self.nbkg_error_avg = self.w["nbkg"].getError()
     
-    class Calculate:
-        def __init__(self, signal, control):
-            self.signal = signal
-            self.control = control
-            
-            self.run2_nsig = 1#VALUES NEED UPDATING
-            self.run2_nsig_error = 1#VALUES NEED UPDATING
-            self.run2_efficiency = 1#VALUES NEED UPDATING
-            self.run2_nbkg = 1#VALUES NEED UPDATING
-            self.run2_nbkg_error = 1#VALUES NEED UPDATING
-            
-            self.acceptance_control = 1  #VALUES NEED UPDATING
-            self.acceptance_control_error = 1#VALUES NEED UPDATING
+class Calculate:
+    def __init__(self, signal, control, user):
+        self.signal = signal
+        self.control = control
+        
+        self.run2_nsig = 121+153+188
+        self.run2_nsig_error = np.sqrt(19**2 + 22**2 + 24**2)
+        self.run2_efficiency = 1#VALUES NEED UPDATING
+        self.run2_nbkg = 1#VALUES NEED UPDATING
+        self.run2_nbkg_error = 1#VALUES NEED UPDATING
+        
+        self.acceptance_control = 0.08888655271274595
+        self.acceptance_control_error = 0.000377767084151423
 
-            self.xiccp_signal_acceptance = 1#VALUES NEED UPDATING
-            self.xiccp_signal_acceptance_error = 1#VALUES NEED UPDATING
-            self.lambdac_signal_acceptance = 1#VALUES NEED UPDATING
-            self.lambdac_signal_acceptance_error = 1#VALUES NEED UPDATING
+        if user == "Euan":
+            self.xiccp_signal_acceptance =  0.09174444698877948
+            self.xiccp_signal_acceptance_error = 0.00038853854575107705
+        else:
+            self.xiccp_signal_acceptance = 0.08432470964835002
+            self.xiccp_signal_acceptance_error = 0.0003583034556616932
+        # not given and not used
+        # self.lambdac_signal_acceptance = 1
+        # self.lambdac_signal_acceptance_error = 1
 
-            self.Run2Luminosity = 1#VALUES NEED UPDATING
-            self.Run5Luminosity = 1#VALUES NEED UPDATING
+        self.Run2Luminosity = 1.7+1.7+2.2
+        self.Run5Luminosity = 1#VALUES NEED UPDATING
 
-            self.BkgPerEvent = 1#VALUES NEED UPDATING
-            self.BkgPerEventError = 1#VALUES NEED UPDATING
-            
-            def CorrectedSignal(self):
-                return (self.signal.nsig / (self.signal.efficiency*self.xiccp_signal_acceptance))
-            
-            def CorrectedControl(self):
-                return(self.control.nsig / (self.control.efficiency*self.acceptance_control))
-            
-            def CorrectedRun2(self):
-                return(self.run2_nsig / self.run2_efficiency)
+        # not given and not used
+        # self.BkgPerEvent = 1
+        # self.BkgPerEventError = 1
+        
+        def CorrectedSignal(self):
+            return (self.signal.nsig / (self.signal.efficiency*self.xiccp_signal_acceptance))
+        
+        def CorrectedControl(self):
+            return(self.control.nsig / (self.control.efficiency*self.acceptance_control))
+        
+        def CorrectedRun2(self):
+            return(self.run2_nsig / self.run2_efficiency)
 
-            def LuminosityScaleFactor(self):
-                return (self.Run5Luminosity/ self.Run2Luminosity)
+        def LuminosityScaleFactor(self):
+            return (self.Run5Luminosity/ self.Run2Luminosity)
 
-            def ControlScaleFactor(self):
-                return (self.CorrectedControl() / self.CorrectedRun2())
-            
-            def SimulationR(self):
-                return (self.CorrectedSignal() / self.CorrectedControl())
-            
-            def ScaledR(self):
-                return (self.SimulationR() * self.ControlScaleFactor() * self.LuminosityScaleFactor())
+        def ControlScaleFactor(self):
+            return (self.CorrectedControl() / self.CorrectedRun2())
+        
+        def SimulationR(self):
+            return (self.CorrectedSignal() / self.CorrectedControl())
+        
+        def ScaledR(self):
+            return (self.SimulationR() * self.ControlScaleFactor() * self.LuminosityScaleFactor())
            
             
 
@@ -113,6 +119,6 @@ class GetVariables:
 if __name__ == "__main__":
     signal =  GetVariables(args.workspace_file_signal, args.efficiency_file_signal)
     control = GetVariables(args.workspace_file_control, args.efficiency_file_control)
-    calc = Calculate(signal, control)
+    calc = Calculate(signal, control, "Euan")
     scaledR = calc.ScaledR()
 
