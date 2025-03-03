@@ -64,16 +64,22 @@ class Calculate:
         self.acceptance_signal_error = 0.0003583034556616932
         
         self.run2_efficiency_ratio = 1.167
-        self.run2_efficiency_ratio_error = 0.114           
+        self.run2_efficiency_ratio_error = 0.114        
        
-        self.run2_r_limit = 5
+        self.run2_r_limit = 0.035*5
+
+        self.Run2Luminosity = 1.7+1.7+2.2
+        self.Run5Luminosity = 300 # Check with Dan
 
     def Run5EffRatio(self):
         return ((self.control.efficiency*self.acceptance_control)/ (self.signal.efficiency*self.acceptance_signal))
         
+    def LuminosityScale(self):
+        return (self.Run5Luminosity/self.Run2Luminosity)
+        
     def Run5Rlimit(self):
-        return (self.run2_r_limit * np.sqrt(self.Run5EffRatio() / self.run2_efficiency_ratio))
-    
+        return ((self.run2_r_limit * np.sqrt(self.Run5EffRatio() / self.run2_efficiency_ratio))/np.sqrt(self.LuminosityScale()))
+
     def Run5RlimitError(self):
         # R = (AB/CDE)
         A = self.control.efficiency
@@ -90,19 +96,86 @@ class Calculate:
         denominator = C*D*E
         numeratorErr = np.sqrt( Aerr**2*(B)**2 + Berr**2*(A)**2)
         denominatorErr = np.sqrt( Cerr**2*(D*E)**2 + Derr**2*(C*E)**2 + Eerr**2*(C*D)**2)
-        finalErr = np.sqrt( numeratorErr**2*(1/numerator)**2 + denominatorErr**2*(numerator/(denominator)**2)**2)
+        finalErr = np.sqrt( numeratorErr**2*(1/numerator)**2 + denominatorErr**2*(numerator/(denominator)**2)**2)/np.sqrt(self.LuminosityScale())
         return finalErr
 
 
 
 if __name__ == "__main__":
 
-    velo_timings = [30,50,70,100,200]
+    velo_timings = [30,50,70,100]
+    rvalues = []
+    rerrors = []
     for time in velo_timings:
         signal =  GetVariables(f"/home/user294/Documents/selections/python/Outputs/XisToXis/Velo{time}DanFix/xiccp_5_sigma/WSPACE.root" , f"/home/user294/Documents/selections/python/Outputs/XisToXis/Velo{time}DanFix/xiccp_5_sigma/PurityEfficiency.txt")
         control = GetVariables(f"/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo{time}DanFix/xiccpp_5_sigma/WSPACE.root", f"/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo{time}DanFix/xiccpp_5_sigma/PurityEfficiency.txt")
         calc = Calculate(signal, control)
         rvalue = calc.Run5Rlimit()
         error = calc.Run5RlimitError()
+        rvalues.append(rvalue)
+        rerrors.append(error)
         print(f"Run 5 R Limit for Velo {time} = {rvalue:.4g} \u00B1 {error:.4g}")
 
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D  # Import Line2D for custom legend handles
+import seaborn as sns
+
+rvalues.append(0.175)
+rerrors.append(0)
+
+# Example data (replace with actual values)
+velo_timings = ["30 ps", "50 ps", "70 ps", "100 ps", "Run 2"]  # Y-axis categories
+rvalues = np.array(rvalues, dtype=float)  # Deviation from theoretical R
+rerrors = np.array(rerrors, dtype=float)  # Confidence intervals
+theoretical_R = 0.04  # Reference value for theoretical
+
+# Set Seaborn style
+sns.set(style="ticks")
+
+# Create figure and axis
+fig, ax = plt.subplots(figsize=(7, 5))
+
+# Define y positions for categorical data
+y_positions = np.arange(len(velo_timings))
+
+# Define bar left/right deviations from the theoretical R
+bar_lefts = np.full_like(rvalues, theoretical_R)  # Start all bars from x=0.04
+bar_widths = rvalues - theoretical_R  # Deviation from theoretical R
+
+# Define colors (blue for R5, red for R2 sensitivity)
+colors = ['#4682B4', '#4682B4', '#4682B4', '#4682B4', '#B22222']
+
+# Add horizontal bars (Waterfall effect)
+bars = ax.barh(y_positions, bar_widths, height=0.6, alpha=1, color=colors, left=bar_lefts, label="Predicted Sensitivity")
+
+# Add error bars extending from the bar ends
+ax.errorbar(rvalues, y_positions, xerr=rerrors, fmt='o', color='black', 
+            elinewidth=1, capsize=3, capthick=1, ecolor='black', label="Predicted Sensitivity")
+
+# Add reference vertical line for theoretical R
+ax.axvline(x=theoretical_R, color='black', linestyle='-', linewidth=3, label="Theoretical R")
+
+# Set labels
+ax.set_ylabel("Timings", fontsize=16, fontweight='bold')
+ax.set_xlabel("R", fontsize=16, fontweight='bold')
+
+# Set y-axis ticks to categorical labels
+ax.set_yticks(y_positions)
+ax.set_yticklabels(velo_timings, fontsize=14)
+
+# Customize grid and limits
+ax.set_xlim(0, 0.18)
+ax.minorticks_on()
+ax.tick_params(axis='both', which='major', labelsize=14, width=1, direction='in', length=10)
+ax.tick_params(axis='both', which='minor', width=1, direction='in', length=5)
+
+# Add legend
+line_handle = Line2D([0], [0], color='black', linewidth=3)  # Theoretical R
+ax.legend([line_handle, bars[0], bars[4]], ['Theoretical R', 'R5 Sensitivity (Predicted)', 'R2 Sensitivity (95% CI)'],
+          loc='upper left', fontsize=12, frameon=False)
+
+# Save and show the plot
+plt.tight_layout()
+plt.savefig("/home/user294/Documents/selections/python/Fit/CrystalBall/Significance/waterfall_vertical.pdf", format='pdf')
+plt.show()
