@@ -315,7 +315,7 @@ def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, num
     max_significance = max(significances) * 1.1  # Slightly higher than max value
 
     # Define histogram after computing min and max
-    hist = TH1D("significance_hist", "Significance Distribution", 20, min_significance, max_significance)
+    hist = TH1D("Legend", f"Significance Distribution for Velo {velo_time}", 20, min_significance, max_significance)
 
     # Second loop to fill the histogram
     for significance in significances:
@@ -325,9 +325,8 @@ def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, num
     canvas = TCanvas("canvas", "Significance Histogram", 800, 600)
     hist.Draw()
     basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
-    makedirs(f"{basedir}/Outputs/ToyPlots/Velo{velo_time}")
-    canvas.SaveAs(f"{basedir}/Outputs/ToyPlots/Velo{velo_time}/Significance.pdf")
-
+    makedirs(f"{basedir}/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}", exist_ok = True)
+    canvas.SaveAs(f"{basedir}/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}/Significance.pdf")
 
 
 
@@ -364,5 +363,5 @@ if __name__ == "__main__":
     signal_toy.Fit_ResetLimit("nbkg", 100,20000)
     signal_toy.Fit_ResetLimit("nsig",100,20000)
     signal_toy.Fit_Visualise("xiccp",velo_time,30)
-    MeanSignificanceSignal(control_workspace_file,f_value,variables,velo_time,number_of_models=5)
+    MeanSignificanceSignal(control_workspace_file,f_value,variables,velo_time,number_of_models=1000)
 
