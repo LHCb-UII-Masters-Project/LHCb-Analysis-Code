@@ -30,10 +30,36 @@ def MakeLabels(target_particle):
         x_label = "m(#Xi_{cc}^{+}) [GeV/c^{2}]"
     return x_label
 
-            
+def ExtractEff(file_path):
+    with open(file_path, 'r') as file:
+        content = file.read()
+
+    # Regex pattern to match floating point numbers (including scientific notation)
+    pattern = (
+        r"Efficiency\s*=\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s*\+-\s*"
+        r"([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)"
+    )
+    match = re.search(pattern, content)
+    if match:
+        efficiency = float(match.group(1))
+        error = float(match.group(2))
+        return efficiency, error
+    else:
+        raise ValueError("Efficiency data not found in the file.") 
+
+class VariableStore:
+    def __init__(self, control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file):
+        self.control_file = ROOT.TFile(control_workspace_file)
+        self.control_w = self.control_file.Get("w")
+        self.control_model = self.control_w["model"]
+       
+        self.control_efficiency, self.control_efficiency_error = ExtractEff(control_efficiency_purity_file)
+        self.signal_efficiency, self.signal_efficiency_error = ExtractEff(signal_efficiency_purity_file)
+      
 
 class Toy:
-    def __init__(self, workspace_file,f_value):
+    def __init__(self, workspace_file,f_value,VariableStore=None):
+        self.variables = VariableStore
         self.file = ROOT.TFile(workspace_file)
         self.w = self.file.Get("w")
         self.model = self.w["model"]
@@ -41,13 +67,28 @@ class Toy:
         self.run_diagnostics = self.w["RunDiagnostics"]
         self.run_params = self.w["RunParams"]
         self.outputs = self.w["Outputs"]
-        self.f = f_value
-        self.generated_data = None
         self.x = self.w.var("x")
 
         self.original_nbkg = self.model.getVariables().find("nbkg").getVal()
         self.original_nsig = self.model.getVariables().find("nsig").getVal()
+        
+        self.f = f_value
+        self.R = 0.04
+        self.generated_data = None
     
+    def ScaleSignal(self):
+        # to run control mode, simpily dont use 
+        self.control_signal = self.variables.control_model.getVariables().find("nsig")
+        control_signal_val = self.control_signal.getVal()
+        scaled_signal = self.R*control_signal_val*(self.variables.signal_efficiency/self.variables.control_efficiency)
+        signal_eff_err_prop = (self.variables.signal_efficiency_error/self.variables.signal_efficiency)**2
+        control_eff_err_prop = (self.variables.control_efficiency_error/self.variables.control_efficiency)**2
+        control_signal_err_prop = (self.control_signal.getError()/self.control_signal.getVal())**2
+        scaled_signal_error = scaled_signal*np.sqrt(signal_eff_err_prop + control_eff_err_prop + control_signal_err_prop)
+        self.model.getVariables().find("nsig").setVal(scaled_signal)
+        self.model.getVariables().find("nsig").setError(scaled_signal_error)
+        self.original_nsig = scaled_signal
+
     def FluctuateBackground(self):
         SeedChange()
         variable_for_fluctuation = self.model.getVariables().find("nbkg")
@@ -65,6 +106,7 @@ class Toy:
         self.FluctuateBackground()
     
     def ScaleBackground(self):
+         self.original_nbkg = self.model.getVariables().find("nbkg").getVal()*self.f
          self.model.getVariables().find("nbkg").setVal( self.model.getVariables().find("nbkg").getVal()*self.f)
     
     def GenerateModel(self):
@@ -230,11 +272,27 @@ class Toy:
             # Save as PDF
             c.SaveAs("/home/user294/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
 
-def MeanSignificance(workspace_file,f_value,number_of_models=5):
+def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
     significances = []
     significance_errors = []
     for i in range(number_of_models):
         toy = Toy(workspace_file, f_value)
+        toy.ScaleBackground()
+        toy.FluctuateYields()
+        toy.GenerateModel()
+        #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
+        #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
+        toy.Fit_ResetLimit("nbkg", 100,8000)
+        toy.Fit_ResetLimit("nsig",100,8000)
+        significance, significance_error = toy.Fit_GetSignificance()
+        significances.append(significance)
+        significance_errors.append(significance_error)
+
+def MeanSignificanceSignal(workspace_file,f_value,variables,number_of_models=5):
+    significances = []
+    significance_errors = []
+    for i in range(number_of_models):
+        toy = Toy(workspace_file, f_value,variables)
         toy.ScaleBackground()
         toy.FluctuateYields()
         toy.GenerateModel()
@@ -265,15 +323,30 @@ def MeanSignificance(workspace_file,f_value,number_of_models=5):
 
 
 if __name__ == "__main__":
-    workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
-    f_value = 2
-    print(MeanSignificance(workspace_file,f_value,number_of_models=5))
+    signal_workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/WSPACE.root"
+    signal_efficiency_purity_file = "/home/user294/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/PurityEfficiency.txt"
+    control_efficiency_purity_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
+    control_workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
 
-    toy = Toy(workspace_file, f_value)
-    toy.ScaleBackground()
-    toy.FluctuateYields()
-    toy.GenerateModel()
+    f_value = 2.3074
+    #print(MeanSignificance(workspace_file,f_value,number_of_models=5))
 
-    toy.Fit_ResetLimit("nbkg", 100,8000)
-    toy.Fit_ResetLimit("nsig",100,8000)
-    toy.Fit_Visualise("xiccpp",50,30)
+    #control_toy = Toy(control_workspace_file, f_value)
+    #control_toy.ScaleBackground()
+    ##control_toy.FluctuateYields()
+    #control_toy.GenerateModel()
+    #control_toy.Fit_ResetLimit("nbkg", 100,10000)
+    #control_toy.Fit_ResetLimit("nsig",100,10000)
+   #control_toy.Fit_Visualise("xiccpp",50,30)
+
+    variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
+    signal_toy = Toy(signal_workspace_file, f_value, variables)
+    signal_toy.ScaleSignal()
+    signal_toy.ScaleBackground()
+    signal_toy.FluctuateYields()
+    signal_toy.GenerateModel()
+    signal_toy.Fit_ResetLimit("nbkg", 100,20000)
+    signal_toy.Fit_ResetLimit("nsig",100,20000)
+    signal_toy.Fit_Visualise("xiccp",50,30)
+    print(MeanSignificanceSignal(signal_workspace_file,f_value,variables,number_of_models=5))
+
