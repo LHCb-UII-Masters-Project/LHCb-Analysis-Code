@@ -1,4 +1,5 @@
 import ROOT
+import re
 from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile, gInterpreter, gSystem, RooMinimizer
 from math import *
 import sys
@@ -29,6 +30,8 @@ def MakeLabels(target_particle):
         x_label = "m(#Xi_{cc}^{+}) [GeV/c^{2}]"
     return x_label
 
+            
+
 class Toy:
     def __init__(self, workspace_file,f_value):
         self.file = ROOT.TFile(workspace_file)
@@ -42,15 +45,24 @@ class Toy:
         self.generated_data = None
         self.x = self.w.var("x")
 
-    def Fluctuate(self, variable):
-        variable_for_fluctuation = self.model.getVariables().find(variable)
+        self.original_nbkg = self.model.getVariables().find("nbkg").getVal()
+        self.original_nsig = self.model.getVariables().find("nsig").getVal()
+    
+    def FluctuateBackground(self):
         SeedChange()
-        fluctuated_variable = ROOT.gRandom.Poisson(variable_for_fluctuation.getVal())
+        variable_for_fluctuation = self.model.getVariables().find("nbkg")
+        fluctuated_variable = ROOT.gRandom.Poisson(self.original_nbkg)
+        variable_for_fluctuation.setVal(fluctuated_variable)
+    
+    def FluctuateSignal(self):
+        SeedChange()
+        variable_for_fluctuation = self.model.getVariables().find("nsig")
+        fluctuated_variable = ROOT.gRandom.Poisson(self.original_nsig)
         variable_for_fluctuation.setVal(fluctuated_variable)
     
     def FluctuateYields(self):
-        self.Fluctuate("nsig")
-        self.Fluctuate("nbkg")
+        self.FluctuateSignal()
+        self.FluctuateBackground()
     
     def ScaleBackground(self):
          self.model.getVariables().find("nbkg").setVal( self.model.getVariables().find("nbkg").getVal()*self.f)
@@ -219,14 +231,13 @@ class Toy:
             c.SaveAs("/home/user294/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
 
 def MeanSignificance(workspace_file,f_value,number_of_models=5):
-    n_points = int(self.model.getVariables().find("nsig").getVal() + self.model.getVariables().find("nbkg").getVal()) 
     significances = []
     significance_errors = []
     for i in range(number_of_models):
         toy = Toy(workspace_file, f_value)
-        toy.FluctuateYields()
         toy.ScaleBackground()
-        toy.GenerateModel(n_points)
+        toy.FluctuateYields()
+        toy.GenerateModel()
         #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
         #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
         toy.Fit_ResetLimit("nbkg", 100,8000)
@@ -256,7 +267,7 @@ def MeanSignificance(workspace_file,f_value,number_of_models=5):
 if __name__ == "__main__":
     workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
     f_value = 2
-    #print(MeanSignificance(workspace_file,f_value,10000,number_of_models=5))
+    print(MeanSignificance(workspace_file,f_value,number_of_models=5))
 
     toy = Toy(workspace_file, f_value)
     toy.ScaleBackground()
