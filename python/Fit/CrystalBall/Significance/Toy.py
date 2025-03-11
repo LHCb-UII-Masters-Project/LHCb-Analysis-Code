@@ -172,6 +172,7 @@ class Toy:
             print(f"   Error (Symmetric): {param.getError()}")
             print(f"   Error (MINOS Lower): {param.getAsymErrorLo()}")
             print(f"   Error (MINOS Upper): {param.getAsymErrorHi()}")
+        fit_result.Print()
         frame1 = self.x.frame()
         frame1.SetTitle("")
         self.generated_data.plotOn(frame1, ROOT.RooFit.Name("data"), ROOT.RooFit.Binning(number_of_bins), ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
@@ -270,7 +271,7 @@ class Toy:
             c.Draw()
 
             # Save as PDF
-            c.SaveAs("/home/user293/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
+            c.SaveAs("/home/user294/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
 
 def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
     significances = []
@@ -279,7 +280,7 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
         toy = Toy(workspace_file, f_value)
         toy.ScaleBackground()
         toy.FluctuateYields()
-        toy.GenerateModel(n_points)
+        toy.GenerateModel()
         #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
         #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
         toy.Fit_ResetLimit("nbkg", 100,8000)
@@ -293,13 +294,12 @@ def MeanSignificanceSignal(workspace_file,f_value,variables,number_of_models=5):
     significance_errors = []
     for i in range(number_of_models):
         toy = Toy(workspace_file, f_value,variables)
+        toy.ScaleSignal()
         toy.ScaleBackground()
         toy.FluctuateYields()
         toy.GenerateModel()
-        #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
-        #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
-        toy.Fit_ResetLimit("nbkg", 100,8000)
-        toy.Fit_ResetLimit("nsig",100,8000)
+        toy.Fit_ResetLimit("nbkg", 100,20000)
+        toy.Fit_ResetLimit("nsig",1,20000)
         significance, significance_error = toy.Fit_GetSignificance()
         significances.append(significance)
         significance_errors.append(significance_error)
@@ -323,34 +323,31 @@ def MeanSignificanceSignal(workspace_file,f_value,variables,number_of_models=5):
 
 
 if __name__ == "__main__":
-    signal_workspace_file = "/home/user293/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/WSPACE.root"
-    signal_efficiency_purity_file = "/home/user293/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/PurityEfficiency.txt"
-    control_efficiency_purity_file = "/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
-    control_workspace_file = "/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
+    signal_workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/WSPACE.root"
+    signal_efficiency_purity_file = "/home/user294/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/PurityEfficiency.txt"
+    control_efficiency_purity_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
+    control_workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
 
     velo_time = 50
     f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
-    # In case of bad results, break glass here ↓↓↓
-    # f_values = {30: 2.3074, 50: 2.3074, 70: 2.3074, 100: 2.3074, 200: 2.3074}
     f_value = f_values[velo_time]
-    #print(MeanSignificance(workspace_file,f_value,number_of_models=5))
 
     #control_toy = Toy(control_workspace_file, f_value)
     #control_toy.ScaleBackground()
-    ##control_toy.FluctuateYields()
+    #control_toy.FluctuateYields()
     #control_toy.GenerateModel()
-    #control_toy.Fit_ResetLimit("nbkg", 100,10000)
-    #control_toy.Fit_ResetLimit("nsig",100,10000)
-   #control_toy.Fit_Visualise("xiccpp",50,30)
+   # control_toy.Fit_ResetLimit("nbkg", 100,10000)
+   # control_toy.Fit_ResetLimit("nsig",100,10000)
+   # control_toy.Fit_Visualise("xiccpp",50,30)
 
     variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
-    signal_toy = Toy(signal_workspace_file, f_value, variables)
-    signal_toy.ScaleSignal()
-    signal_toy.ScaleBackground()
-    signal_toy.FluctuateYields()
-    signal_toy.GenerateModel()
-    signal_toy.Fit_ResetLimit("nbkg", 100,20000)
-    signal_toy.Fit_ResetLimit("nsig",100,20000)
-    signal_toy.Fit_Visualise("xiccp",velo_time,30)
-    print(MeanSignificanceSignal(signal_workspace_file,f_value,variables,number_of_models=5))
+   # signal_toy = Toy(signal_workspace_file, f_value, variables)
+    #signal_toy.ScaleSignal()
+    #signal_toy.ScaleBackground()
+    #signal_toy.FluctuateYields()
+    #signal_toy.GenerateModel()
+    #signal_toy.Fit_ResetLimit("nbkg", 100,20000)
+    #signal_toy.Fit_ResetLimit("nsig",1,20000)
+    #signal_toy.Fit_Visualise("xiccp",velo_time,30)
+    MeanSignificanceSignal(signal_workspace_file,f_value,variables,number_of_models=10)
 

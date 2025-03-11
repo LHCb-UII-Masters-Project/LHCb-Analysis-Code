@@ -196,8 +196,9 @@ def Data(x_models,models,data_sets,timings,dummy_objects,bins,output_directory,t
 
 def Models(x_models,models,data_sets,timings,dummy_objects,bins,output_directory,target_particle):
     x_label = MakeLabels(target_particle)
-    colors = [ROOT.kBlue, ROOT.kRed, ROOT.kMagenta, ROOT.kGreen+2, ROOT.kOrange]
-    line_styles = [ROOT.kSolid, ROOT.kDotted, ROOT.kDashed, ROOT.kSolid, ROOT.kDashed]
+    colors  = [ROOT.kBlue, ROOT.kRed, ROOT.kBlack+5, ROOT.kBlack, ROOT.kOrange-3]
+
+    line_styles = [ROOT.kSolid, ROOT.kDashed, ROOT.kDotted, ROOT.kSolid, ROOT.kDashed]
     # Create a frame to plot the models
     frame = x_models[0].frame()
     upper_fit_range = x_models[0].getMax()
@@ -225,7 +226,7 @@ def Models(x_models,models,data_sets,timings,dummy_objects,bins,output_directory
         model.plotOn(frame, 
             ROOT.RooFit.Name(f"model_{i}"), ROOT.RooFit.Components("model"),
             ROOT.RooFit.LineColor(colors[i % len(colors)]),
-            ROOT.RooFit.LineStyle(line_styles[i % len(line_styles)])) 
+            ROOT.RooFit.LineStyle(line_styles[i % len(line_styles)]),ROOT.RooFit.LineWidth(5)) 
         
         # Add a single legend entry for both
         legend.AddEntry(frame.findObject(f"model_{i}"), f"{int(timings[i])} ps", "l")
