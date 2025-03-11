@@ -270,7 +270,7 @@ class Toy:
             c.Draw()
 
             # Save as PDF
-            c.SaveAs("/home/user294/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
+            c.SaveAs("/home/user293/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
 
 def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
     significances = []
@@ -279,7 +279,7 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
         toy = Toy(workspace_file, f_value)
         toy.ScaleBackground()
         toy.FluctuateYields()
-        toy.GenerateModel()
+        toy.GenerateModel(n_points)
         #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
         #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
         toy.Fit_ResetLimit("nbkg", 100,8000)
