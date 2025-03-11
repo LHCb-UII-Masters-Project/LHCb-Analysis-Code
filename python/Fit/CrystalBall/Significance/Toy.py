@@ -1,0 +1,268 @@
+import ROOT
+from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile, gInterpreter, gSystem, RooMinimizer
+from math import *
+import sys
+import numpy as np
+from os import path, listdir
+import os
+from array import array
+import ctypes
+import lhcbstyle
+from lhcbstyle import LHCbStyle
+from datetime import datetime
+import time
+import argparse
+import uuid
+
+def SeedChange():
+    seed = abs(uuid.uuid4().int) % (2**32)
+    ROOT.gRandom.SetSeed(seed)
+
+def MakeLabels(target_particle):
+    if target_particle == "xiccpp":
+         x_label = "m(#Xi_{cc}^{++}) [GeV/c^{2}]"
+    if target_particle == "lambdac":
+        x_label = "m(#Lambda_{c}^{+}) [GeV/c^{2}]"
+    if target_particle == "xicp":
+        x_label = "m(#Xi_{c}^{+}) [GeV/c^{2}]"
+    if target_particle == "xiccp":
+        x_label = "m(#Xi_{cc}^{+}) [GeV/c^{2}]"
+    return x_label
+
+class Toy:
+    def __init__(self, workspace_file,f_value):
+        self.file = ROOT.TFile(workspace_file)
+        self.w = self.file.Get("w")
+        self.model = self.w["model"]
+        self.data = self.w["data"]
+        self.run_diagnostics = self.w["RunDiagnostics"]
+        self.run_params = self.w["RunParams"]
+        self.outputs = self.w["Outputs"]
+        self.f = f_value
+        self.generated_data = None
+        self.x = self.w.var("x")
+
+    def Fluctuate(self, variable):
+        variable_for_fluctuation = self.model.getVariables().find(variable)
+        SeedChange()
+        fluctuated_variable = ROOT.gRandom.Poisson(variable_for_fluctuation.getVal())
+        variable_for_fluctuation.setVal(fluctuated_variable)
+    
+    def FluctuateYields(self):
+        self.Fluctuate("nsig")
+        self.Fluctuate("nbkg")
+    
+    def ScaleBackground(self):
+         self.model.getVariables().find("nbkg").setVal( self.model.getVariables().find("nbkg").getVal()*self.f)
+    
+    def GenerateModel(self):
+        SeedChange()
+        n_points = int(self.model.getVariables().find("nsig").getVal() + self.model.getVariables().find("nbkg").getVal())
+        self.generated_data = self.model.generate(ROOT.RooArgSet(self.w["x"]), n_points)
+    
+    def PrintAllParameters(self):
+        print("Model Parameters:")
+        for param in self.model.getVariables():
+            print(f"{param.GetName()} = {param.getVal()}")
+    
+    def Fit_ResetLimit(self,parameter,min,max):
+        param = self.w.var(parameter)
+        param.setRange(min, max)
+
+    def Fit_GetSignificance(self):
+        mu = self.w.var("mu1")
+        sigma = self.w.var("sigma1")
+        nsig = self.w.var("nsig")
+        nbkg = self.w.var("nbkg")
+        significance = ROOT.RooFormulaVar("significance",  "significance", "nsig/sqrt(nsig + nbkg)",  ROOT.RooArgList(nsig, nbkg))
+        minos_params = ROOT.RooArgSet(mu, sigma, nsig, nbkg)
+        fit_result = self.model.fitTo(self.generated_data, ROOT.RooFit.PrintLevel(-1),
+                                      ROOT.RooFit.Strategy(2),
+                                      ROOT.RooFit.Minimizer("Minuit2"),
+                                      ROOT.RooFit.Extended(True),
+                                      ROOT.RooFit.Save(),
+                                      ROOT.RooFit.Minos(minos_params),
+                                      ROOT.RooFit.Optimize(True),
+                                      ROOT.RooFit.MaxCalls(5000000))
+        significance_value = significance.getVal()
+        significance_error = significance.getPropagatedError(fit_result)
+        print(significance_value)
+        return significance_value, significance_error
+
+
+
+
+    def Fit_Visualise(self,particle,timing, number_of_bins = 30):
+        timing_int = int(timing)
+        x_label = MakeLabels(particle)
+        mu = self.w.var("mu1")
+        sigma = self.w.var("sigma1")
+        nsig = self.w.var("nsig")
+        nbkg = self.w.var("nbkg")
+
+        minos_params = ROOT.RooArgSet(mu, sigma, nsig, nbkg)
+
+        fit_result = self.model.fitTo(self.generated_data, ROOT.RooFit.PrintLevel(-1),
+                                      ROOT.RooFit.Strategy(2),
+                                      ROOT.RooFit.Minimizer("Minuit2"),
+                                      ROOT.RooFit.Extended(True),
+                                      ROOT.RooFit.Save(),
+                                      ROOT.RooFit.Minos(minos_params),
+                                      ROOT.RooFit.Optimize(True),
+                                      ROOT.RooFit.MaxCalls(5000000))
+
+        # --------------------------- Plotting Initialisation -----------------------------------
+        for param in [mu, sigma, nsig, nbkg]:
+            print(f"{param.GetName()}:")
+            print(f"   Value: {param.getVal()}")
+            print(f"   Error (Symmetric): {param.getError()}")
+            print(f"   Error (MINOS Lower): {param.getAsymErrorLo()}")
+            print(f"   Error (MINOS Upper): {param.getAsymErrorHi()}")
+        frame1 = self.x.frame()
+        frame1.SetTitle("")
+        self.generated_data.plotOn(frame1, ROOT.RooFit.Name("data"), ROOT.RooFit.Binning(number_of_bins), ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
+        self.model.plotOn(frame1, ROOT.RooFit.Name("sig+bkg"), ROOT.RooFit.LineColor(ROOT.kBlue), ROOT.RooFit.LineStyle(ROOT.kSolid))
+        self.model.plotOn(frame1, ROOT.RooFit.Components("bkg"), ROOT.RooFit.Name("bkg"), ROOT.RooFit.LineColor(ROOT.kMagenta), ROOT.RooFit.LineStyle(ROOT.kDashed))
+        self.model.plotOn(frame1, ROOT.RooFit.Components("sig"), ROOT.RooFit.Name("sig"), ROOT.RooFit.LineColor(ROOT.kRed), ROOT.RooFit.LineStyle(ROOT.kDotted))
+        chi2 = frame1.chiSquare("sig+bkg", "data", 6)
+        hpull = frame1.pullHist("data", "sig+bkg")
+        frame2 = self.x.frame()
+        frame2.SetTitle("")
+        frame2.addPlotable(hpull, "P")
+        line = ROOT.TLine(frame2.GetXaxis().GetXmin(), 0, frame2.GetXaxis().GetXmax(), 0)
+        line.SetLineColor(ROOT.kBlue)
+        
+        # --------------------------- Plotting -----------------------------------
+        energy_range = ((frame1.GetXaxis().GetXmax() - frame1.GetXaxis().GetXmin()) / number_of_bins)*1000
+        # Set up canvas and drawing
+        with LHCbStyle() as lbs:
+            c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
+            c.Divide(2)
+
+            # First pad
+            c.cd(1)
+            latex = ROOT.TLatex()
+            latex.SetNDC()
+            latex.SetTextSize(0.050)
+            latex.SetTextFont(62)
+            ROOT.gPad.SetLeftMargin(0.15)
+            ROOT.gStyle.SetLineScalePS(1.2)
+            frame1.GetYaxis().SetTitle(f"Entries/ ({round(energy_range,3)} MeV/c^{{2}})")
+            frame1.GetXaxis().SetTitle(x_label)  # You can replace with the actual label
+            frame1.GetYaxis().SetTitleOffset(1.15)
+            frame1.GetXaxis().SetTitleOffset(1)
+            frame1.GetYaxis().SetTitleFont(62)
+            frame1.GetXaxis().SetTitleFont(62)
+            frame1.GetYaxis().SetTitleSize(0.06)
+            frame1.GetXaxis().SetTitleSize(0.06)
+            frame1.GetXaxis().SetLabelSize(0.05)
+            frame1.GetYaxis().SetLabelSize(0.05)
+            frame1.GetXaxis().SetLabelFont(62)
+            frame1.GetYaxis().SetLabelFont(62)
+            frame1.Draw()
+
+            # Add the legend with LaTeX formatting
+            legend = ROOT.TLegend(0.67, 0.7, 0.97, 0.915)
+            legend.SetLineColor(0)
+            legend.SetLineStyle(0)
+            legend.SetLineWidth(0)
+            legend.SetFillColor(0)
+            legend.SetFillStyle(0)
+            legend.SetTextFont(62)
+            legend.SetTextSize(0.045)
+            legend.AddEntry("data", "Data", "lep")
+            legend.AddEntry("sig+bkg", "Total", "l")
+
+            # Dummy lines for correct styles in the legend
+            dummy_bkg_line = ROOT.TLine()
+            dummy_bkg_line.SetLineColor(ROOT.kMagenta)
+            dummy_bkg_line.SetLineStyle(ROOT.kDashed)
+            legend.AddEntry(dummy_bkg_line, "Background", "l")
+            dummy_sig_line = ROOT.TLine()
+            dummy_sig_line.SetLineColor(ROOT.kRed)
+            dummy_sig_line.SetLineStyle(ROOT.kDotted)
+            legend.AddEntry(dummy_sig_line, "Signal", "l")
+
+            latex.DrawText(0.2, 0.875, "LHCb Simulation")
+            latex.DrawLatex(0.2, 0.820, "#sqrt{s} = 14 TeV")
+            latex.DrawLatex(0.2, 0.765, f"VELO {timing_int} ps")
+            latex2 = ROOT.TLatex()
+            latex2.SetNDC()
+            latex2.SetTextSize(0.045)
+            latex2.SetTextFont(62)
+            plot_time = time.strftime("%d %m %y", time.localtime())
+            legend.Draw()
+
+            # Second pad
+            c.cd(2)
+            ROOT.gPad.SetLeftMargin(0.15)
+            frame2.GetYaxis().SetTitle("Pulls")
+            frame2.GetXaxis().SetTitle(x_label)  # You can replace with the actual label
+            frame2.GetYaxis().SetTitleOffset(0.65)
+            frame2.GetXaxis().SetTitleOffset(1)
+            frame2.GetYaxis().SetTitleSize(0.06)
+            frame2.GetXaxis().SetTitleSize(0.06)
+            frame2.GetYaxis().SetTitleFont(62)
+            frame2.GetXaxis().SetTitleFont(62)
+            frame2.GetXaxis().SetLabelSize(0.05)
+            frame2.GetYaxis().SetLabelSize(0.05)
+            frame2.GetXaxis().SetLabelFont(62)
+            frame2.GetYaxis().SetLabelFont(62)
+            frame2.Draw()
+            line.Draw("same")
+
+            c.cd()
+            c.Update()
+            c.Draw()
+
+            # Save as PDF
+            c.SaveAs("/home/user294/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
+
+def MeanSignificance(workspace_file,f_value,number_of_models=5):
+    n_points = int(self.model.getVariables().find("nsig").getVal() + self.model.getVariables().find("nbkg").getVal()) 
+    significances = []
+    significance_errors = []
+    for i in range(number_of_models):
+        toy = Toy(workspace_file, f_value)
+        toy.FluctuateYields()
+        toy.ScaleBackground()
+        toy.GenerateModel(n_points)
+        #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
+        #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
+        toy.Fit_ResetLimit("nbkg", 100,8000)
+        toy.Fit_ResetLimit("nsig",100,8000)
+        significance, significance_error = toy.Fit_GetSignificance()
+        significances.append(significance)
+        significance_errors.append(significance_error)
+    
+    total_weight = 0.0
+    weighted_sum = 0.0
+    for significance, error in zip(significances, significance_errors):
+        if error == 0:
+            continue  # Skip any entry with zero error to avoid division by zero.
+        weight = 1.0 / (error ** 2)
+        weighted_sum += significance * weight
+        total_weight += weight
+    if total_weight == 0:
+        return None, None
+    weighted_mean = weighted_sum / total_weight
+    weighted_error = (1.0 / total_weight) ** 0.5
+    print(significances)
+    return weighted_mean, weighted_error
+
+
+
+
+if __name__ == "__main__":
+    workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
+    f_value = 2
+    #print(MeanSignificance(workspace_file,f_value,10000,number_of_models=5))
+
+    toy = Toy(workspace_file, f_value)
+    toy.ScaleBackground()
+    toy.FluctuateYields()
+    toy.GenerateModel()
+
+    toy.Fit_ResetLimit("nbkg", 100,8000)
+    toy.Fit_ResetLimit("nsig",100,8000)
+    toy.Fit_Visualise("xiccpp",50,30)

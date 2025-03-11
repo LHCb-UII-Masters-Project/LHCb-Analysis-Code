@@ -76,11 +76,9 @@ class Calculate:
         else:
             self.xiccp_signal_acceptance = 0.08432470964835002
             self.xiccp_signal_acceptance_error = 0.0003583034556616932
-            self.run2_efficiency_ratio = 1
-            self.run2_r_limit = 1
-        # not given and not used
-        # self.lambdac_signal_acceptance = 1
-        # self.lambdac_signal_acceptance_error = 1
+            self.run2_efficiency_ratio = 1/1.167
+            self.run2_efficiency_ratio_error = 0.114/((1.167)**2)            
+            self.run2_r_limit = 5
 
         self.Run2Luminosity = 1.7+1.7+2.2
         self.Run5Luminosity = 300 # Check with Dan
@@ -116,7 +114,7 @@ class Calculate:
     # 27/2/25
 
     def Run5EffRatio(self):
-        return (self.signal.efficiency / self.control.efficiency)
+        return ((self.signal.efficiency*self.xiccp_signal_acceptance)/ (self.control.efficiency*self.acceptance_control))
     
     def Run5EffRatioError(self):
         return(np.sqrt(self.Run5EffRatio() * ((self.signal.efficiency_error/self.signal.efficiency)**2 + (self.control.efficiency_error/self.control.efficiency)**2)))
@@ -132,11 +130,12 @@ class Calculate:
 
 if __name__ == "__main__":
 
-    velo_timings = [30,50,70,100,200]
+    velo_timings = [30,50,70,100]
     for time in velo_timings:
-        signal =  GetVariables(f"/home/user293/Documents/selections/python/Outputs/EuanSignal/Velo{time}/Xi5Sigma/WSPACE.root" , f"/home/user293/Documents/selections/python/Outputs/EuanSignal/Velo{time}/Xi5Sigma/PurityEfficiency.txt")
-        control = GetVariables(f"/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo{time}DanFix/xiccpp_5_sigma/WSPACE.root", f"/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo{time}DanFix/xiccpp_5_sigma/PurityEfficiency.txt")
-        calc = Calculate(signal, control, user="Euan")
+        signal =  GetVariables(f"/home/user294/Documents/selections/python/Outputs/XisToXis/Velo{time}DanFix/xiccp_5_sigma/WSPACE.root" , f"/home/user294/Documents/selections/python/Outputs/XisToXis/Velo{time}DanFix/xiccp_5_sigma/PurityEfficiency.txt")
+        control = GetVariables(f"/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo{time}DanFix/xiccpp_5_sigma/WSPACE.root", f"/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo{time}DanFix/xiccpp_5_sigma/PurityEfficiency.txt")
+        calc = Calculate(signal, control, user="Jack")
         rvalue = calc.Run5Rlimit()
         uncert_rvalue = calc.Run5RlimitError()
         print(f"Run 5 R Limit for Velo {time} = {rvalue:.4g} \u00B1 {uncert_rvalue:.4g}")
+
