@@ -4,7 +4,7 @@ from ROOT import TH1D, TH2D, TCanvas, TChain, TTree, TString, TFile, gInterprete
 from math import *
 import sys
 import numpy as np
-from os import path, listdir
+from os import path, listdir, makedirs
 import os
 from array import array
 import ctypes
@@ -270,7 +270,8 @@ class Toy:
             c.Draw()
 
             # Save as PDF
-            c.SaveAs("/home/user293/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
+            basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
+            c.SaveAs(f"{basedir}/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
 
 def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
     significances = []
@@ -288,45 +289,56 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
         significances.append(significance)
         significance_errors.append(significance_error)
 
-def MeanSignificanceSignal(workspace_file,f_value,variables,number_of_models=5):
+def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, number_of_models=5):
     significances = []
-    significance_errors = []
+    
+    # First loop to collect significances
     for i in range(number_of_models):
-        toy = Toy(workspace_file, f_value,variables)
+        toy = Toy(workspace_file, f_value, variables)
         toy.ScaleBackground()
         toy.FluctuateYields()
         toy.GenerateModel()
-        #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
-        #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
-        toy.Fit_ResetLimit("nbkg", 100,8000)
-        toy.Fit_ResetLimit("nsig",100,8000)
-        significance, significance_error = toy.Fit_GetSignificance()
+        # toy.Fit_ResetLimit("bkg_coef1", -3, 3)
+        # toy.Fit_ResetLimit("bkg_coef2", -3, 3)
+        toy.Fit_ResetLimit("nbkg", 100, 8000)
+        toy.Fit_ResetLimit("nsig", 100, 8000)
+        significance, _ = toy.Fit_GetSignificance()
         significances.append(significance)
-        significance_errors.append(significance_error)
-    
-    total_weight = 0.0
-    weighted_sum = 0.0
-    for significance, error in zip(significances, significance_errors):
-        if error == 0:
-            continue  # Skip any entry with zero error to avoid division by zero.
-        weight = 1.0 / (error ** 2)
-        weighted_sum += significance * weight
-        total_weight += weight
-    if total_weight == 0:
-        return None, None
-    weighted_mean = weighted_sum / total_weight
-    weighted_error = (1.0 / total_weight) ** 0.5
-    print(significances)
-    return weighted_mean, weighted_error
+
+    print("Significances:", significances)
+
+    # Determine histogram range dynamically
+    if not significances:
+        return None  # No data to plot
+
+    min_significance = min(significances) * 0.9  # Slightly lower than min value
+    max_significance = max(significances) * 1.1  # Slightly higher than max value
+
+    # Define histogram after computing min and max
+    hist = TH1D("significance_hist", "Significance Distribution", 20, min_significance, max_significance)
+
+    # Second loop to fill the histogram
+    for significance in significances:
+        hist.Fill(significance)
+
+    # Draw and save the histogram
+    canvas = TCanvas("canvas", "Significance Histogram", 800, 600)
+    hist.Draw()
+    basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
+    makedirs(f"{basedir}/Outputs/ToyPlots/Velo{velo_time}")
+    canvas.SaveAs(f"{basedir}/Outputs/ToyPlots/Velo{velo_time}/Significance.pdf")
+
+
 
 
 
 
 if __name__ == "__main__":
-    signal_workspace_file = "/home/user293/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/WSPACE.root"
-    signal_efficiency_purity_file = "/home/user293/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/PurityEfficiency.txt"
-    control_efficiency_purity_file = "/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
-    control_workspace_file = "/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
+    basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
+    signal_workspace_file = f"{basedir}/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/WSPACE.root"
+    signal_efficiency_purity_file = f"{basedir}/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/PurityEfficiency.txt"
+    control_efficiency_purity_file = f"{basedir}/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
+    control_workspace_file = f"{basedir}/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
 
     velo_time = 50
     f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
@@ -343,8 +355,8 @@ if __name__ == "__main__":
     #control_toy.Fit_ResetLimit("nsig",100,10000)
    #control_toy.Fit_Visualise("xiccpp",50,30)
 
-    variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
-    signal_toy = Toy(signal_workspace_file, f_value, variables)
+    variables = VariableStore(control_workspace_file, control_efficiency_purity_file,control_efficiency_purity_file)
+    signal_toy = Toy(control_workspace_file, f_value, variables)
     signal_toy.ScaleSignal()
     signal_toy.ScaleBackground()
     signal_toy.FluctuateYields()
@@ -352,5 +364,5 @@ if __name__ == "__main__":
     signal_toy.Fit_ResetLimit("nbkg", 100,20000)
     signal_toy.Fit_ResetLimit("nsig",100,20000)
     signal_toy.Fit_Visualise("xiccp",velo_time,30)
-    print(MeanSignificanceSignal(signal_workspace_file,f_value,variables,number_of_models=5))
+    MeanSignificanceSignal(control_workspace_file,f_value,variables,velo_time,number_of_models=5)
 
