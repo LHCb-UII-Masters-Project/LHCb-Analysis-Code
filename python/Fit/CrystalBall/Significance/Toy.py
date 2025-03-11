@@ -317,9 +317,17 @@ def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, num
     # Define histogram after computing min and max
     hist = TH1D("Legend", f"Significance Distribution for Velo {velo_time}", 20, min_significance, max_significance)
 
-    # Second loop to fill the histogram
+    # Second loop to fill the histogram and find the observability
+    sigma_five_cert = 0
+    sigma_three_cert = 0
     for significance in significances:
         hist.Fill(significance)
+        if significance > 5:
+            sigma_five_cert += 1
+        if significance > 3:
+            sigma_three_cert += 1
+    conf_level_5 = sigma_five_cert / number_of_models
+    conf_level_3 = sigma_three_cert / number_of_models
 
     # Draw and save the histogram
     canvas = TCanvas("canvas", "Significance Histogram", 800, 600)
@@ -328,9 +336,9 @@ def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, num
     makedirs(f"{basedir}/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}", exist_ok = True)
     canvas.SaveAs(f"{basedir}/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}/Significance.pdf")
 
-
-
-
+    with open(f"{basedir}/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}/ConfLevel.txt", "w") as text_file:
+        text_file.write(f"Three sigma confidence level = {conf_level_3}\n")
+        text_file.write(f"Five sigma confidence level = {conf_level_5}\n")
 
 if __name__ == "__main__":
     basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
@@ -363,5 +371,4 @@ if __name__ == "__main__":
     signal_toy.Fit_ResetLimit("nbkg", 100,20000)
     signal_toy.Fit_ResetLimit("nsig",100,20000)
     signal_toy.Fit_Visualise("xiccp",velo_time,30)
-    MeanSignificanceSignal(control_workspace_file,f_value,variables,velo_time,number_of_models=1000)
-
+    MeanSignificanceSignal(control_workspace_file,f_value,variables,velo_time,number_of_models=3)
