@@ -228,7 +228,7 @@ class Toy:
             c.Draw()
 
             # Save as PDF
-            c.SaveAs("/home/user294/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
+            c.SaveAs("/home/user293/Documents/selections/python/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
 
 def MeanSignificance(workspace_file,f_value,number_of_models=5):
     significances = []
@@ -237,7 +237,7 @@ def MeanSignificance(workspace_file,f_value,number_of_models=5):
         toy = Toy(workspace_file, f_value)
         toy.ScaleBackground()
         toy.FluctuateYields()
-        toy.GenerateModel()
+        toy.GenerateModel(n_points)
         #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
         #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
         toy.Fit_ResetLimit("nbkg", 100,8000)
@@ -265,10 +265,14 @@ def MeanSignificance(workspace_file,f_value,number_of_models=5):
 
 
 if __name__ == "__main__":
-    workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
-    f_value = 2
-    print(MeanSignificance(workspace_file,f_value,number_of_models=5))
+    workspace_file = "/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
+    velo_time = 50
+    f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
+    # In case of bad results, break glass here ↓↓↓
+    # f_values = {30: 2.3074, 50: 2.3074, 70: 2.3074, 100: 2.3074, 200: 2.3074}
+    f_value = f_values[velo_time]
 
+    # print(MeanSignificance(workspace_file,f_value,number_of_models=5))
     toy = Toy(workspace_file, f_value)
     toy.ScaleBackground()
     toy.FluctuateYields()
@@ -276,4 +280,4 @@ if __name__ == "__main__":
 
     toy.Fit_ResetLimit("nbkg", 100,8000)
     toy.Fit_ResetLimit("nsig",100,8000)
-    toy.Fit_Visualise("xiccpp",50,30)
+    toy.Fit_Visualise("xiccpp",velo_time,30)

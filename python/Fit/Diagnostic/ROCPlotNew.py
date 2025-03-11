@@ -15,8 +15,8 @@ from matplotlib.font_manager import FontProperties
 
 #import lhcbstyle
 new_numerator = True
-font_dict = {"fontsize": 16, "fontweight": "bold"}
-font_prop = FontProperties(size=14, weight="bold")
+font_dict = {"fontsize": 24, "fontweight": "bold"}
+font_prop = FontProperties(size=24, weight="bold")
 
 file = "/home/user293/Documents/selections/python/Outputs/TrackSelection/Batch4D.csv"
 df = pd.read_csv(file)
@@ -107,9 +107,9 @@ XiccppPionScatter = axs[1]
 XiccppKaonScatter = axs[2]
 # Plot for Xiccpp (top-left and top-right)
 DisplacedTracksScatter.scatter(data = idata, x = "XiccppEfficiency", y = "XiccppPurity", s=30, color='black', label='All Values')
-DisplacedTracksScatter.scatter(data = paper_lc_values, x = "XiccppEfficiency", y = "XiccppPurity", s=80, color='blue', label='Literature Values')
-#DisplacedTracksScatter.scatter(data = paper_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=80, color='blue', label='XiPaperValues')
-DisplacedTracksScatter.scatter(data = chosen_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=80, color='magenta', label='Selected Value')
+#DisplacedTracksScatter.scatter(data = paper_lc_values, x = "XiccppEfficiency", y = "XiccppPurity", s=500, color='blue', label='Literature Values')
+#DisplacedTracksScatter.scatter(data = paper_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=500, color='blue', label='XiPaperValues')
+DisplacedTracksScatter.scatter(data = chosen_xi_values, x = "XiccppEfficiency", y = "XiccppPurity", s=500, color='magenta', label='Selected Value')
 # Annotate each point
 # Annotate each point
 """
@@ -135,9 +135,9 @@ DisplacedTracksScatter.legend(prop=font_prop)
 
 # Plot for Pion (middle-left and middle-right)
 XiccppPionScatter.scatter(data = idata , x = "PionEfficiency",y = "PionPurity", s = 30, color='black', label='All Values')
-#XiccppPionScatter.scatter(data = paper_lc_values, x = "PionEfficiency", y = "PionPurity", s=80, color='red', label='LcPaperValuesPions')
-XiccppPionScatter.scatter(data = paper_xi_values, x = "PionEfficiency", y = "PionPurity", s=80, color='blue', label='Literature Values')
-XiccppPionScatter.scatter(data = chosen_xipi_values, x = "PionEfficiency", y = "PionPurity", s=80, color='magenta', label='Selected Value')
+#XiccppPionScatter.scatter(data = paper_lc_values, x = "PionEfficiency", y = "PionPurity", s=500, color='red', label='LcPaperValuesPions')
+#XiccppPionScatter.scatter(data = paper_xi_values, x = "PionEfficiency", y = "PionPurity", s=500, color='blue', label='Literature Values')
+XiccppPionScatter.scatter(data = chosen_xipi_values, x = "PionEfficiency", y = "PionPurity", s=500, color='magenta', label='Selected Value')
 
 """
 for i, row in pion_zoomed.iterrows():
@@ -163,9 +163,9 @@ XiccppPionScatter.legend(prop=font_prop)
 
 # Plot for Kaon (bottom-left and bottom-right)
 XiccppKaonScatter.scatter(data = idata , x = "KaonEfficiency",y = "KaonPurity", s = 30, color='black', label='All Values')
-#XiccppKaonScatter.scatter(data = paper_lc_values, x = "KaonEfficiency", y = "KaonPurity", s=80, color='red', label='LcPaperValuesKaons')
-XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=80, color='blue', label='Literature Values')
-XiccppKaonScatter.scatter(data = chosen_xik_values, x = "KaonEfficiency", y = "KaonPurity", s=80, color='magenta', label='Selected Value')
+#XiccppKaonScatter.scatter(data = paper_lc_values, x = "KaonEfficiency", y = "KaonPurity", s=500, color='red', label='LcPaperValuesKaons')
+#XiccppKaonScatter.scatter(data = paper_xi_values, x = "KaonEfficiency", y = "KaonPurity", s=500, color='blue', label='Literature Values')
+XiccppKaonScatter.scatter(data = chosen_xik_values, x = "KaonEfficiency", y = "KaonPurity", s=500, color='magenta', label='Selected Value')
 
 """
 for i, row in kaon_zoomed.iterrows():
@@ -185,7 +185,7 @@ XiccppKaonScatter.grid(alpha=0.3)
 XiccppKaonScatter.legend(prop=font_prop)
 
 for ax in axs:
-    ax.tick_params(axis='both', which='both', labelsize=14, width=2)
+    ax.tick_params(axis='both', which='both', labelsize=18, width=2)
     for label in ax.get_xticklabels() + ax.get_yticklabels():
         label.set_fontweight('bold')
 
@@ -193,6 +193,6 @@ for ax in axs:
 # Adjust layout and save the figure
 plt.tight_layout()
 if new_numerator is True:
-    plt.savefig("/home/user293/Documents/selections/python/Fit/batch_newnewtrip_plot_4D.pdf", format='pdf', dpi=350)
+    plt.savefig("/home/user293/Documents/selections/python/Fit/batch_newnewtrip_plot_4D.png", format='png', dpi=350)
 else:
     plt.savefig("/home/user293/Documents/selections/python/Fit/batch_newoldtrip_plot_4D.pdf", format='pdf', dpi=350)
