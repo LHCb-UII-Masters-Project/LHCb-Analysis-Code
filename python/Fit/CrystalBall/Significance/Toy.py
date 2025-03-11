@@ -323,12 +323,16 @@ def MeanSignificanceSignal(workspace_file,f_value,variables,number_of_models=5):
 
 
 if __name__ == "__main__":
-    signal_workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/WSPACE.root"
-    signal_efficiency_purity_file = "/home/user294/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/PurityEfficiency.txt"
-    control_efficiency_purity_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
-    control_workspace_file = "/home/user294/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
+    signal_workspace_file = "/home/user293/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/WSPACE.root"
+    signal_efficiency_purity_file = "/home/user293/Documents/selections/python/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/PurityEfficiency.txt"
+    control_efficiency_purity_file = "/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
+    control_workspace_file = "/home/user293/Documents/selections/python/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
 
-    f_value = 2.3074
+    velo_time = 50
+    f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
+    # In case of bad results, break glass here ↓↓↓
+    # f_values = {30: 2.3074, 50: 2.3074, 70: 2.3074, 100: 2.3074, 200: 2.3074}
+    f_value = f_values[velo_time]
     #print(MeanSignificance(workspace_file,f_value,number_of_models=5))
 
     #control_toy = Toy(control_workspace_file, f_value)
@@ -347,6 +351,6 @@ if __name__ == "__main__":
     signal_toy.GenerateModel()
     signal_toy.Fit_ResetLimit("nbkg", 100,20000)
     signal_toy.Fit_ResetLimit("nsig",100,20000)
-    signal_toy.Fit_Visualise("xiccp",50,30)
+    signal_toy.Fit_Visualise("xiccp",velo_time,30)
     print(MeanSignificanceSignal(signal_workspace_file,f_value,variables,number_of_models=5))
 
