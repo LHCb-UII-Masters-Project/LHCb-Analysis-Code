@@ -385,19 +385,25 @@ def MeanSignificanceSignalNoHist(workspace_file, f_value,suppresion_factor, vari
         toy.ScaleBackground()
         toy.FluctuateYields()
         toy.GenerateModel()
-        toy.Fit_ResetLimit("nbkg", 100,25000)
-        toy.Fit_ResetLimit("nsig",1,25000)
+        toy.Fit_ResetLimit("nbkg", 100,30000)
+        toy.Fit_ResetLimit("nsig",1,30000)
         toy.Fit_ResetLimit("sigma1",0.003,0.015)
         toy.Fit_ResetLimit("mu1", 3,4.1)
         # add a line to discard fits that dont converge (flag errors)
         significance, significance_error,convergence = toy.Fit_GetSignificance()
-        if convergence == 0:
+        if (convergence == 0) and (significance > 0):
             significances.append(significance)
         else:
             continue
     secondpercentile = np.percentile(significances,5)
     nintyseventhpercentile = np.percentile(significances,95)
-    return secondpercentile, nintyseventhpercentile
+    significance_array = np.array(significances)
+    num_above = np.sum(significance_array > secondpercentile)
+    num_below = np.sum(significance_array <= secondpercentile)
+    total = len(significances)
+    p = num_above/total
+    standard_error = np.sqrt(p*(1-p)/total)
+    return secondpercentile, nintyseventhpercentile,standard_error
 
 def RScan(workspace_file, f_value, variables, velo_time=50, number_of_models=5,start_point = 1, step_size = 0.1):
     results_dict = {
@@ -418,26 +424,30 @@ def RScanNoHist(workspace_file, f_value,suppresion_factor, variables, velo_time=
     results_dict = {
     "R": [],
     "UpperPercentile": [],
-    "LowerPercentile": []}
+    "LowerPercentile": [],
+    "StandardError": []}
     basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
     makedirs(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}", exist_ok = True)
     for R in  np.arange(start_point, 0, -step_size):
-        second_percentile, nintyseventh_percentile = MeanSignificanceSignalNoHist(workspace_file, f_value, suppresion_factor, variables,number_of_models= number_of_models, R_input = R)
+        second_percentile, nintyseventh_percentile,SE = MeanSignificanceSignalNoHist(workspace_file, f_value, suppresion_factor, variables,number_of_models= number_of_models, R_input = R)
         results_dict["R"].append(R)
         results_dict["LowerPercentile"].append(second_percentile)
         results_dict["UpperPercentile"].append(nintyseventh_percentile)
+        results_dict["StandardError"].append(SE)
     df = pd.DataFrame(results_dict)
     df.to_csv(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}/results.csv", index=False)
 
 
 if __name__ == "__main__":
     basedir= f"/home/user294/Documents/selections/python"
-    velo_time = 30
+    velo_time = 100
     signal_workspace_file = f"{basedir}/Outputs/XisToXis/Velo{velo_time}DanFix/xiccp_5_sigma/WSPACE.root"
     signal_efficiency_purity_file = f"{basedir}/Outputs/XisToXis/Velo{velo_time}DanFix/xiccp_5_sigma/PurityEfficiency.txt"
     control_efficiency_purity_file = f"{basedir}/Outputs/XisToLambdas/Velo{velo_time}DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
     control_workspace_file = f"{basedir}/Outputs/XisToLambdas/Velo{velo_time}DanFix/xiccpp_5_sigma/WSPACE.root"
     f_values = {30: 2.3074, 50: 2.3074, 70: 2.3755, 100: 2.3074, 200: 2.3074}
+    #f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
+
     suppresion_factors = {30: 0.65 , 50: 0.76 ,70:0.91545893719
  , 100: 1.06}
     suppresion_factor = suppresion_factors[velo_time]
