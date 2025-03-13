@@ -322,7 +322,7 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=
     
 
     # Define histogram after computing min and max
-    num_bins = 50
+    num_bins = 30
     hist = ROOT.TH1D("Legend", "Control Mode Significance Distribution", num_bins, min(significances, default=0), max(significances, default=10))
     energy_range = (max(significances, default=10) - min(significances, default=0))/num_bins
     hist.SetStats(False)  # This disables the stats box on the histogram
@@ -381,7 +381,11 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=
     legend.Draw()
     canvas.SaveAs(f"/home/user293/Documents/selections/python/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}.pdf")
 
-    
+    # Create DataFrame
+    df = pd.DataFrame({"Significance": significances, "Significance_Error": significance_errors})
+    # Save to CSV
+    df.to_csv(f"/home/user293/Documents/selections/python/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}.csv", index=False)
+
 
 def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, number_of_models=5, R_input = 1):
     significances = []
@@ -496,6 +500,6 @@ if __name__ == "__main__":
     f_value = f_values[velo_time]
     #variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
 
-    MeanSignificanceControl(control_workspace_file, f_value, number_of_models = 5000, velo_time = velo_time)
+    MeanSignificanceControl(control_workspace_file, f_value, number_of_models = 1000, velo_time = velo_time)
 
     #RScan(signal_workspace_file, f_value, variables, velo_time=velo_time, number_of_models=100,start_point = 1, step_size = 0.5)
