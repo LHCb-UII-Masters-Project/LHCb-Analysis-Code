@@ -274,7 +274,7 @@ class Toy:
         basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
         c.SaveAs(f"{basedir}/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
 
-def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
+def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=50):
     significances = np.array([])
     significance_errors = np.array([])
     for i in range(number_of_models):
@@ -284,8 +284,8 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
         toy.GenerateModel()
         #toy.Fit_ResetLimit("bkg_coef1", -3, 3)
         #toy.Fit_ResetLimit("bkg_coef2", -3, 3)
-        toy.Fit_ResetLimit("nbkg", 100,8000)
-        toy.Fit_ResetLimit("nsig",100,8000)
+        toy.Fit_ResetLimit("nbkg", 10,15000)
+        toy.Fit_ResetLimit("nsig",10,15000)
         significance, significance_error, converge = toy.Fit_GetSignificance()
         print(converge)
         if converge == 0:
@@ -313,7 +313,62 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
     percent_above_3 = np.mean(significances > 3) * 100
     percent_above_5 = np.mean(significances > 5) * 100 
 
-    return(control_significance, control_significance_err, control_significance_alt, control_significance_err_alt, ninefive_percentile, percent_above_3, percent_above_5)
+    control_significance, control_significance_err, control_significance_alt, control_significance_err_alt, ninefive_percentile, percent_above_3, percent_above_5 = MeanSignificanceControl(control_workspace_file, f_value, number_of_models=100)
+
+    # Open a file in write mode
+    with open(f"/home/user293/Documents/selections/python/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}.txt", "w") as file:
+        file.write(f"Unweighted Control Significance = {control_significance} +- {control_significance_err}\n")
+        file.write(f"Weighted Control Significance = {control_significance_alt} +- {control_significance_err_alt}\n")
+        file.write(f"Greater than or equal to {ninefive_percentile} with 95% CL\n")
+        file.write(f"Greater than or equal to 3 with {percent_above_3}% CL\n")
+        file.write(f"Greater than or equal to 5 with {percent_above_5}% CL\n")
+    
+
+    # Define histogram after computing min and max
+    hist = TH1D("Legend", f"Significance Distribution For Control Mode")
+    hist.SetStats(False)  # This disables the stats box on the histogram
+
+
+    # Second loop to fill the histogram
+    for significance in significances:
+        hist.Fill(significance)
+    
+
+    # Draw and save the histogram
+    canvas = TCanvas("canvas", "Significance Histogram", 800, 600)
+    hist.GetXaxis().SetTitle("Significance")  # Set x-axis title
+    hist.GetYaxis().SetTitle("Entries")      # Set y-axis title to "Entries"
+    hist.GetXaxis().SetTitleSize(0.04)   # Set title size for both axes
+    hist.GetYaxis().SetTitleSize(0.04)
+    hist.GetXaxis().SetLabelSize(0.04)   # Set label size
+    hist.GetYaxis().SetLabelSize(0.04)
+    hist.GetXaxis().SetTitleOffset(1)  # Set offset for title
+    hist.GetYaxis().SetTitleOffset(1)
+    hist.GetXaxis().SetLabelFont(62)     # Font style for labels
+    hist.GetYaxis().SetLabelFont(62)
+    hist.GetXaxis().SetTitleFont(62)     # Font style for titles
+    hist.GetYaxis().SetTitleFont(62)
+    # Create and draw vertical lines at the 3-sigma and 5-sigma values
+    line_secondpercentile = ROOT.TLine(ninefive_percentile, 0, ninefive_percentile, hist.GetMaximum())
+    line_secondpercentile.SetLineColor(ROOT.kRed)  # Red color for 3-sigma line
+    line_secondpercentile.SetLineStyle(2)  # Dashed line for 3-sigma
+    line_secondpercentile.SetLineWidth(2)
+    legend = ROOT.TLegend(0.74, 0.7, 0.97, 0.9)
+    legend.SetLineColor(0)
+    legend.SetLineStyle(0)
+    legend.SetLineWidth(0)
+    legend.SetFillColor(0)
+    legend.SetFillStyle(0)
+    legend.SetTextFont(62)
+    legend.SetTextSize(0.04)
+    legend.AddEntry(hist, "Data", "l")
+    legend.AddEntry(line_secondpercentile, "95% CI", "l")
+    hist.Draw("HIST")
+    line_secondpercentile.Draw()
+    legend.Draw()
+    canvas.SaveAs(f"/home/user293/Documents/selections/python/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}.pdf")
+
+    
 
 def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, number_of_models=5, R_input = 1):
     significances = []
@@ -429,12 +484,6 @@ if __name__ == "__main__":
     f_value = f_values[velo_time]
     variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
 
-    control_significance, control_significance_err, control_significance_alt, control_significance_err_alt, ninefive_percentile, percent_above_3, percent_above_5 = MeanSignificanceControl(control_workspace_file, f_value, number_of_models = 100)
-    print("__________")
-    print(f"Unweighted Control Significance = {control_significance} +- {control_significance_err}")
-    print(f"Weighted Control Significance = {control_significance_alt} +- {control_significance_err_alt}")
-    print(f"Greater than or equal to {ninefive_percentile} with 95% CL")
-    print(f"Greater than or equal to 3 with {percent_above_3}% CL")
-    print(f"Greater than or equal to 5 with {percent_above_5}% CL")
+    MeanSignificanceControl(control_workspace_file, f_value, number_of_models = 10, velo_time = velo_time)
 
     #RScan(signal_workspace_file, f_value, variables, velo_time=velo_time, number_of_models=100,start_point = 1, step_size = 0.5)
