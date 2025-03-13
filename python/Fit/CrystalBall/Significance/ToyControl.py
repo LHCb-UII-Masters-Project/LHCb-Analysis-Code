@@ -287,7 +287,6 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=
         toy.Fit_ResetLimit("nbkg", 10,15000)
         toy.Fit_ResetLimit("nsig",10,15000)
         significance, significance_error, converge = toy.Fit_GetSignificance()
-        print(converge)
         if converge == 0:
             significances = np.append(significances, significance)
             significance_errors = np.append(significance_errors, significance_error)
@@ -313,8 +312,6 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=
     percent_above_3 = np.mean(significances > 3) * 100
     percent_above_5 = np.mean(significances > 5) * 100 
 
-    control_significance, control_significance_err, control_significance_alt, control_significance_err_alt, ninefive_percentile, percent_above_3, percent_above_5 = MeanSignificanceControl(control_workspace_file, f_value, number_of_models=100)
-
     # Open a file in write mode
     with open(f"/home/user293/Documents/selections/python/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}.txt", "w") as file:
         file.write(f"Unweighted Control Significance = {control_significance} +- {control_significance_err}\n")
@@ -325,7 +322,9 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=
     
 
     # Define histogram after computing min and max
-    hist = TH1D("Legend", f"Significance Distribution For Control Mode")
+    num_bins = 50
+    hist = ROOT.TH1D("Legend", "Control Mode Significance Distribution", num_bins, min(significances, default=0), max(significances, default=10))
+    energy_range = (max(significances, default=10) - min(significances, default=0))/num_bins
     hist.SetStats(False)  # This disables the stats box on the histogram
 
 
@@ -337,7 +336,7 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=
     # Draw and save the histogram
     canvas = TCanvas("canvas", "Significance Histogram", 800, 600)
     hist.GetXaxis().SetTitle("Significance")  # Set x-axis title
-    hist.GetYaxis().SetTitle("Entries")      # Set y-axis title to "Entries"
+    hist.GetYaxis().SetTitle(f"Entries / Bin (Bin Size = {energy_range:.2f})")      # Set y-axis title to "Entries"
     hist.GetXaxis().SetTitleSize(0.04)   # Set title size for both axes
     hist.GetYaxis().SetTitleSize(0.04)
     hist.GetXaxis().SetLabelSize(0.04)   # Set label size
@@ -351,9 +350,17 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=
     # Create and draw vertical lines at the 3-sigma and 5-sigma values
     line_secondpercentile = ROOT.TLine(ninefive_percentile, 0, ninefive_percentile, hist.GetMaximum())
     line_secondpercentile.SetLineColor(ROOT.kRed)  # Red color for 3-sigma line
+    line_signif5 = ROOT.TLine(5, 0, 5, hist.GetMaximum())
+    line_signif3 = ROOT.TLine(3, 0, 3, hist.GetMaximum())
+    line_signif3.SetLineColor(ROOT.kGreen)
+    line_signif5.SetLineColor(ROOT.kMagenta)
     line_secondpercentile.SetLineStyle(2)  # Dashed line for 3-sigma
     line_secondpercentile.SetLineWidth(2)
-    legend = ROOT.TLegend(0.74, 0.7, 0.97, 0.9)
+    line_signif5.SetLineStyle(2) 
+    line_signif3.SetLineStyle(2) 
+    line_signif5.SetLineWidth(2)
+    line_signif3.SetLineWidth(2)
+    legend = ROOT.TLegend(0.66, 0.7, 0.97, 0.9)
     legend.SetLineColor(0)
     legend.SetLineStyle(0)
     legend.SetLineWidth(0)
@@ -361,10 +368,16 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=
     legend.SetFillStyle(0)
     legend.SetTextFont(62)
     legend.SetTextSize(0.04)
-    legend.AddEntry(hist, "Data", "l")
+    legend.AddEntry(hist, "Toy Models", "l")
     legend.AddEntry(line_secondpercentile, "95% CI", "l")
+    if np.min(significances) < 5:
+        legend.AddEntry(line_signif5, "Observation", "l")
+        if np.min(significances) < 3:
+            legend.AddEntry(line_signif3, "Evidence", "l")
     hist.Draw("HIST")
     line_secondpercentile.Draw()
+    line_signif5.Draw()
+    line_signif3.Draw()
     legend.Draw()
     canvas.SaveAs(f"/home/user293/Documents/selections/python/Outputs/ToyPlots/Models{number_of_models}Velo{velo_time}.pdf")
 
@@ -393,7 +406,6 @@ def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, num
 
     min_significance = min(significances) * 0.4  # Slightly lower than min value
     max_significance = max(significances) * 1.5  # Slightly higher than max value
-    print(significances)
     #secondpercentile, nintyseventhpercentile = st.norm.interval(0.9, 
                                                           #  loc=np.median(significances), 
                                                            # scale=mad(significances))
@@ -482,8 +494,8 @@ if __name__ == "__main__":
     #f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
     f_values = {30: 2.3074, 50: 2.3074, 70: 2.3074, 100: 2.3074, 200: 2.3074}
     f_value = f_values[velo_time]
-    variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
+    #variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
 
-    MeanSignificanceControl(control_workspace_file, f_value, number_of_models = 10, velo_time = velo_time)
+    MeanSignificanceControl(control_workspace_file, f_value, number_of_models = 5000, velo_time = velo_time)
 
     #RScan(signal_workspace_file, f_value, variables, velo_time=velo_time, number_of_models=100,start_point = 1, step_size = 0.5)
