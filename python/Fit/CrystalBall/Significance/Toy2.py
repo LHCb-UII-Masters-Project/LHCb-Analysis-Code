@@ -8,8 +8,6 @@ from os import path, listdir, makedirs
 import os
 from array import array
 import ctypes
-import lhcbstyle
-from lhcbstyle import LHCbStyle
 from datetime import datetime
 import time
 import argparse
@@ -62,7 +60,7 @@ class VariableStore:
       
 
 class Toy:
-    def __init__(self, workspace_file,f_value,VariableStore=None, R_value = 1):
+    def __init__(self, workspace_file,f_value,suppresion_factor,VariableStore=None, R_value = 1):
         self.variables = VariableStore
         self.file = ROOT.TFile(workspace_file)
         self.w = self.file.Get("w")
@@ -78,6 +76,7 @@ class Toy:
         
         self.f = f_value
         self.R = R_value
+        self.suppresion_factor = suppresion_factor
         self.generated_data = None
     
     def ScaleSignal(self):
@@ -110,8 +109,8 @@ class Toy:
         self.FluctuateBackground()
     
     def ScaleBackground(self):
-         self.original_nbkg = self.model.getVariables().find("nbkg").getVal()*self.f
-         self.model.getVariables().find("nbkg").setVal( self.model.getVariables().find("nbkg").getVal()*self.f)
+         self.original_nbkg = self.model.getVariables().find("nbkg").getVal()*self.f*self.suppresion_factor
+         self.model.getVariables().find("nbkg").setVal( self.model.getVariables().find("nbkg").getVal()*self.f*self.suppresion_factor)
     
     def GenerateModel(self):
         SeedChange()
@@ -141,7 +140,7 @@ class Toy:
                                       ROOT.RooFit.Save(),
                                       ROOT.RooFit.Minos(False),
                                       ROOT.RooFit.Optimize(True),
-                                      ROOT.RooFit.MaxCalls(5000000))
+                                      ROOT.RooFit.MaxCalls(500000))
         significance_value = significance.getVal()
         significance_error = significance.getPropagatedError(fit_result)
         return significance_value, significance_error, fit_result.status()
@@ -166,7 +165,7 @@ class Toy:
                                       ROOT.RooFit.Save(),
                                       ROOT.RooFit.Minos(minos_params),
                                       ROOT.RooFit.Optimize(True),
-                                      ROOT.RooFit.MaxCalls(5000000))
+                                      ROOT.RooFit.MaxCalls(500000))
 
         # --------------------------- Plotting Initialisation -----------------------------------
         for param in [mu, sigma, nsig, nbkg]:
@@ -193,89 +192,88 @@ class Toy:
         # --------------------------- Plotting -----------------------------------
         energy_range = ((frame1.GetXaxis().GetXmax() - frame1.GetXaxis().GetXmin()) / number_of_bins)*1000
         # Set up canvas and drawing
-        with LHCbStyle() as lbs:
-            c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
-            c.Divide(2)
+        c = ROOT.TCanvas("rf201_composite", "rf201_composite", 1600, 600)
+        c.Divide(2)
 
-            # First pad
-            c.cd(1)
-            latex = ROOT.TLatex()
-            latex.SetNDC()
-            latex.SetTextSize(0.050)
-            latex.SetTextFont(62)
-            ROOT.gPad.SetLeftMargin(0.15)
-            ROOT.gStyle.SetLineScalePS(1.2)
-            frame1.GetYaxis().SetTitle(f"Entries/ ({round(energy_range,3)} MeV/c^{{2}})")
-            frame1.GetXaxis().SetTitle(x_label)  # You can replace with the actual label
-            frame1.GetYaxis().SetTitleOffset(1.15)
-            frame1.GetXaxis().SetTitleOffset(1)
-            frame1.GetYaxis().SetTitleFont(62)
-            frame1.GetXaxis().SetTitleFont(62)
-            frame1.GetYaxis().SetTitleSize(0.06)
-            frame1.GetXaxis().SetTitleSize(0.06)
-            frame1.GetXaxis().SetLabelSize(0.05)
-            frame1.GetYaxis().SetLabelSize(0.05)
-            frame1.GetXaxis().SetLabelFont(62)
-            frame1.GetYaxis().SetLabelFont(62)
-            frame1.Draw()
+        # First pad
+        c.cd(1)
+        latex = ROOT.TLatex()
+        latex.SetNDC()
+        latex.SetTextSize(0.050)
+        latex.SetTextFont(62)
+        ROOT.gPad.SetLeftMargin(0.15)
+        ROOT.gStyle.SetLineScalePS(1.2)
+        frame1.GetYaxis().SetTitle(f"Entries/ ({round(energy_range,3)} MeV/c^{{2}})")
+        frame1.GetXaxis().SetTitle(x_label)  # You can replace with the actual label
+        frame1.GetYaxis().SetTitleOffset(1.15)
+        frame1.GetXaxis().SetTitleOffset(1)
+        frame1.GetYaxis().SetTitleFont(62)
+        frame1.GetXaxis().SetTitleFont(62)
+        frame1.GetYaxis().SetTitleSize(0.06)
+        frame1.GetXaxis().SetTitleSize(0.06)
+        frame1.GetXaxis().SetLabelSize(0.05)
+        frame1.GetYaxis().SetLabelSize(0.05)
+        frame1.GetXaxis().SetLabelFont(62)
+        frame1.GetYaxis().SetLabelFont(62)
+        frame1.Draw()
 
-            # Add the legend with LaTeX formatting
-            legend = ROOT.TLegend(0.67, 0.7, 0.97, 0.915)
-            legend.SetLineColor(0)
-            legend.SetLineStyle(0)
-            legend.SetLineWidth(0)
-            legend.SetFillColor(0)
-            legend.SetFillStyle(0)
-            legend.SetTextFont(62)
-            legend.SetTextSize(0.045)
-            legend.AddEntry("data", "Data", "lep")
-            legend.AddEntry("sig+bkg", "Total", "l")
+        # Add the legend with LaTeX formatting
+        legend = ROOT.TLegend(0.67, 0.7, 0.97, 0.915)
+        legend.SetLineColor(0)
+        legend.SetLineStyle(0)
+        legend.SetLineWidth(0)
+        legend.SetFillColor(0)
+        legend.SetFillStyle(0)
+        legend.SetTextFont(62)
+        legend.SetTextSize(0.045)
+        legend.AddEntry("data", "Data", "lep")
+        legend.AddEntry("sig+bkg", "Total", "l")
 
-            # Dummy lines for correct styles in the legend
-            dummy_bkg_line = ROOT.TLine()
-            dummy_bkg_line.SetLineColor(ROOT.kMagenta)
-            dummy_bkg_line.SetLineStyle(ROOT.kDashed)
-            legend.AddEntry(dummy_bkg_line, "Background", "l")
-            dummy_sig_line = ROOT.TLine()
-            dummy_sig_line.SetLineColor(ROOT.kRed)
-            dummy_sig_line.SetLineStyle(ROOT.kDotted)
-            legend.AddEntry(dummy_sig_line, "Signal", "l")
+        # Dummy lines for correct styles in the legend
+        dummy_bkg_line = ROOT.TLine()
+        dummy_bkg_line.SetLineColor(ROOT.kMagenta)
+        dummy_bkg_line.SetLineStyle(ROOT.kDashed)
+        legend.AddEntry(dummy_bkg_line, "Background", "l")
+        dummy_sig_line = ROOT.TLine()
+        dummy_sig_line.SetLineColor(ROOT.kRed)
+        dummy_sig_line.SetLineStyle(ROOT.kDotted)
+        legend.AddEntry(dummy_sig_line, "Signal", "l")
 
-            latex.DrawText(0.2, 0.875, "LHCb Simulation")
-            latex.DrawLatex(0.2, 0.820, "#sqrt{s} = 14 TeV")
-            latex.DrawLatex(0.2, 0.765, f"VELO {timing_int} ps")
-            latex2 = ROOT.TLatex()
-            latex2.SetNDC()
-            latex2.SetTextSize(0.045)
-            latex2.SetTextFont(62)
-            plot_time = time.strftime("%d %m %y", time.localtime())
-            legend.Draw()
+        latex.DrawText(0.2, 0.875, "LHCb Simulation")
+        latex.DrawLatex(0.2, 0.820, "#sqrt{s} = 14 TeV")
+        latex.DrawLatex(0.2, 0.765, f"VELO {timing_int} ps")
+        latex2 = ROOT.TLatex()
+        latex2.SetNDC()
+        latex2.SetTextSize(0.045)
+        latex2.SetTextFont(62)
+        plot_time = time.strftime("%d %m %y", time.localtime())
+        legend.Draw()
 
-            # Second pad
-            c.cd(2)
-            ROOT.gPad.SetLeftMargin(0.15)
-            frame2.GetYaxis().SetTitle("Pulls")
-            frame2.GetXaxis().SetTitle(x_label)  # You can replace with the actual label
-            frame2.GetYaxis().SetTitleOffset(0.65)
-            frame2.GetXaxis().SetTitleOffset(1)
-            frame2.GetYaxis().SetTitleSize(0.06)
-            frame2.GetXaxis().SetTitleSize(0.06)
-            frame2.GetYaxis().SetTitleFont(62)
-            frame2.GetXaxis().SetTitleFont(62)
-            frame2.GetXaxis().SetLabelSize(0.05)
-            frame2.GetYaxis().SetLabelSize(0.05)
-            frame2.GetXaxis().SetLabelFont(62)
-            frame2.GetYaxis().SetLabelFont(62)
-            frame2.Draw()
-            line.Draw("same")
+        # Second pad
+        c.cd(2)
+        ROOT.gPad.SetLeftMargin(0.15)
+        frame2.GetYaxis().SetTitle("Pulls")
+        frame2.GetXaxis().SetTitle(x_label)  # You can replace with the actual label
+        frame2.GetYaxis().SetTitleOffset(0.65)
+        frame2.GetXaxis().SetTitleOffset(1)
+        frame2.GetYaxis().SetTitleSize(0.06)
+        frame2.GetXaxis().SetTitleSize(0.06)
+        frame2.GetYaxis().SetTitleFont(62)
+        frame2.GetXaxis().SetTitleFont(62)
+        frame2.GetXaxis().SetLabelSize(0.05)
+        frame2.GetYaxis().SetLabelSize(0.05)
+        frame2.GetXaxis().SetLabelFont(62)
+        frame2.GetYaxis().SetLabelFont(62)
+        frame2.Draw()
+        line.Draw("same")
 
-            c.cd()
-            c.Update()
-            c.Draw()
+        c.cd()
+        c.Update()
+        c.Draw()
 
-            # Save as PDF
-            basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
-            c.SaveAs(f"{basedir}/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
+        # Save as PDF
+        basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
+        c.SaveAs(f"{basedir}/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
 
 def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
     significances = []
@@ -317,13 +315,12 @@ def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, num
 
     min_significance = min(significances) * 0.4  # Slightly lower than min value
     max_significance = max(significances) * 1.5  # Slightly higher than max value
-    print(significances)
-    #secondpercentile, nintyseventhpercentile = st.norm.interval(0.9, 
-                                                          #  loc=np.median(significances), 
-                                                           # scale=mad(significances))
-    secondpercentile, nintyseventhpercentile = st.norm.interval(0.9, 
-                                                        loc=np.mean(significances), 
-                                                        scale=st.sem(significances))
+    secondpercentile = np.percentile(significances,5)
+    nintyseventhpercentile = np.percentile(significances,95)
+
+   # secondpercentile, nintyseventhpercentile = st.norm.interval(0.9, 
+                                                        #loc=np.mean(significances), 
+                                                       # scale=st.sem(significances))
     #secondpercentile, nintyseventhpercentile = st.poisson.interval(0.95, np.mean(significances))
 
 
@@ -370,40 +367,81 @@ def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, num
     legend.SetTextFont(62)
     legend.SetTextSize(0.04)
     legend.AddEntry(hist, "Data", "l")
-    legend.AddEntry(line_secondpercentile, "95% CI", "l")
+    legend.AddEntry(line_secondpercentile, "95% SL", "l")
     hist.Draw("HIST")
     line_secondpercentile.Draw()
-    line_nintyseventhpercentile.Draw()
     legend.Draw()
-    basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
-    canvas.SaveAs(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}/{R_input}.pdf")
+
+    canvas.SaveAs(f"/home/user294/Documents/selections/python/Outputs/ToyPlots/RScan_Velo{velo_time}/{R_input}.pdf")
+    return secondpercentile, nintyseventhpercentile
+
+def MeanSignificanceSignalNoHist(workspace_file, f_value,suppresion_factor, variables, number_of_models=5, R_input = 1):
+    significances = []
+    
+    # First loop to collect significances
+    for i in range(number_of_models):
+        toy = Toy(workspace_file, f_value,suppresion_factor,variables, R_value = R_input)
+        toy.ScaleSignal()
+        toy.ScaleBackground()
+        toy.FluctuateYields()
+        toy.GenerateModel()
+        toy.Fit_ResetLimit("nbkg", 100,25000)
+        toy.Fit_ResetLimit("nsig",1,25000)
+        toy.Fit_ResetLimit("sigma1",0.003,0.015)
+        toy.Fit_ResetLimit("mu1", 3,4.1)
+        # add a line to discard fits that dont converge (flag errors)
+        significance, significance_error,convergence = toy.Fit_GetSignificance()
+        if convergence == 0:
+            significances.append(significance)
+        else:
+            continue
+    secondpercentile = np.percentile(significances,5)
+    nintyseventhpercentile = np.percentile(significances,95)
     return secondpercentile, nintyseventhpercentile
 
 def RScan(workspace_file, f_value, variables, velo_time=50, number_of_models=5,start_point = 1, step_size = 0.1):
     results_dict = {
     "R": [],
-    "second_percentile": [],
-    "nintyseventh_percentile": []}
+    "UpperPercentile": [],
+    "LowerPercentile": []}
     basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
     makedirs(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}", exist_ok = True)
     for R in  np.arange(start_point, 0, -step_size):
         second_percentile, nintyseventh_percentile = MeanSignificanceSignal(workspace_file, f_value, variables,number_of_models= number_of_models, R_input = R,velo_time=50)
         results_dict["R"].append(R)
         results_dict["LowerPercentile"].append(second_percentile)
-        results_dict["upperPercentile"].append(nintyseventh_percentile)
+        results_dict["UpperPercentile"].append(nintyseventh_percentile)
+    df = pd.DataFrame(results_dict)
+    df.to_csv(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}/results.csv", index=False)
+
+def RScanNoHist(workspace_file, f_value,suppresion_factor, variables, velo_time=50, number_of_models=5,start_point = 1, step_size = 0.1):
+    results_dict = {
+    "R": [],
+    "UpperPercentile": [],
+    "LowerPercentile": []}
+    basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
+    makedirs(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}", exist_ok = True)
+    for R in  np.arange(start_point, 0, -step_size):
+        second_percentile, nintyseventh_percentile = MeanSignificanceSignalNoHist(workspace_file, f_value, suppresion_factor, variables,number_of_models= number_of_models, R_input = R)
+        results_dict["R"].append(R)
+        results_dict["LowerPercentile"].append(second_percentile)
+        results_dict["UpperPercentile"].append(nintyseventh_percentile)
     df = pd.DataFrame(results_dict)
     df.to_csv(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}/results.csv", index=False)
 
 
-
 if __name__ == "__main__":
-    basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
-    signal_workspace_file = f"{basedir}/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/WSPACE.root"
-    signal_efficiency_purity_file = f"{basedir}/Outputs/XisToXis/Velo50DanFix/xiccp_5_sigma/PurityEfficiency.txt"
-    control_efficiency_purity_file = f"{basedir}/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
-    control_workspace_file = f"{basedir}/Outputs/XisToLambdas/Velo50DanFix/xiccpp_5_sigma/WSPACE.root"
-    velo_time = 50
-    f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
+    basedir= f"/home/user294/Documents/selections/python"
+    velo_time = 30
+    signal_workspace_file = f"{basedir}/Outputs/XisToXis/Velo{velo_time}DanFix/xiccp_5_sigma/WSPACE.root"
+    signal_efficiency_purity_file = f"{basedir}/Outputs/XisToXis/Velo{velo_time}DanFix/xiccp_5_sigma/PurityEfficiency.txt"
+    control_efficiency_purity_file = f"{basedir}/Outputs/XisToLambdas/Velo{velo_time}DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
+    control_workspace_file = f"{basedir}/Outputs/XisToLambdas/Velo{velo_time}DanFix/xiccpp_5_sigma/WSPACE.root"
+    f_values = {30: 2.3074, 50: 2.3074, 70: 2.3755, 100: 2.3074, 200: 2.3074}
+    suppresion_factors = {30: 0.65 , 50: 0.76 ,70:0.91545893719
+ , 100: 1.06}
+    suppresion_factor = suppresion_factors[velo_time]
     f_value = f_values[velo_time]
     variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
-    RScan(signal_workspace_file, f_value, variables, velo_time=50, number_of_models=100,start_point = 1, step_size = 0.5)
+    #RScan(signal_workspace_file, f_value, variables, velo_time=50, number_of_models=500,start_point = 1, step_size = 0.1)
+    RScanNoHist(signal_workspace_file, f_value, suppresion_factor, variables, number_of_models=500,start_point = 0.2, step_size = 0.02, velo_time=velo_time)
