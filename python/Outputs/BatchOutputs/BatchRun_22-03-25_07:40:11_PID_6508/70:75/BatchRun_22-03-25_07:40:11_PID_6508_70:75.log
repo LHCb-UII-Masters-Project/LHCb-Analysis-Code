@@ -1,0 +1,67 @@
+000 (30192.000.000) 2025-03-22 07:40:54 Job submitted from host: <147.188.47.47:9618?addrs=147.188.47.47-9618&alias=eprexb.ph.bham.ac.uk&noUDP&sock=schedd_1171491_f6ca>
+...
+040 (30192.000.000) 2025-03-22 07:41:06 Started transferring input files
+	Transferring to host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=slot1_27_4244_0826_70260>
+...
+040 (30192.000.000) 2025-03-22 07:41:06 Finished transferring input files
+...
+001 (30192.000.000) 2025-03-22 07:41:07 Job executing on host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=startd_4189_e251>
+	SlotName: slot1_27@eplwk002.ph.bham.ac.uk
+	CondorScratchDir = "/var/lib/condor/execute/dir_407540"
+	Cpus = 1
+	Disk = 7681
+	GPUs = 0
+	Memory = 4096
+...
+006 (30192.000.000) 2025-03-22 07:41:16 Image size of job updated: 428268
+	419  -  MemoryUsage of job (MB)
+	428268  -  ResidentSetSize of job (KB)
+...
+006 (30192.000.000) 2025-03-22 07:46:16 Image size of job updated: 1598880
+	1562  -  MemoryUsage of job (MB)
+	1598764  -  ResidentSetSize of job (KB)
+...
+006 (30192.000.000) 2025-03-22 07:51:16 Image size of job updated: 2387224
+	2332  -  MemoryUsage of job (MB)
+	2387040  -  ResidentSetSize of job (KB)
+...
+006 (30192.000.000) 2025-03-22 07:56:17 Image size of job updated: 2840924
+	2775  -  MemoryUsage of job (MB)
+	2840672  -  ResidentSetSize of job (KB)
+...
+006 (30192.000.000) 2025-03-22 08:01:18 Image size of job updated: 3166028
+	3092  -  MemoryUsage of job (MB)
+	3165776  -  ResidentSetSize of job (KB)
+...
+006 (30192.000.000) 2025-03-22 08:06:18 Image size of job updated: 3562444
+	3479  -  MemoryUsage of job (MB)
+	3562108  -  ResidentSetSize of job (KB)
+...
+006 (30192.000.000) 2025-03-22 08:06:55 Image size of job updated: 3599980
+	3479  -  MemoryUsage of job (MB)
+	3562492  -  ResidentSetSize of job (KB)
+...
+040 (30192.000.000) 2025-03-22 08:06:55 Started transferring output files
+...
+040 (30192.000.000) 2025-03-22 08:06:55 Finished transferring output files
+...
+005 (30192.000.000) 2025-03-22 08:06:55 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:01:53, Sys 0 00:00:08  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:01:53, Sys 0 00:00:08  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	2721  -  Run Bytes Sent By Job
+	956  -  Run Bytes Received By Job
+	2721  -  Total Bytes Sent By Job
+	956  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.00        1         1 
+	   Disk (KB)            :    41           1      7681 
+	   GPUs                 :                           0 
+	   Memory (MB)          :  3479        4000      4096 
+	   TimeExecute (s)      :  1548                       
+	   TimeSlotBusy (s)     :  1549                       
+
+	Job terminated of its own accord at 2025-03-22T08:06:55Z with exit-code 0.
+...

@@ -1,0 +1,9 @@
+Executable = /home/user293/Documents/selections/python/Outputs/BatchOutputs/Toy214-03-25_10:38:56/Toy214-03-25_10:38:56_Sub.sh
+output = /home/user293/Documents/selections/python/Outputs/BatchOutputs/Toy214-03-25_10:38:56/Toy214-03-25_10:38:56.o
+error = /home/user293/Documents/selections/python/Outputs/BatchOutputs/Toy214-03-25_10:38:56/Toy214-03-25_10:38:56.e
+log = /home/user293/Documents/selections/python/Outputs/BatchOutputs/Toy214-03-25_10:38:56/Toy214-03-25_10:38:56.log
+getenv = True
+request_memory = 100000
+request_cpus = 1
++SingularityImage = "/image/alma9-image"
+queue

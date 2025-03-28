@@ -1,0 +1,68 @@
+000 (30390.000.000) 2025-03-26 18:23:43 Job submitted from host: <147.188.47.47:9618?addrs=147.188.47.47-9618&alias=eprexb.ph.bham.ac.uk&noUDP&sock=schedd_1171491_f6ca>
+...
+040 (30390.000.000) 2025-03-26 18:23:58 Started transferring input files
+	Transferring to host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=slot1_1_4244_0826_70714>
+...
+040 (30390.000.000) 2025-03-26 18:23:58 Finished transferring input files
+...
+001 (30390.000.000) 2025-03-26 18:23:59 Job executing on host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=startd_4189_e251>
+	SlotName: slot1_1@eplwk002.ph.bham.ac.uk
+	CondorScratchDir = "/var/lib/condor/execute/dir_867086"
+	Cpus = 1
+	Disk = 7681
+	GPUs = 0
+	Memory = 100096
+...
+006 (30390.000.000) 2025-03-26 18:24:08 Image size of job updated: 969224
+	947  -  MemoryUsage of job (MB)
+	968740  -  ResidentSetSize of job (KB)
+...
+006 (30390.000.000) 2025-03-26 18:29:09 Image size of job updated: 20847332
+	20359  -  MemoryUsage of job (MB)
+	20847332  -  ResidentSetSize of job (KB)
+...
+006 (30390.000.000) 2025-03-26 18:34:10 Image size of job updated: 40396248
+	39450  -  MemoryUsage of job (MB)
+	40396248  -  ResidentSetSize of job (KB)
+...
+006 (30390.000.000) 2025-03-26 18:39:10 Image size of job updated: 59840308
+	58438  -  MemoryUsage of job (MB)
+	59840308  -  ResidentSetSize of job (KB)
+...
+006 (30390.000.000) 2025-03-26 18:44:11 Image size of job updated: 79255432
+	77398  -  MemoryUsage of job (MB)
+	79255432  -  ResidentSetSize of job (KB)
+...
+006 (30390.000.000) 2025-03-26 18:49:12 Image size of job updated: 97378748
+	95097  -  MemoryUsage of job (MB)
+	97378748  -  ResidentSetSize of job (KB)
+...
+006 (30390.000.000) 2025-03-26 18:54:12 Image size of job updated: 102498304
+	100086  -  MemoryUsage of job (MB)
+	102487376  -  ResidentSetSize of job (KB)
+...
+021 (30390.000.000) 2025-03-26 18:54:15 Error from starter on slot1_1@eplwk002.ph.bham.ac.uk:
+	Your job used too much virtual memory.
+	Code 21 Subcode 0
+...
+004 (30390.000.000) 2025-03-26 18:54:15 Job was evicted.
+	(0) CPU times
+		Usr 0 00:28:32, Sys 0 00:01:22  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+	0  -  Run Bytes Sent By Job
+	978  -  Run Bytes Received By Job
+	Error from slot1_1@eplwk002.ph.bham.ac.uk: Your job used too much virtual memory.
+	Partitionable Resources :     Usage  Request Allocated 
+	   Cpus                 :      0.99        1         1 
+	   Disk (KB)            :   2273           1      7681 
+	   GPUs                 :                            0 
+	   Memory (MB)          : 100086      100000    100096 
+	   TimeSlotBusy (s)     :   1817                       
+...
+012 (30390.000.000) 2025-03-26 18:54:15 Job was held.
+	Error from slot1_1@eplwk002.ph.bham.ac.uk: Your job used too much virtual memory.
+	Code 21 Subcode 0
+...
+009 (30390.000.000) 2025-03-26 19:03:50 Job was aborted.
+	via condor_rm (by user user293)
+...

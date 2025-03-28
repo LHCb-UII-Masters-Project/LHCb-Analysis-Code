@@ -1,5 +1,5 @@
-Unweighted Control Significance = 12.86528832514339 +- 2.0631381007331546
-Weighted Control Significance = 12.23829484749814 +- 0.05663764844180792
-Greater than or equal to 9.774263532750853 with 95% CL
+Unweighted Control Significance = 12.76302500587588 +- 2.1616287296610825
+Weighted Control Significance = 12.112317591418932 +- 0.05557174292979142
+Greater than or equal to 9.611127075738208 with 95% CL
 Greater than or equal to 3 with 100.0% CL
 Greater than or equal to 5 with 100.0% CL

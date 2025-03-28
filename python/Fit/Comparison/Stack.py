@@ -23,7 +23,7 @@ latex.SetNDC()
 import argparse
 import ROOT
 
-particle = "B"
+particle = "D"
 
 parser = argparse.ArgumentParser(description='Open a ROOT file and process data.')
 parser.add_argument('input_files',nargs="+", type=str, help='Path to the input ROOT file') 
@@ -222,7 +222,7 @@ with LHCbStyle() as lbs:
     pid_status_string = "_".join(pid_strings)
     
     current_time = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
-    hist_canvas.SaveAs(f"ComparisonPlots/{particle}_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.pdf", "pdf 800")
+    hist_canvas.SaveAs(f"{particle}_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.pdf", "pdf 800")
 
 ascii_art = """
 .%%%%%%..%%..%%...%%%%...%%..%%..........%%%%%...%%.......%%%%...%%%%%%.

@@ -1,0 +1,40 @@
+000 (30397.000.000) 2025-03-27 00:09:52 Job submitted from host: <147.188.47.47:9618?addrs=147.188.47.47-9618&alias=eprexb.ph.bham.ac.uk&noUDP&sock=schedd_1171491_f6ca>
+...
+040 (30397.000.000) 2025-03-27 00:09:56 Started transferring input files
+	Transferring to host: <147.188.47.71:9618?addrs=147.188.47.71-9618&alias=eplwk001.ph.bham.ac.uk&noUDP&sock=slot1_1_4297_6008_50313>
+...
+040 (30397.000.000) 2025-03-27 00:09:56 Finished transferring input files
+...
+001 (30397.000.000) 2025-03-27 00:09:57 Job executing on host: <147.188.47.71:9618?addrs=147.188.47.71-9618&alias=eplwk001.ph.bham.ac.uk&noUDP&sock=startd_4239_2e0d>
+	SlotName: slot1_1@eplwk001.ph.bham.ac.uk
+	CondorScratchDir = "/var/lib/condor/execute/dir_1291732"
+	Cpus = 1
+	Disk = 7686
+	GPUs = 0
+	Memory = 400000
+...
+006 (30397.000.000) 2025-03-27 00:10:06 Image size of job updated: 991860
+	969  -  MemoryUsage of job (MB)
+	991860  -  ResidentSetSize of job (KB)
+...
+006 (30397.000.000) 2025-03-27 00:13:05 Image size of job updated: 8332456
+	969  -  MemoryUsage of job (MB)
+	992128  -  ResidentSetSize of job (KB)
+...
+004 (30397.000.000) 2025-03-27 00:13:05 Job was evicted.
+	(0) CPU times
+		Usr 0 00:02:51, Sys 0 00:00:08  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+	0  -  Run Bytes Sent By Job
+	978  -  Run Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :        0        1         1 
+	   Disk (KB)            :      171        1      7686 
+	   GPUs                 :                           0 
+	   Memory (MB)          :      969   400000    400000 
+	   TimeExecute (s)      :      188                    
+	   TimeSlotBusy (s)     :      189                    
+...
+009 (30397.000.000) 2025-03-27 00:13:05 Job was aborted.
+	via condor_rm (by user user293)
+...

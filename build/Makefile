@@ -57,10 +57,10 @@ RM = /cvmfs/sft.cern.ch/lcg/releases/CMake/3.26.2-0664a/x86_64-el9-gcc12-opt/bin
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/user294/Documents/selections
+CMAKE_SOURCE_DIR = /home/user293/Documents/selections
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/user294/Documents/selections/build
+CMAKE_BINARY_DIR = /home/user293/Documents/selections/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/user294/Documents/selections/build/CMakeFiles /home/user294/Documents/selections/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/user293/Documents/selections/build/CMakeFiles /home/user293/Documents/selections/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/user294/Documents/selections/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/user293/Documents/selections/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

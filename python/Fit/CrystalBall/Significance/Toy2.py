@@ -73,7 +73,13 @@ class Toy:
 
         self.original_nbkg = self.model.getVariables().find("nbkg").getVal()
         self.original_nsig = self.model.getVariables().find("nsig").getVal()
-        
+
+        #Reset Limits
+        self.Fit_ResetLimit("nbkg", 1,30000)
+        self.Fit_ResetLimit("nsig",1,30000)
+        self.Fit_ResetLimit("sigma1",0.001,0.010)
+        self.Fit_ResetLimit("mu1", 3,4.1)
+
         self.f = f_value
         self.R = R_value
         self.suppresion_factor = suppresion_factor
@@ -103,7 +109,7 @@ class Toy:
         variable_for_fluctuation = self.model.getVariables().find("nsig")
         fluctuated_variable = ROOT.gRandom.Poisson(self.original_nsig)
         variable_for_fluctuation.setVal(fluctuated_variable)
-    
+
     def FluctuateYields(self):
         self.FluctuateSignal()
         self.FluctuateBackground()
@@ -131,10 +137,12 @@ class Toy:
         sigma = self.w.var("sigma1")
         nsig = self.w.var("nsig")
         nbkg = self.w.var("nbkg")
+        self.model.getVariables().find("bkg_coef1").setConstant(True)
+        self.model.getVariables().find("bkg_coef2").setConstant(True)
         significance = ROOT.RooFormulaVar("significance",  "significance", "nsig/sqrt(nsig + nbkg)",  ROOT.RooArgList(nsig, nbkg))
         minos_params = ROOT.RooArgSet(mu, sigma, nsig, nbkg)
         fit_result = self.model.fitTo(self.generated_data, ROOT.RooFit.PrintLevel(-1),
-                                      ROOT.RooFit.Strategy(1),
+                                      ROOT.RooFit.Strategy(2),
                                       ROOT.RooFit.Minimizer("Minuit2"),
                                       ROOT.RooFit.Extended(True),
                                       ROOT.RooFit.Save(),
@@ -206,7 +214,7 @@ class Toy:
         frame1.GetYaxis().SetTitle(f"Entries/ ({round(energy_range,3)} MeV/c^{{2}})")
         frame1.GetXaxis().SetTitle(x_label)  # You can replace with the actual label
         frame1.GetYaxis().SetTitleOffset(1.15)
-        frame1.GetXaxis().SetTitleOffset(1)
+        frame1.GetXaxis().SetTitleOffset(0.72)
         frame1.GetYaxis().SetTitleFont(62)
         frame1.GetXaxis().SetTitleFont(62)
         frame1.GetYaxis().SetTitleSize(0.06)
@@ -218,7 +226,7 @@ class Toy:
         frame1.Draw()
 
         # Add the legend with LaTeX formatting
-        legend = ROOT.TLegend(0.67, 0.7, 0.97, 0.915)
+        legend = ROOT.TLegend(0.63, 0.7, 0.94, 0.875)
         legend.SetLineColor(0)
         legend.SetLineStyle(0)
         legend.SetLineWidth(0)
@@ -239,9 +247,9 @@ class Toy:
         dummy_sig_line.SetLineStyle(ROOT.kDotted)
         legend.AddEntry(dummy_sig_line, "Signal", "l")
 
-        latex.DrawText(0.2, 0.875, "LHCb Simulation")
-        latex.DrawLatex(0.2, 0.820, "#sqrt{s} = 14 TeV")
-        latex.DrawLatex(0.2, 0.765, f"VELO {timing_int} ps")
+        latex.DrawText(0.2, 0.85, "LHCb Simulation")
+        latex.DrawLatex(0.2, 0.80, "#sqrt{s} = 14 TeV")
+        latex.DrawLatex(0.2, 0.745, f"VELO {timing_int} ps")
         latex2 = ROOT.TLatex()
         latex2.SetNDC()
         latex2.SetTextSize(0.045)
@@ -255,7 +263,7 @@ class Toy:
         frame2.GetYaxis().SetTitle("Pulls")
         frame2.GetXaxis().SetTitle(x_label)  # You can replace with the actual label
         frame2.GetYaxis().SetTitleOffset(0.65)
-        frame2.GetXaxis().SetTitleOffset(1)
+        frame2.GetXaxis().SetTitleOffset(0.72)
         frame2.GetYaxis().SetTitleSize(0.06)
         frame2.GetXaxis().SetTitleSize(0.06)
         frame2.GetYaxis().SetTitleFont(62)
@@ -273,7 +281,7 @@ class Toy:
 
         # Save as PDF
         basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
-        c.SaveAs(f"{basedir}/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
+        c.SaveAs(f"{basedir}/Fit/CrystalBall/Significance/Figures/" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + "FitT.pdf","pdf 800")    
 
 def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
     significances = []
@@ -292,12 +300,12 @@ def MeanSignificanceControl(workspace_file,f_value,number_of_models=5):
         significance_errors.append(significance_error)
 
 
-def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, number_of_models=5, R_input = 1):
+def MeanSignificanceSignal(workspace_file, f_value, suppresion_factor, variables, velo_time=50, number_of_models=5, R_input = 1):
     significances = []
     
     # First loop to collect significances
     for i in range(number_of_models):
-        toy = Toy(workspace_file, f_value,variables, R_value = R_input)
+        toy = Toy(workspace_file, f_value, suppresion_factor, variables, R_value = R_input)
         toy.ScaleSignal()
         toy.ScaleBackground()
         toy.FluctuateYields()
@@ -372,7 +380,9 @@ def MeanSignificanceSignal(workspace_file, f_value, variables, velo_time=50, num
     line_secondpercentile.Draw()
     legend.Draw()
 
-    canvas.SaveAs(f"/home/user294/Documents/selections/python/Outputs/ToyPlots/RScan_Velo{velo_time}/{R_input}.pdf")
+    makedirs(f"{basedir}/Outputs/ToyPlots/SigRScan_Velo{velo_time}", exist_ok = True)
+
+    canvas.SaveAs(f"/home/user293/Documents/selections/python/Outputs/ToyPlots/SigRScan_Velo{velo_time}/{R_input}.pdf")
     return secondpercentile, nintyseventhpercentile
 
 def MeanSignificanceSignalNoHist(workspace_file, f_value,suppresion_factor, variables, number_of_models=5, R_input = 1):
@@ -385,10 +395,6 @@ def MeanSignificanceSignalNoHist(workspace_file, f_value,suppresion_factor, vari
         toy.ScaleBackground()
         toy.FluctuateYields()
         toy.GenerateModel()
-        toy.Fit_ResetLimit("nbkg", 100,30000)
-        toy.Fit_ResetLimit("nsig",1,30000)
-        toy.Fit_ResetLimit("sigma1",0.003,0.015)
-        toy.Fit_ResetLimit("mu1", 3,4.1)
         # add a line to discard fits that dont converge (flag errors)
         significance, significance_error,convergence = toy.Fit_GetSignificance()
         if (convergence == 0) and (significance > 0):
@@ -403,6 +409,12 @@ def MeanSignificanceSignalNoHist(workspace_file, f_value,suppresion_factor, vari
     total = len(significances)
     p = num_above/total
     standard_error = np.sqrt(p*(1-p)/total)
+
+    # Create DataFrame
+    df = pd.DataFrame({"Significance": significances})
+    # Save to CSV
+    df.to_csv(f"/home/user293/Documents/selections/python/Outputs/ToyPlots/SigModels{number_of_models}Velo{velo_time}R{R_input}.csv", index=False)
+
     return secondpercentile, nintyseventhpercentile,standard_error
 
 def RScan(workspace_file, f_value, variables, velo_time=50, number_of_models=5,start_point = 1, step_size = 0.1):
@@ -420,38 +432,66 @@ def RScan(workspace_file, f_value, variables, velo_time=50, number_of_models=5,s
     df = pd.DataFrame(results_dict)
     df.to_csv(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}/results.csv", index=False)
 
-def RScanNoHist(workspace_file, f_value,suppresion_factor, variables, velo_time=50, number_of_models=5,start_point = 1, step_size = 0.1):
+def RScanNoHist(workspace_file, f_value,suppresion_factor, variables, velo_time=50, number_of_models=5,start_point = 1, step_size = 0.1, is_sup = "Off"):
     results_dict = {
     "R": [],
     "UpperPercentile": [],
     "LowerPercentile": [],
     "StandardError": []}
     basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
-    makedirs(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}", exist_ok = True)
+    makedirs(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}Sup{is_sup}_95", exist_ok = True)
     for R in  np.arange(start_point, 0, -step_size):
-        second_percentile, nintyseventh_percentile,SE = MeanSignificanceSignalNoHist(workspace_file, f_value, suppresion_factor, variables,number_of_models= number_of_models, R_input = R)
+        second_percentile, nintyseventh_percentile,SE = MeanSignificanceSignal(workspace_file, f_value, suppresion_factor, variables,number_of_models= number_of_models, R_input = R)
         results_dict["R"].append(R)
         results_dict["LowerPercentile"].append(second_percentile)
         results_dict["UpperPercentile"].append(nintyseventh_percentile)
         results_dict["StandardError"].append(SE)
     df = pd.DataFrame(results_dict)
-    df.to_csv(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}/results.csv", index=False)
+    df.to_csv(f"{basedir}/Outputs/ToyPlots/RScan_Velo{velo_time}Sup{is_sup}_90/results.csv", index=False)
 
 
 if __name__ == "__main__":
-    basedir= f"/home/user294/Documents/selections/python"
-    velo_time = 100
-    signal_workspace_file = f"{basedir}/Outputs/XisToXis/Velo{velo_time}DanFix/xiccp_5_sigma/WSPACE.root"
-    signal_efficiency_purity_file = f"{basedir}/Outputs/XisToXis/Velo{velo_time}DanFix/xiccp_5_sigma/PurityEfficiency.txt"
+    basedir= f"/home/user293/Documents/selections/python"
+    velo_time = 50
+    signal_workspace_file = f"{basedir}/Outputs/EuanSignal/Velo{velo_time}/Xi5Sigma/WSPACE.root"
+    signal_efficiency_purity_file = f"{basedir}/Outputs/EuanSignal/Velo{velo_time}/Xi5Sigma/PurityEfficiency.txt"
     control_efficiency_purity_file = f"{basedir}/Outputs/XisToLambdas/Velo{velo_time}DanFix/xiccpp_5_sigma/PurityEfficiency.txt"
     control_workspace_file = f"{basedir}/Outputs/XisToLambdas/Velo{velo_time}DanFix/xiccpp_5_sigma/WSPACE.root"
-    f_values = {30: 2.3074, 50: 2.3074, 70: 2.3755, 100: 2.3074, 200: 2.3074}
-    #f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
+    #Same
+    #f_values = {30: 2.3074, 50: 2.3074, 70: 2.3755, 100: 2.3074, 200: 2.3074}
+    #Control
+    f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
+    #Fudge
+    #f_values = {30: 2.4638*0.013, 50: 2.3074*0.013, 70: 2.3755*0.013, 100: 2.2675*0.013, 200: 2.9514*0.013}
 
-    suppresion_factors = {30: 0.65 , 50: 0.76 ,70:0.91545893719
- , 100: 1.06}
+    # None
+    #suppresion_factors = {30:1, 50:1, 70:1, 100:1, 200:1}
+    #supression = "Off"
+    #cControl
+    #suppresion_factors = {30:0.87 , 50:0.97 , 70:0.92 , 100:1 , 200:0.65}
+    #supression = "Control"
+    # Signal
+    suppresion_factors = {30: 0.61, 50:0.68 , 70:0.88 , 100:0.90 , 200:1}
+    supression = "Signal"
+
     suppresion_factor = suppresion_factors[velo_time]
     f_value = f_values[velo_time]
     variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
-    #RScan(signal_workspace_file, f_value, variables, velo_time=50, number_of_models=500,start_point = 1, step_size = 0.1)
-    RScanNoHist(signal_workspace_file, f_value, suppresion_factor, variables, number_of_models=500,start_point = 0.2, step_size = 0.02, velo_time=velo_time)
+    #RScan(signal_workspace_file, f_value, variables, velo_time=50, number_of_models=1000,start_point = 1, step_size = 0.1)
+    #RScanNoHist(signal_workspace_file, f_value, suppresion_factor, variables, number_of_models=1000,start_point = 0.5, step_size = 0.05, velo_time=velo_time, is_sup = supression)
+    #MeanSignificanceSignalNoHist(signal_workspace_file, f_value, suppresion_factor, variables, number_of_models=1000, R_input = 0.5)
+
+    toy = Toy(signal_workspace_file, f_value, suppresion_factor, variables, R_value = 0.5)
+    toy.model.getVariables().find("bkg_coef1").setConstant(True)
+    toy.model.getVariables().find("bkg_coef2").setConstant(True)
+    toy.ScaleSignal()
+    toy.ScaleBackground()
+    toy.FluctuateYields()
+    toy.GenerateModel()
+    toy.Fit_ResetLimit("nbkg", 100,15000)
+    toy.Fit_ResetLimit("nsig",1,8000)
+    toy.Fit_ResetLimit("sigma1",0.003,0.015)
+    toy.Fit_ResetLimit("mu1", 3,4.1)
+    significance, significance_error,convergence = toy.Fit_GetSignificance()
+    toy.Fit_Visualise("xiccp", 50)
+    print(convergence)

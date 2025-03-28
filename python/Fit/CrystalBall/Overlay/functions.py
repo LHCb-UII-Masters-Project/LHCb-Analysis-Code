@@ -333,7 +333,8 @@ def Signals(x_models,models,data_sets,timings,dummy_objects,bins,output_director
         frame.GetYaxis().SetLabelSize(0.05)
         frame.GetXaxis().SetLabelFont(62)
         frame.GetYaxis().SetLabelFont(62)
-        
+
+        frame.GetYaxis().SetRangeUser(0, 600)       
         frame.Draw()
         legend.Draw()
         latex.DrawText(0.2,0.875,"LHCb Simulation")

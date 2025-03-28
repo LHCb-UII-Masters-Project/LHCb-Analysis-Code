@@ -39,7 +39,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
     '''
     
     #will create a general condor out folder that stores all the results and details
-    jobDir = f"/home/user294/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
+    jobDir = f"/home/user293/Documents/selections/python/Outputs/BatchOutputs/{batchJobName}{f'/{subJobName}' if subJobName is not None else ''}"
 
     os.makedirs(jobDir,exist_ok=True,)
     #now empty dir if there is anything in there!
@@ -48,7 +48,7 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
     subScript=f"{jobDir}/{batchJobName.replace('/','_')}{('_'+subJobName) if subJobName is not None else ''}_Sub.sh"
     with open(subScript,"w") as f:
         f.write('#!/bin/bash\n')#'#!/cvmfs/lhcbdev.cern.ch/conda/envs/default/2021-06-29_07-31/linux-64/bin/bash\n')
-        f.write('export USER="294"\nshopt -s expand_aliases\nsource /cvmfs/lhcb.cern.ch/lib/LbEnv\nexport LC_ALL=C\n')
+        f.write('export USER="293"\nshopt -s expand_aliases\nsource /cvmfs/lhcb.cern.ch/lib/LbEnv\nexport LC_ALL=C\n')
         for e in extraSetupCommands:
             f.write(e+'\n')
         f.write(f"cp {scriptPath} {jobDir}/.\n")
@@ -87,11 +87,11 @@ delayStart - put this many seconds of delay into the script, sometimes useful if
         time.sleep(3) #try to fix concurrency problem?
         return condorOut
 
-scriptPath = "/home/user294/Documents/selections/python/Fit/CrystalBall/Significance/Toy2.py"
-basedir= f"/home/user294/Documents/selections/python"
+scriptPath = "/home/user293/Documents/selections/python/Fit/CrystalBall/Significance/Toy2.py"
+basedir= f"/home/user293/Documents/selections/python"
 preprocess =  ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
-batchJobName = "TrialForToy2_100ps"
+batchJobName = "Toy2" + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 
 runThisScriptOnCondor(scriptPath,batchJobName,extraArgs=preprocess,subJobName=None,
                             launchEnv="",extraSetupCommands = preprocess,
-                            condorSettings={"request_memory":"150000", "request_cpus":"1"},delayStart=None, is_local=False)
+                            condorSettings={"request_memory":"100000", "request_cpus":"1"},delayStart=None, is_local=False)

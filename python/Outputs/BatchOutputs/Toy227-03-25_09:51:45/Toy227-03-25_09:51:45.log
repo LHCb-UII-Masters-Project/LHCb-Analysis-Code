@@ -1,0 +1,47 @@
+000 (30409.000.000) 2025-03-27 09:51:45 Job submitted from host: <147.188.47.47:9618?addrs=147.188.47.47-9618&alias=eprexb.ph.bham.ac.uk&noUDP&sock=schedd_1171491_f6ca>
+...
+040 (30409.000.000) 2025-03-27 09:51:49 Started transferring input files
+	Transferring to host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=slot1_2_4244_0826_70722>
+...
+040 (30409.000.000) 2025-03-27 09:51:49 Finished transferring input files
+...
+001 (30409.000.000) 2025-03-27 09:51:50 Job executing on host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=startd_4189_e251>
+	SlotName: slot1_2@eplwk002.ph.bham.ac.uk
+	CondorScratchDir = "/var/lib/condor/execute/dir_886724"
+	Cpus = 1
+	Disk = 7681
+	GPUs = 0
+	Memory = 100096
+...
+006 (30409.000.000) 2025-03-27 09:51:59 Image size of job updated: 521636
+	510  -  MemoryUsage of job (MB)
+	521636  -  ResidentSetSize of job (KB)
+...
+006 (30409.000.000) 2025-03-27 09:56:05 Image size of job updated: 16495620
+	510  -  MemoryUsage of job (MB)
+	521800  -  ResidentSetSize of job (KB)
+...
+040 (30409.000.000) 2025-03-27 09:56:05 Started transferring output files
+...
+040 (30409.000.000) 2025-03-27 09:56:05 Finished transferring output files
+...
+005 (30409.000.000) 2025-03-27 09:56:05 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:03:56, Sys 0 00:00:13  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:03:56, Sys 0 00:00:13  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	320886  -  Run Bytes Sent By Job
+	978  -  Run Bytes Received By Job
+	320886  -  Total Bytes Sent By Job
+	978  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.99        1         1 
+	   Disk (KB)            :   351           1      7681 
+	   GPUs                 :                           0 
+	   Memory (MB)          :   510      100000    100096 
+	   TimeExecute (s)      :   255                       
+	   TimeSlotBusy (s)     :   256                       
+
+	Job terminated of its own accord at 2025-03-27T09:56:05Z with exit-code 0.
+...

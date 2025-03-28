@@ -1,0 +1,59 @@
+000 (30362.000.000) 2025-03-22 07:45:12 Job submitted from host: <147.188.47.47:9618?addrs=147.188.47.47-9618&alias=eprexb.ph.bham.ac.uk&noUDP&sock=schedd_1171491_f6ca>
+...
+040 (30362.000.000) 2025-03-22 07:45:14 Started transferring input files
+	Transferring to host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=slot1_124_4244_0826_70430>
+...
+040 (30362.000.000) 2025-03-22 07:45:14 Finished transferring input files
+...
+001 (30362.000.000) 2025-03-22 07:45:15 Job executing on host: <147.188.47.72:9618?addrs=147.188.47.72-9618&alias=eplwk002.ph.bham.ac.uk&noUDP&sock=startd_4189_e251>
+	SlotName: slot1_124@eplwk002.ph.bham.ac.uk
+	CondorScratchDir = "/var/lib/condor/execute/dir_488178"
+	Cpus = 1
+	Disk = 7681
+	GPUs = 0
+	Memory = 4096
+...
+006 (30362.000.000) 2025-03-22 07:45:23 Image size of job updated: 262944
+	257  -  MemoryUsage of job (MB)
+	262944  -  ResidentSetSize of job (KB)
+...
+006 (30362.000.000) 2025-03-22 07:50:23 Image size of job updated: 532388
+	519  -  MemoryUsage of job (MB)
+	531364  -  ResidentSetSize of job (KB)
+...
+006 (30362.000.000) 2025-03-22 07:55:24 Image size of job updated: 793768
+	776  -  MemoryUsage of job (MB)
+	793604  -  ResidentSetSize of job (KB)
+...
+006 (30362.000.000) 2025-03-22 08:00:24 Image size of job updated: 1129712
+	1103  -  MemoryUsage of job (MB)
+	1129460  -  ResidentSetSize of job (KB)
+...
+006 (30362.000.000) 2025-03-22 08:02:43 Image size of job updated: 1298168
+	1104  -  MemoryUsage of job (MB)
+	1130100  -  ResidentSetSize of job (KB)
+...
+040 (30362.000.000) 2025-03-22 08:02:43 Started transferring output files
+...
+040 (30362.000.000) 2025-03-22 08:02:43 Finished transferring output files
+...
+005 (30362.000.000) 2025-03-22 08:02:43 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:00:26, Sys 0 00:00:05  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:26, Sys 0 00:00:05  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	2725  -  Run Bytes Sent By Job
+	966  -  Run Bytes Received By Job
+	2725  -  Total Bytes Sent By Job
+	966  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.00        1         1 
+	   Disk (KB)            :    41           1      7681 
+	   GPUs                 :                           0 
+	   Memory (MB)          :  1104        4000      4096 
+	   TimeExecute (s)      :  1048                       
+	   TimeSlotBusy (s)     :  1050                       
+
+	Job terminated of its own accord at 2025-03-22T08:02:43Z with exit-code 0.
+...

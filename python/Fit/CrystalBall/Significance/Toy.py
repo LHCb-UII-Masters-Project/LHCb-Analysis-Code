@@ -355,23 +355,6 @@ if __name__ == "__main__":
     #control_toy.ScaleBackground()
     #control_toy.FluctuateYields()
     #control_toy.GenerateModel()
-<<<<<<< HEAD
-   # control_toy.Fit_ResetLimit("nbkg", 100,10000)
-   # control_toy.Fit_ResetLimit("nsig",100,10000)
-   # control_toy.Fit_Visualise("xiccpp",50,30)
-
-    variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
-   # signal_toy = Toy(signal_workspace_file, f_value, variables)
-    #signal_toy.ScaleSignal()
-    #signal_toy.ScaleBackground()
-    #signal_toy.FluctuateYields()
-    #signal_toy.GenerateModel()
-    #signal_toy.Fit_ResetLimit("nbkg", 100,20000)
-    #signal_toy.Fit_ResetLimit("nsig",1,20000)
-    #signal_toy.Fit_Visualise("xiccp",velo_time,30)
-    MeanSignificanceSignal(signal_workspace_file,f_value,variables,number_of_models=10)
-
-=======
     #control_toy.Fit_ResetLimit("nbkg", 100,10000)
     #control_toy.Fit_ResetLimit("nsig",100,10000)
    #control_toy.Fit_Visualise("xiccpp",50,30)
@@ -386,4 +369,3 @@ if __name__ == "__main__":
     signal_toy.Fit_ResetLimit("nsig",100,20000)
     signal_toy.Fit_Visualise("xiccp",velo_time,30)
     MeanSignificanceSignal(control_workspace_file,f_value,variables,velo_time,number_of_models=3)
->>>>>>> 5f3286f4d797e5c6449bc6032925f731a7c6b095

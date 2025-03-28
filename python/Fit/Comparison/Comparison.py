@@ -40,7 +40,7 @@ marker_styles = []
 for index,file_name in enumerate(args.input_files):
 # Open the ROOT files and get the histograms
     root_file = ROOT.TFile.Open(file_name, "READ")
-    file_hist = root_file.Get("B_Histogram")
+    file_hist = root_file.Get("D_Histogram")
     file_tree = root_file.Get("RunParams")
     file_tree.SetDirectory(0)
     file_hist.SetDirectory(0)
@@ -106,7 +106,7 @@ with LHCbStyle() as lbs:
 
         histogram.SetTitle("")
         histogram.GetYaxis().SetTitle("Entries")
-        histogram.GetXaxis().SetTitle("m_{B0} [GeV/c^{2}]")
+        histogram.GetXaxis().SetTitle("m_{D^{\pm}_s} [GeV/c^{2}]")
         histogram.Draw(draw_option)
         hist_canvas.Update()
 
@@ -130,9 +130,9 @@ with LHCbStyle() as lbs:
     latex2 = ROOT.TLatex() 
     latex2.SetNDC() 
     latex2.SetTextSize(0.03)  
-    plot_time = time.strftime("%d %m %y", time.localtime())
+    #plot_time = time.strftime("%d %m %y", time.localtime())
 
-    latex2.DrawLatex(0.1, 0.09, f"J.McQueen({plot_time})")
+    #latex2.DrawLatex(0.1, 0.09, f"J.McQueen({plot_time})")
 
     
     legend.Draw()
@@ -147,17 +147,4 @@ with LHCbStyle() as lbs:
     pid_status_string = "_".join(pid_strings)
     
     current_time = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
-    hist_canvas.SaveAs(f"ComparisonPlots/B_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.png")
-
-ascii_art = """
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@    ___  ________  ________  ___  __    ________  ___       ________  _________   @
-@   |\  \|\   __  \|\   ____\|\  \|\  \ |\   __  \|\  \     |\   __  \|\___   ___\ @
-@   \ \  \ \  \|\  \ \  \___|\ \  \/  /|\ \  \|\  \ \  \    \ \  \|\  \|___ \  \_| @
-@ __ \ \  \ \   __  \ \  \    \ \   ___  \ \   ____\ \  \    \ \  \\\  \   \ \  \  @
-@|\  \\_\  \ \  \ \  \ \  \____\ \  \\ \  \ \  \___|\ \  \____\ \  \\\  \   \ \  \ @
-@\ \________\ \__\ \__\ \_______\ \__\\ \__\ \__\    \ \_______\ \_______\   \ \__\@
-@ \|________|\|__|\|__|\|_______|\|__| \|__|\|__|     \|_______|\|_______|    \|__|@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-"""
-print(ascii_art)
+    hist_canvas.SaveAs(f"B_VELO{velo_timings_string}RICH{rich_window_timings_string}PID{pid_status_string}_{current_time}.png")

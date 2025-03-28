@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "random": "cpp",
+        "cmath": "cpp",
+        "chrono": "cpp",
+        "variant": "cpp"
+    }
+}

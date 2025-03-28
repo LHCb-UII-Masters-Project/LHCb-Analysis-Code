@@ -608,6 +608,33 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
         end_time = time.time()
 
+    elif program == "ToyBatch":
+        is_local = False
+        local = False
+        r_value = 0.2
+        pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
+        num_itterations = 100
+        step_size = 5
+        for itteration in range(num_itterations, step_size):
+            run_args = f"{r_value} {num_itterations}"
+            wait_id.append(runThisScriptOnCondor(f"{basedir}/Fit/CrystalBall/Significance/Toy2Batch.py", f"ToyBatch_{str(os.getpid())[3:]}", subJobName=f"{str(itteration)}", extraSetupCommands=pre_run, is_local=local, extraArgs=run_args))
+            time.sleep(1)
+            p_vals.append(str(itteration))
+
+        if local is True:
+            # Uses ret to wait if local
+            for index, ret in enumerate(wait_id):
+                ret.wait()
+                time.sleep(1)
+        else:
+            # Uses condor_wait to wait if on condor
+            for index, numbers in enumerate(p_vals):
+                subprocess.run(['condor_wait', f'{wait_id[index]}.log'])
+                time.sleep(1)
+
+        end_time = time.time()
+
+
     elif program == "Test":
         pre_run = ["source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_105 x86_64-el9-gcc12-opt", f"export PYTHONPATH=$PYTHONPATH:{basedir}/.."]
         runThisScriptOnCondor(f"{basedir}/Inputs/Test.py", "TestRun", extraSetupCommands=pre_run, is_local=local)
@@ -622,16 +649,17 @@ def macro_batch(program="Optimiser", comp="Local", files_per_run=2, tot_num_file
 
 if __name__ == "__main__":  # Stops the script from running if its imported as a module
     # Inputs for macrobatch
-    program = "EuanSignal"
+    program = "BsRun"
     comp = "NonLocal"
     size = "Large"
-    files_per_run = 1
-    tot_num_files = 3
+    files_per_run = 5
+    tot_num_files = 500
     rand_seed = None
-    velo_time = 200
+    velo_time = 50
 
     try:
         if program == "BsRun":
+            print("Normal")
 
             #rich_options = [150, 300]
             rich_options = [300]
@@ -639,8 +667,8 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
         # PID_switch = [0,1]
             PID_switch = [0]
             
-            # velo_options = [50, 200]
-            velo_options = [50]
+            velo_options = [50, 200]
+            #velo_options = [50]
 
             # Makes proccesses for all combinations of arguments
             process_store = []
@@ -660,11 +688,11 @@ if __name__ == "__main__":  # Stops the script from running if its imported as a
             process_store.append(p)
             time.sleep(1)
 
-            # Starts proccesses and then waits for them to be complete
-            for p in process_store:
-                p.start()
-            for p in process_store:
-                p.join()
+        # Starts proccesses and then waits for them to be complete
+        for p in process_store:
+            p.start()
+        for p in process_store:
+            p.join()
     
     except KeyboardInterrupt:
         try: 

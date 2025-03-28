@@ -144,9 +144,6 @@ class Toy:
         significance_error = significance.getPropagatedError(fit_result)
         return significance_value, significance_error, fit_result.status()
 
-
-
-
     def Fit_Visualise(self,particle,timing, number_of_bins = 30):
         timing_int = int(timing)
         x_label = MakeLabels(particle)
@@ -217,7 +214,7 @@ class Toy:
         frame1.Draw()
 
         # Add the legend with LaTeX formatting
-        legend = ROOT.TLegend(0.67, 0.7, 0.97, 0.915)
+        legend = ROOT.TLegend(0.63, 0.7, 0.94, 0.875)
         legend.SetLineColor(0)
         legend.SetLineStyle(0)
         legend.SetLineWidth(0)
@@ -238,9 +235,9 @@ class Toy:
         dummy_sig_line.SetLineStyle(ROOT.kDotted)
         legend.AddEntry(dummy_sig_line, "Signal", "l")
 
-        latex.DrawText(0.2, 0.875, "LHCb Simulation")
-        latex.DrawLatex(0.2, 0.820, "#sqrt{s} = 14 TeV")
-        latex.DrawLatex(0.2, 0.765, f"VELO {timing_int} ps")
+        latex.DrawText(0.2, 0.85, "LHCb Simulation")
+        latex.DrawLatex(0.2, 0.80, "#sqrt{s} = 14 TeV")
+        latex.DrawLatex(0.2, 0.745, f"VELO {timing_int} ps")
         latex2 = ROOT.TLatex()
         latex2.SetNDC()
         latex2.SetTextSize(0.045)
@@ -272,7 +269,7 @@ class Toy:
 
         # Save as PDF
         basedir= f"{path.dirname(path.realpath(__file__))}/../../.."
-        c.SaveAs(f"{basedir}/Fit/CrystalBall/Significance/Figures/FitT.pdf","pdf 800")    
+        c.SaveAs(f"{basedir}/Fit/CrystalBall/Significance/Figures/" + time.strftime("%d-%m_%H:%M:%S", time.localtime()) + "FitT.pdf","pdf 800")    
 
 def MeanSignificanceControl(workspace_file,f_value,number_of_models=5,velo_time=50):
     significances = np.array([])
@@ -498,8 +495,16 @@ if __name__ == "__main__":
     #f_values = {30: 2.4638, 50: 2.3074, 70: 2.3755, 100: 2.2675, 200: 2.9514}
     f_values = {30: 2.3074, 50: 2.3074, 70: 2.3074, 100: 2.3074, 200: 2.3074}
     f_value = f_values[velo_time]
-    #variables = VariableStore(control_workspace_file, control_efficiency_purity_file,signal_efficiency_purity_file)
+    #variables = VariableStore(control_workspace_file, control_efficiency_purity_file, signal_efficiency_purity_file)
 
-    MeanSignificanceControl(control_workspace_file, f_value, number_of_models = 1000, velo_time = velo_time)
+    #MeanSignificanceControl(control_workspace_file, f_value, number_of_models = 1000, velo_time = velo_time)
+    toy = Toy(control_workspace_file, f_value)
+    toy.Fit_ResetLimit("nbkg", 10,15000)
+    toy.Fit_ResetLimit("nsig",10,15000)
+    toy.ScaleBackground()
+    toy.FluctuateYields()
+    toy.GenerateModel()
+    toy.GenerateModel()
+    toy.Fit_Visualise("xiccpp", "50", number_of_bins = 30)
 
     #RScan(signal_workspace_file, f_value, variables, velo_time=velo_time, number_of_models=100,start_point = 1, step_size = 0.5)
